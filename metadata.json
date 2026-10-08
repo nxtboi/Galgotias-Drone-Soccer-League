@@ -1,0 +1,8 @@
+{
+  "name": "Remix GCDIS - Galgotias Centre for Drone Intelligence \u0026 Simulation",
+  "description": "Galgotias Drone Soccer League (GDSL) · The premier intercollegiate 3D aerial e-sport championship hosted by GCDIS at Galgotias University.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
