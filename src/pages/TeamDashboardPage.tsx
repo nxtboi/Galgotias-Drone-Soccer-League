@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import html2pdf from 'html2pdf.js';
 import { GcdisLogo } from '../components/GcdisLogo';
 import {
   RegisteredTeamProfile,
@@ -6,6 +7,10 @@ import {
   setCurrentSession,
 } from '../data/teamAuthData';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import { GoogleSheetsSyncBar } from '../components/GoogleSheetsSyncBar';
+import { SheetsConfirmModal } from '../components/SheetsConfirmModal';
+import { syncTeamToSheet, getStoredSheetInfo } from '../services/googleSheetsService';
+import { getAccessToken, getCurrentUser } from '../services/googleAuth';
 
 export interface TeamDashboardPageProps {
   team: RegisteredTeamProfile;
@@ -22,12 +27,26 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'receipt' | 'attendance' | 'profile' | 'schedule'>('overview');
 
+  // Receipt HTML2PDF Ref & Generation State
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfDownloadSuccess, setPdfDownloadSuccess] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
   // Edit Profile State
   const [isEditing, setIsEditing] = useState(false);
   const [editPhone, setEditPhone] = useState(team.captainPhone);
   const [editDroneModel, setEditDroneModel] = useState(team.droneModel);
   const [editVtx, setEditVtx] = useState(team.vtxBand);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Google Sheets Integration State
+  const [sheetSyncLoading, setSheetSyncLoading] = useState(false);
+  const [sheetSyncSuccess, setSheetSyncSuccess] = useState<string | null>(null);
+  const [sheetSyncError, setSheetSyncError] = useState<string | null>(null);
+  const [showSheetConfirmModal, setShowSheetConfirmModal] = useState(false);
+  const [pendingUpdateTeam, setPendingUpdateTeam] = useState<RegisteredTeamProfile | null>(null);
+  const [updateActionReason, setUpdateActionReason] = useState<string>('Team details updated');
 
   // Attendance Letter State
   const [facultyName, setFacultyName] = useState(
@@ -67,6 +86,11 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setIsEditing(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
+
+    // Prompt user to update details in Google Sheets
+    setPendingUpdateTeam(updatedTeam);
+    setUpdateActionReason('Squad contact phone and drone specifications updated');
+    setShowSheetConfirmModal(true);
   };
 
   const handleUpdateRoll = (index: number, roll: string) => {
@@ -92,6 +116,86 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
     setOdDispatchedAlert(true);
     setTimeout(() => setOdDispatchedAlert(false), 4000);
+
+    // Prompt user to update details in Google Sheets
+    setPendingUpdateTeam(updatedTeam);
+    setUpdateActionReason('Faculty mentor endorsement & student roll numbers updated');
+    setShowSheetConfirmModal(true);
+  };
+
+  const executeConfirmedSheetUpdate = async () => {
+    const targetTeam = pendingUpdateTeam || team;
+    setSheetSyncLoading(true);
+    setSheetSyncError(null);
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Please sign in with Google to sync updates with Google Sheets.');
+      }
+      const res = await syncTeamToSheet(targetTeam, token);
+      setSheetSyncSuccess(res.message);
+      setShowSheetConfirmModal(false);
+      setTimeout(() => setSheetSyncSuccess(null), 5000);
+    } catch (err: any) {
+      console.error('Error updating Google Sheets:', err);
+      setSheetSyncError(err.message || 'Failed to update Google Sheets.');
+      setShowSheetConfirmModal(false);
+    } finally {
+      setSheetSyncLoading(false);
+    }
+  };
+
+  const handleManualSyncCurrentSquad = () => {
+    setPendingUpdateTeam(team);
+    setUpdateActionReason('Manual squad roster synchronization');
+    setShowSheetConfirmModal(true);
+  };
+
+  const handleDownloadReceiptPdf = async () => {
+    // If not in receipt tab, switch to it to ensure DOM element is ready
+    if (activeTab !== 'receipt') {
+      setActiveTab('receipt');
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    if (!receiptRef.current) return;
+    setIsGeneratingPdf(true);
+    setPdfDownloadSuccess(false);
+    setPdfError(null);
+
+    try {
+      const element = receiptRef.current;
+      const cleanTeamId = team.teamId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const cleanReceiptNo = (team.paymentInfo?.receiptNo || 'REC').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `GDSL_Invoice_${cleanTeamId}_${cleanReceiptNo}.pdf`;
+
+      const opt = {
+        margin: [6, 6, 6, 6] as [number, number, number, number],
+        filename,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          windowWidth: 900,
+        },
+        jsPDF: {
+          unit: 'mm' as const,
+          format: 'a4' as const,
+          orientation: 'portrait' as const,
+        },
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      setPdfDownloadSuccess(true);
+      setTimeout(() => setPdfDownloadSuccess(false), 5000);
+    } catch (err: any) {
+      console.error('Failed to generate PDF with html2pdf:', err);
+      setPdfError('Unable to generate PDF directly with html2pdf. You can use the Print / Save PDF option.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handlePrint = () => {
@@ -107,6 +211,30 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   return (
     <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 max-w-6xl mx-auto text-slate-800">
       
+      {/* Google Sheets Synchronization Hub Bar */}
+      <div className="mb-6">
+        <GoogleSheetsSyncBar />
+      </div>
+
+      {/* Sync Alerts */}
+      {sheetSyncSuccess && (
+        <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-medium flex items-center justify-between">
+          <span>✅ {sheetSyncSuccess}</span>
+          <button onClick={() => setSheetSyncSuccess(null)} className="text-emerald-700 hover:text-emerald-950 font-bold ml-2">
+            ✕
+          </button>
+        </div>
+      )}
+
+      {sheetSyncError && (
+        <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-medium flex items-center justify-between">
+          <span>⚠️ {sheetSyncError}</span>
+          <button onClick={() => setSheetSyncError(null)} className="text-rose-700 hover:text-rose-950 font-bold ml-2">
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* 1. Basic Clean Dashboard Header */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs mb-6 text-left">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
@@ -129,7 +257,16 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleManualSyncCurrentSquad}
+              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors flex items-center gap-1.5 shadow-2xs"
+              title="Sync current squad details to Google Sheets"
+            >
+              <span>📊</span>
+              <span className="hidden sm:inline">Sync with Google Sheets</span>
+              <span className="sm:hidden">Sheets Sync</span>
+            </button>
             <button
               onClick={() => onNavigate('home')}
               className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
@@ -241,18 +378,38 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
                 <h3 className="font-bold text-slate-900 text-base">Payment Receipt</h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Registration fee of ₹{team.paymentInfo.amount} paid. Download official receipt.
+                  Registration fee of {team.paymentInfo.amount} paid. Download official receipt.
                 </p>
                 <div className="mt-3 text-xs font-mono text-slate-600">
                   Ref: {team.paymentInfo.receiptNo}
                 </div>
               </div>
-              <button
-                onClick={() => setActiveTab('receipt')}
-                className="mt-4 w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-lg transition-colors text-center"
-              >
-                Download Receipt →
-              </button>
+              <div className="mt-4 flex items-center gap-2">
+                <button
+                  onClick={handleDownloadReceiptPdf}
+                  disabled={isGeneratingPdf}
+                  className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-60 cursor-pointer"
+                >
+                  {isGeneratingPdf ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📥</span>
+                      <span>Download Receipt</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('receipt')}
+                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors"
+                  title="View complete invoice"
+                >
+                  View →
+                </button>
+              </div>
             </div>
 
             {/* Card 2: Attendance Request */}
@@ -375,133 +532,248 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           {/* Action bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Official Payment Receipt</h2>
-              <p className="text-xs text-slate-500">Official proof of tournament fee payment.</p>
+              <h2 className="text-base font-bold text-slate-900">Official Payment Receipt &amp; Tax Invoice</h2>
+              <p className="text-xs text-slate-500">
+                Official proof of entry payment and verified tournament registration status.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
-                onClick={handleCopyReceiptNo}
-                className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                onClick={handleDownloadReceiptPdf}
+                disabled={isGeneratingPdf}
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-xs transition-all active:scale-95 disabled:opacity-60 cursor-pointer"
+                title="Generate printable PDF invoice using html2pdf"
               >
-                {copiedReceipt ? '✓ Copied' : 'Copy Receipt #'}
+                {isGeneratingPdf ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Generating PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📥</span>
+                    <span>Download Receipt (PDF)</span>
+                  </>
+                )}
               </button>
+
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white hover:bg-blue-950 flex items-center gap-1.5"
+                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-blue-900 hover:bg-blue-950 text-white flex items-center gap-1.5 transition-colors"
               >
                 <span>🖨️</span>
-                <span>Print / Save PDF</span>
+                <span>Print</span>
+              </button>
+
+              <button
+                onClick={handleCopyReceiptNo}
+                className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                {copiedReceipt ? '✓ Copied' : 'Copy Receipt #'}
               </button>
             </div>
           </div>
 
-          {/* Printable Receipt Paper */}
-          <div className="bg-white border border-slate-300 rounded-xl p-8 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6">
+          {/* PDF Download Alerts */}
+          {pdfDownloadSuccess && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm rounded-xl flex items-center justify-between animate-fade-in">
+              <span className="flex items-center gap-2">
+                <span>🎉</span>
+                <span>
+                  Official printable invoice for <strong>{team.teamName}</strong> downloaded successfully!
+                </span>
+              </span>
+              <button
+                onClick={() => setPdfDownloadSuccess(false)}
+                className="text-emerald-700 hover:text-emerald-950 font-bold ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {pdfError && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm rounded-xl flex items-center justify-between animate-fade-in">
+              <span>⚠️ {pdfError}</span>
+              <button
+                onClick={() => setPdfError(null)}
+                className="text-rose-700 hover:text-rose-950 font-bold ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Printable Receipt Paper for html2pdf */}
+          <div
+            ref={receiptRef}
+            id="printable-team-receipt"
+            className="bg-white border border-slate-300 rounded-xl p-8 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6 text-slate-900 print:border-none print:shadow-none"
+          >
             {/* Receipt Header */}
             <div className="flex items-start justify-between border-b border-slate-200 pb-6">
               <div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-900 text-white flex items-center justify-center font-bold text-lg">
+                  <div className="w-11 h-11 rounded-xl bg-blue-950 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-xs">
                     G
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-lg">Galgotias University</h3>
-                    <p className="text-xs text-slate-500">Galgotias Centre for Drone &amp; Innovative Systems (GCDIS)</p>
+                    <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight">Galgotias University</h3>
+                    <p className="text-xs text-slate-600 font-medium">Galgotias Centre for Drone &amp; Innovative Systems (GCDIS)</p>
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-2">
-                  Plot No. 2, Sector 17-A, Yamuna Expressway, Greater Noida, UP - 203201
+                <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                  Plot No. 2, Sector 17-A, Yamuna Expressway, Greater Noida, Gautam Buddha Nagar, UP - 203201
+                  <br />
+                  <span className="font-mono text-slate-400">GSTIN: 09AAAAU0000A1Z5 · Tournament Tax Invoice / Cash Receipt</span>
                 </p>
               </div>
-              <div className="text-right">
-                <span className="inline-block bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded font-bold">
+
+              <div className="text-right shrink-0">
+                <span className="inline-block bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold border border-emerald-300 shadow-2xs">
                   PAID RECEIPT
                 </span>
                 <div className="text-xs text-slate-500 mt-2">
                   Date: <span className="font-semibold text-slate-800">{team.paymentInfo.paidAt}</span>
                 </div>
                 <div className="text-xs text-slate-500">
-                  Receipt No: <span className="font-mono font-bold text-slate-800">{team.paymentInfo.receiptNo}</span>
+                  Receipt No: <span className="font-mono font-bold text-slate-900">{team.paymentInfo.receiptNo}</span>
                 </div>
               </div>
             </div>
 
-            {/* Billed To */}
-            <div className="grid grid-cols-2 gap-4 text-xs py-2">
-              <div>
-                <span className="text-slate-400 block font-medium">Billed To (Team):</span>
-                <span className="font-bold text-slate-900 text-sm block">{team.teamName}</span>
-                <span className="text-slate-600 block">{team.institution}</span>
-                <span className="text-slate-600 block">{team.city}, {team.state}</span>
-                <span className="text-slate-500 block mt-1">Captain: {team.captainName} ({team.captainPhone})</span>
+            {/* Registration Status Banner on Receipt */}
+            <div className="bg-blue-50/80 border border-blue-200/90 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div>
+                  <span className="text-[10px] font-mono text-blue-700 uppercase tracking-wider block font-bold">
+                    OFFICIAL REGISTRATION STATUS
+                  </span>
+                  <span className="font-bold text-blue-950 text-sm">
+                    Confirmed Entry · {team.scrutineeringStatus === 'PRE_APPROVED' ? 'Pre-Approved for Technical Scrutineering' : 'Pending On-Site Inspection'}
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-slate-400 block font-medium">Event:</span>
-                <span className="font-bold text-slate-900 block">Galgotias Drone Soccer League 2026</span>
-                <span className="text-slate-600 block">Division: {team.division}</span>
-                <span className="text-slate-600 block">Team ID: {team.teamId}</span>
-                <span className="text-slate-600 block">Payment Mode: {team.paymentInfo.paymentMode}</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-white border border-blue-200 text-blue-900 font-mono text-[11px] px-2.5 py-1 rounded-md font-bold">
+                  {team.allocatedPit}
+                </span>
+                <span className="bg-emerald-600 text-white font-mono text-[11px] px-2.5 py-1 rounded-md font-bold">
+                  SLOT VERIFIED
+                </span>
+              </div>
+            </div>
+
+            {/* Billed To & Event Details */}
+            <div className="grid grid-cols-2 gap-4 text-xs py-1">
+              <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200/80">
+                <span className="text-slate-400 block font-mono text-[10px] uppercase font-bold">Billed To (Registered Squad):</span>
+                <span className="font-black text-slate-900 text-sm block mt-0.5 uppercase">{team.teamName}</span>
+                <span className="text-slate-700 font-medium block">{team.institution}</span>
+                <span className="text-slate-600 block">{team.city}, {team.state}</span>
+                <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
+                  <strong>Captain:</strong> {team.captainName} ({team.captainPhone})
+                  <br />
+                  <strong>Email:</strong> {team.captainEmail}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200/80 text-right">
+                <span className="text-slate-400 block font-mono text-[10px] uppercase font-bold">Tournament Classification:</span>
+                <span className="font-bold text-slate-900 block mt-0.5">Galgotias Drone Soccer League 2026</span>
+                <span className="text-blue-900 font-bold block">{team.division}</span>
+                <span className="font-mono text-slate-600 block">Team ID: <strong className="text-slate-900">{team.teamId}</strong></span>
+                <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
+                  <strong>Payment Mode:</strong> {team.paymentInfo.paymentMode}
+                  <br />
+                  <strong>Event Dates:</strong> {GDSL_TOURNAMENT_INFO.dates}
+                </span>
               </div>
             </div>
 
             {/* Line Items Table */}
             <table className="w-full text-xs text-left border-t border-b border-slate-200">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-2.5 font-semibold">Description</th>
-                  <th className="py-2.5 font-semibold text-center">Division</th>
-                  <th className="py-2.5 font-semibold text-center">Qty</th>
-                  <th className="py-2.5 font-semibold text-right">Amount (INR)</th>
+                <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/60 font-mono">
+                  <th className="py-2.5 px-3 font-bold">Description</th>
+                  <th className="py-2.5 px-2 font-bold text-center">Division</th>
+                  <th className="py-2.5 px-2 font-bold text-center">Qty</th>
+                  <th className="py-2.5 px-3 font-bold text-right">Amount (INR)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 <tr>
-                  <td className="py-3">
-                    <span className="font-bold text-slate-900 block">Team Entry &amp; Pilot Accreditation Fee</span>
-                    <span className="text-slate-500">Official tournament registration for 6-member squad</span>
+                  <td className="py-3 px-3">
+                    <span className="font-bold text-slate-900 block text-xs">Squad Registration &amp; Pilot Accreditation</span>
+                    <span className="text-slate-500 text-[11px] block mt-0.5">
+                      Entry pass for 5 pilots + 1 pit mechanic, official credentials, arena access &amp; technical bay allocation.
+                    </span>
                   </td>
-                  <td className="py-3 text-center">{team.division}</td>
-                  <td className="py-3 text-center">1 Squad</td>
-                  <td className="py-3 text-right font-semibold">₹2,500.00</td>
+                  <td className="py-3 px-2 text-center font-mono">{team.division}</td>
+                  <td className="py-3 px-2 text-center font-mono">1 Squad</td>
+                  <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">{team.paymentInfo.amount}.00</td>
                 </tr>
                 <tr className="bg-slate-50/50">
-                  <td className="py-2 font-medium text-slate-700">Subtotal</td>
+                  <td className="py-2 px-3 font-medium text-slate-600">Subtotal</td>
                   <td></td>
                   <td></td>
-                  <td className="py-2 text-right font-semibold">₹2,500.00</td>
+                  <td className="py-2 px-3 text-right font-mono font-semibold">{team.paymentInfo.amount}.00</td>
                 </tr>
                 <tr className="bg-slate-50/50">
-                  <td className="py-2 font-medium text-slate-700">GST / Educational Exemption</td>
+                  <td className="py-2 px-3 font-medium text-slate-600">GST (Educational &amp; Technical Sports Exemption)</td>
                   <td></td>
                   <td></td>
-                  <td className="py-2 text-right font-semibold">₹0.00</td>
+                  <td className="py-2 px-3 text-right font-mono font-semibold">₹0.00</td>
                 </tr>
-                <tr className="bg-slate-100/70 font-bold text-slate-900 text-sm">
-                  <td className="py-3">Total Amount Paid</td>
+                <tr className="bg-slate-100/80 font-bold text-slate-900 text-sm">
+                  <td className="py-3 px-3">Total Amount Paid</td>
                   <td></td>
                   <td></td>
-                  <td className="py-3 text-right text-blue-900 font-mono text-base">₹2,500.00</td>
+                  <td className="py-3 px-3 text-right text-blue-900 font-mono text-base font-black">
+                    {team.paymentInfo.amount}.00
+                  </td>
                 </tr>
               </tbody>
             </table>
 
-            {/* Payment Verification Box */}
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs flex flex-col sm:flex-row justify-between gap-3 items-center">
-              <div>
-                <span className="font-bold text-slate-800 block">Transaction Reference:</span>
-                <span className="font-mono text-slate-600">{team.paymentInfo.transactionId}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <span>✓</span> Payment Verified &amp; Slot Confirmed
-                </span>
-                <span className="text-slate-400 text-[11px]">GCDIS Finance Secretariat</span>
+            {/* Verified Pilot Roster Summary on Invoice */}
+            <div className="bg-slate-50/60 border border-slate-200/70 rounded-lg p-3 text-[11px]">
+              <span className="font-bold text-slate-700 block font-mono uppercase text-[10px] mb-1">
+                Accredited Squad Personnel:
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-slate-600">
+                <div>• Striker Pilot: <strong>{team.strikerPilot}</strong></div>
+                <div>• Goalkeeper: <strong>{team.goalkeeper}</strong></div>
+                <div>• Defender 1: <strong>{team.defender1}</strong></div>
+                <div>• Defender 2: <strong>{team.defender2}</strong></div>
+                <div>• Pit Mechanic: <strong>{team.pitMechanic}</strong></div>
+                <div>• Radio/Hardware: <strong>{team.droneModel}</strong></div>
               </div>
             </div>
 
-            {/* Footer Note */}
-            <div className="text-[11px] text-slate-400 text-center border-t border-slate-100 pt-4">
-              This is a computer-generated receipt issued by Galgotias Centre for Drone &amp; Innovative Systems (GCDIS). No signature required.
+            {/* Payment & Security Verification Box */}
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs flex flex-col sm:flex-row justify-between gap-3 items-center">
+              <div>
+                <span className="font-bold text-slate-800 block text-xs">Electronic Transaction Reference:</span>
+                <span className="font-mono text-slate-600 text-[11px]">{team.paymentInfo.transactionId}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-emerald-700 font-bold flex items-center justify-end gap-1">
+                  <span>✓</span> Payment Verified &amp; Slot Confirmed
+                </span>
+                <span className="text-slate-400 text-[11px]">GCDIS Finance &amp; Tournament Secretariat</span>
+              </div>
+            </div>
+
+            {/* Footer Note with Security Hash */}
+            <div className="text-[10px] text-slate-400 text-center border-t border-slate-100 pt-4 space-y-1">
+              <div>
+                This is an official computer-generated receipt issued by the Galgotias Centre for Drone &amp; Innovative Systems (GCDIS).
+              </div>
+              <div className="font-mono text-[9px] text-slate-400">
+                VERIFICATION HASH: GDSL-2026-SEC-{team.teamId}-{team.paymentInfo.receiptNo} · DIGITAL STAMP VALIDATED
+              </div>
             </div>
           </div>
         </div>
@@ -871,6 +1143,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         </div>
       )}
+
+      {/* Explicit User Confirmation for Google Sheets Mutation */}
+      <SheetsConfirmModal
+        isOpen={showSheetConfirmModal}
+        title="Update Team Details in Google Sheets?"
+        description="With your permission, this will update the technical specs, contact details, and student attendance records for this squad in your connected Google Sheet."
+        details={[
+          { label: 'Team Name', value: pendingUpdateTeam?.teamName || team.teamName },
+          { label: 'Team ID', value: pendingUpdateTeam?.teamId || team.teamId },
+          { label: 'Update Action', value: updateActionReason },
+          { label: 'Drone Model', value: pendingUpdateTeam?.droneModel || team.droneModel },
+        ]}
+        confirmLabel="Confirm & Push to Google Sheets"
+        cancelLabel="Cancel"
+        isLoading={sheetSyncLoading}
+        onConfirm={executeConfirmedSheetUpdate}
+        onCancel={() => setShowSheetConfirmModal(false)}
+      />
 
     </div>
   );

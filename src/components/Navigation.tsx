@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GcdisLogo } from './GcdisLogo';
 import { RegisteredTeamProfile } from '../data/teamAuthData';
+import { GoogleSheetsSyncBar } from './GoogleSheetsSyncBar';
 
 export interface NavigationProps {
   activeTab: string;
@@ -68,6 +69,11 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Right Side Event CTAs */}
       <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Google Sheets Live Sync Status (Compact for Desktop Header) */}
+        <div className="hidden lg:flex">
+          <GoogleSheetsSyncBar variant="compact" />
+        </div>
+
         {/* Team Portal / Login Button */}
         {loggedInTeam ? (
           <button
@@ -169,6 +175,11 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
               <span className="text-xs font-mono opacity-60">→</span>
             </button>
+
+            {/* Google Sheets Sync Drawer Section */}
+            <div className="pt-2">
+              <GoogleSheetsSyncBar variant="card" />
+            </div>
           </div>
 
           <div className="pt-5 border-t border-blue-100 space-y-3">
