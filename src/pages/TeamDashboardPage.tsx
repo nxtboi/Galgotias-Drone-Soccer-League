@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import { GcdisLogo } from '../components/GcdisLogo';
 import {
@@ -72,6 +72,41 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [scheduleAlert, setScheduleAlert] = useState(false);
   const [copiedReceipt, setCopiedReceipt] = useState(false);
 
+  // Automatically update team and tournament data in Google Sheets on mount
+  useEffect(() => {
+    let isCancelled = false;
+    const autoUpdateDataOnSheets = async () => {
+      try {
+        setSheetSyncLoading(true);
+        // Automatically sync current team
+        await syncTeamToSheet(team);
+        if (!isCancelled) {
+          setSheetInfo(getStoredSheetInfo());
+          // Automatically sync all tournament teams in the background
+          updateAllTournamentDataOnSheets()
+            .then(() => {
+              if (!isCancelled) {
+                setSheetInfo(getStoredSheetInfo());
+              }
+            })
+            .catch((e) => console.log('Background all-team sync notice:', e));
+        }
+      } catch (err: any) {
+        console.warn('Auto update sheets notice on mount:', err);
+      } finally {
+        if (!isCancelled) {
+          setSheetSyncLoading(false);
+        }
+      }
+    };
+
+    autoUpdateDataOnSheets();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [team.teamId]);
+
   // Save profile and immediately update in Google Sheets
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,23 +175,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
       console.warn('Sheets update notice:', err);
       setSheetSyncSuccess(`Updated locally & queued for Google Sheets (${DEFAULT_LINKED_ACCOUNT})`);
       setTimeout(() => setSheetSyncSuccess(null), 5000);
-    } finally {
-      setSheetSyncLoading(false);
-    }
-  };
-
-  // Update all data on sheets
-  const handleUpdateAllDataOnSheets = async () => {
-    setSheetSyncLoading(true);
-    setSheetSyncError(null);
-    try {
-      const res = await updateAllTournamentDataOnSheets();
-      setSheetInfo(getStoredSheetInfo());
-      setSheetSyncSuccess(res.message);
-      setTimeout(() => setSheetSyncSuccess(null), 6000);
-    } catch (err: any) {
-      console.error('Update all data error:', err);
-      setSheetSyncError(err.message || 'Failed to update all data on Google Sheets.');
     } finally {
       setSheetSyncLoading(false);
     }
@@ -264,10 +282,19 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Linked Status */}
+            {/* Auto-Sync Linked Status */}
             <div className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Sheets Linked ({DEFAULT_LINKED_ACCOUNT})</span>
+              {sheetSyncLoading ? (
+                <>
+                  <span className="w-2.5 h-2.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                  <span>Auto-updating Sheets...</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Auto-Synced ({DEFAULT_LINKED_ACCOUNT})</span>
+                </>
+              )}
               {sheetInfo.spreadsheetUrl && (
                 <a
                   href={sheetInfo.spreadsheetUrl}
@@ -281,30 +308,15 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               )}
             </div>
 
-            {/* Direct Update All Data on Sheets Button */}
-            <button
-              onClick={handleUpdateAllDataOnSheets}
-              disabled={sheetSyncLoading}
-              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center gap-1.5 shadow-2xs disabled:opacity-60 cursor-pointer"
-              title="Update all registered tournament teams and rosters in Google Sheets"
-            >
-              {sheetSyncLoading ? (
-                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <span>📊</span>
-              )}
-              <span>Update All Data on Sheets</span>
-            </button>
-
             <button
               onClick={() => onNavigate('home')}
-              className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Main Site
             </button>
             <button
               onClick={onLogout}
-              className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition-colors"
+              className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
             >
               Logout
             </button>

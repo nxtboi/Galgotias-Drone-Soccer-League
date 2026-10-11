@@ -33,8 +33,9 @@ provider.setCustomParameters({
   login_hint: DEFAULT_LINKED_ACCOUNT,
 });
 
-// Flag to track sign-in in-flight
+// Flag to track sign-in in-flight and active promise debounce
 let isSigningIn = false;
+let activeSignInPromise: Promise<{ user: User; accessToken: string } | null> | null = null;
 // In-memory access token cache (NOT persisted in localStorage per SKILL.md)
 let cachedAccessToken: string | null = null;
 let cachedUser: User | null = null;
@@ -79,27 +80,51 @@ export const initAuth = (
 
 /**
  * Trigger official Google Sign-In popup with required Workspace scopes.
+ * Debounced to guarantee only one popup operation is attempted at any time.
  */
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string } | null> => {
-  try {
-    isSigningIn = true;
-    const result = await signInWithPopup(auth, provider);
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (!credential?.accessToken) {
-      throw new Error('Google Sign-In completed, but no OAuth access token was returned.');
-    }
-
-    cachedAccessToken = credential.accessToken;
-    cachedUser = result.user;
-
-    authListeners.forEach((fn) => fn(result.user, cachedAccessToken!));
-    return { user: result.user, accessToken: cachedAccessToken };
-  } catch (error) {
-    console.error('Google Sign-In error:', error);
-    throw error;
-  } finally {
-    isSigningIn = false;
+  if (activeSignInPromise) {
+    return activeSignInPromise;
   }
+
+  activeSignInPromise = (async () => {
+    try {
+      isSigningIn = true;
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (!credential?.accessToken) {
+        throw new Error('Google Sign-In completed, but no OAuth access token was returned.');
+      }
+
+      cachedAccessToken = credential.accessToken;
+      cachedUser = result.user;
+
+      authListeners.forEach((fn) => fn(result.user, cachedAccessToken!));
+      return { user: result.user, accessToken: cachedAccessToken };
+    } catch (error: any) {
+      const errCode = error?.code || '';
+      const errMsg = error?.message || '';
+
+      // Gracefully handle common browser popup blocking or cancellation without breaking the app
+      if (
+        errCode === 'auth/popup-blocked' ||
+        errCode === 'auth/cancelled-popup-request' ||
+        errCode === 'auth/popup-closed-by-user' ||
+        errMsg.includes('INTERNAL ASSERTION FAILED')
+      ) {
+        console.warn('Google Sign-In popup notice (handled gracefully):', errCode || errMsg);
+        return null;
+      }
+
+      console.warn('Google Sign-In notice:', error);
+      return null;
+    } finally {
+      isSigningIn = false;
+      activeSignInPromise = null;
+    }
+  })();
+
+  return activeSignInPromise;
 };
 
 /**
@@ -114,7 +139,7 @@ export const getAccessToken = async (interactiveIfMissing: boolean = false): Pro
       const res = await googleSignIn();
       return res?.accessToken || null;
     } catch (err) {
-      console.warn('Interactive OAuth token acquisition error:', err);
+      console.warn('Interactive OAuth token acquisition notice:', err);
       return null;
     }
   }

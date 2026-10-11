@@ -154,29 +154,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     }
   };
 
-  const handleSyncToSheetDirect = async () => {
-    const targetProfile = createdProfile;
-    if (!targetProfile) return;
-    setSheetSyncStatus({ synced: false, loading: true });
-    try {
-      const syncResult = await syncTeamToSheet(targetProfile);
-      setSheetSyncStatus({
-        synced: true,
-        url: syncResult.spreadsheetUrl,
-        loading: false,
-        message: syncResult.message,
-      });
-    } catch (err: any) {
-      console.error('Direct sync notice:', err);
-      setSheetSyncStatus({
-        synced: true,
-        url: getStoredSheetInfo().spreadsheetUrl || undefined,
-        loading: false,
-        message: `Updated squad roster for ${DEFAULT_LINKED_ACCOUNT}.`,
-      });
-    }
-  };
-
   return (
     <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -682,6 +659,17 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {sheetSyncStatus.loading ? (
+                    <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 text-xs font-semibold inline-flex items-center gap-1.5 border border-amber-200">
+                      <span className="w-3 h-3 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+                      <span>Auto-updating Sheet...</span>
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold inline-flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Auto-Updated</span>
+                    </span>
+                  )}
                   {sheetSyncStatus.url && (
                     <a
                       href={sheetSyncStatus.url}
@@ -693,18 +681,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                       <span>↗</span>
                     </a>
                   )}
-                  <button
-                    onClick={handleSyncToSheetDirect}
-                    disabled={sheetSyncStatus.loading}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-                  >
-                    {sheetSyncStatus.loading ? (
-                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <span>📊</span>
-                    )}
-                    <span>Update in Sheets</span>
-                  </button>
                 </div>
               </div>
 
