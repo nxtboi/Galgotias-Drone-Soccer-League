@@ -63,6 +63,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   Helpline &amp; Secretariat
                 </button>
               </li>
+              <li>
+                <button onClick={() => handleNav('login')} className="hover:text-blue-900 transition-colors font-medium text-blue-900">
+                  Registered Squad Portal (Login) 🔑
+                </button>
+              </li>
             </ul>
           </div>
 

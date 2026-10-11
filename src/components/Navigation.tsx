@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { GcdisLogo } from './GcdisLogo';
+import { RegisteredTeamProfile } from '../data/teamAuthData';
 
 export interface NavigationProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   onOpenRegister?: () => void;
+  loggedInTeam?: RegisteredTeamProfile | null;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onSelectTab,
+  loggedInTeam,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -64,17 +67,44 @@ export const Navigation: React.FC<NavigationProps> = ({
       </div>
 
       {/* Right Side Event CTAs */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Team Portal / Login Button */}
+        {loggedInTeam ? (
+          <button
+            onClick={() => handleNavClick('dashboard')}
+            className={`px-3.5 sm:px-4 py-2 rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all shadow-xs flex items-center gap-1.5 ${
+              activeTab === 'dashboard'
+                ? 'bg-blue-950 text-white'
+                : 'bg-white hover:bg-blue-50 text-blue-950 border border-blue-200'
+            }`}
+            title={`Logged in as ${loggedInTeam.teamName}`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="truncate max-w-[90px] sm:max-w-[130px]">{loggedInTeam.teamName.split(' ')[0]} Hub</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => handleNavClick('login')}
+            className={`px-3 sm:px-4 py-2 rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all ${
+              activeTab === 'login'
+                ? 'bg-blue-950 text-white'
+                : 'bg-white hover:bg-blue-50 text-blue-950 border border-blue-200'
+            }`}
+          >
+            <span>Team Login</span>
+          </button>
+        )}
+
         {/* Primary CTA: Register Squad */}
         <button
           onClick={() => handleNavClick('register')}
-          className={`px-5 py-2 rounded-full font-sans font-black text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center gap-2 ${
+          className={`px-4 sm:px-5 py-2 rounded-full font-sans font-black text-xs tracking-wider uppercase transition-all shadow-md active:scale-95 whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
             activeTab === 'register'
               ? 'bg-emerald-600 text-white'
               : 'bg-blue-900 hover:bg-blue-950 text-white hover:scale-105'
           }`}
         >
-          <span>REGISTER TEAM</span>
+          <span>REGISTER</span>
           <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full font-mono">
             ₹1L CUP
           </span>

@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { GcdisLogo } from '../components/GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import {
+  saveRegisteredTeam,
+  setCurrentSession,
+  RegisteredTeamProfile,
+} from '../data/teamAuthData';
 
 export interface TeamRegistrationPageProps {
   onNavigate: (tab: string) => void;
@@ -51,16 +56,60 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     } else {
       // Generate Official Pass
       const randomId = `GDSL-26-T${Math.floor(100 + Math.random() * 900)}`;
+      const regDateStr = new Date().toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
       setGeneratedPass({
         teamId: randomId,
         qrSeed: `https://gcdis.galgotias.edu/pass/${randomId}`,
-        registeredAt: new Date().toLocaleDateString('en-IN', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        }),
+        registeredAt: regDateStr,
         slot: 'Arena Cage 1 · Scrutineering Bay 04',
       });
+
+      // Persist newly registered team into profile store & session
+      const divisionFormatted = formData.division.includes('20')
+        ? 'Class 20 (200mm)'
+        : 'Class 40 (400mm)';
+
+      const newProfile: RegisteredTeamProfile = {
+        teamId: randomId,
+        accessCode: 'gdsl2026',
+        teamName: formData.teamName || 'Galgotias Aerial Squad',
+        institution: formData.institution || 'Galgotias University',
+        city: formData.city || 'Greater Noida',
+        state: formData.state || 'Uttar Pradesh',
+        division: divisionFormatted,
+        captainName: formData.captainName || 'Team Captain',
+        captainEmail: formData.captainEmail || 'captain@gdsl.in',
+        captainPhone: formData.captainPhone || '+91 98123 45678',
+        strikerPilot: formData.strikerPilot || 'Striker Pilot',
+        goalkeeper: formData.goalkeeper || 'Goalkeeper Pilot',
+        defender1: formData.defender1 || 'Defender 1',
+        defender2: formData.defender2 || 'Defender 2',
+        pitMechanic: formData.pitMechanic || 'Pit Mechanic',
+        droneModel: formData.droneModel || 'AeroSphere 400 Pro',
+        controlProtocol: formData.controlProtocol,
+        vtxBand: formData.vtxBand,
+        failsafeAgreed: formData.failsafeAgreed,
+        registeredAt: regDateStr,
+        allocatedPit: 'Arena Cage 1 · Scrutineering Bay 04',
+        scrutineeringStatus: 'PRE_APPROVED',
+        paymentInfo: {
+          receiptNo: `GDSL-REC-2026-${Math.floor(100 + Math.random() * 900)}`,
+          amount: '₹2,500',
+          status: 'VERIFIED',
+          transactionId: `TXN-UPI-${Math.floor(10000000 + Math.random() * 90000000)}`,
+          paymentMode: 'UPI / Institutional Transfer',
+          paidAt: `${regDateStr} · Instant Verification`,
+          currency: 'INR',
+        },
+      };
+
+      saveRegisteredTeam(newProfile);
+      setCurrentSession(newProfile);
+
       setStep(4);
       confetti({
         particleCount: 100,
@@ -543,7 +592,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
               {/* Pass Footer with Barcode mockup */}
               <div className="pt-4 border-t border-white/20 flex items-center justify-between">
                 <div className="text-[10px] font-mono text-slate-400">
-                  VERIFIED BY GCDIS · DATES: NOV 14-16, 2026
+                  VERIFIED BY GCDIS · DATES: {GDSL_TOURNAMENT_INFO.dates}
                 </div>
                 <div className="font-mono text-[9px] text-sky-300">
                   STATUS: ENTRY GRANTED
@@ -554,14 +603,22 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             {/* Post-Registration Actions */}
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <button
-                onClick={() => window.print()}
-                className="px-6 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-md"
+                onClick={() => onNavigate('dashboard')}
+                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2"
               >
-                🖨️ Print Team Pass
+                <span>OPEN SQUAD DASHBOARD</span>
+                <span>(RECEIPT &amp; OD LETTER) →</span>
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-6 py-3.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
+              >
+                <span>🖨️</span>
+                <span>Print Official Badge</span>
               </button>
               <button
                 onClick={() => onNavigate('bracket')}
-                className="px-6 py-3 rounded-full bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase tracking-wider border border-blue-200 transition-all shadow-xs"
+                className="px-6 py-3.5 rounded-full bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase tracking-wider border border-blue-200 transition-all shadow-xs"
               >
                 View Tournament Fixtures →
               </button>

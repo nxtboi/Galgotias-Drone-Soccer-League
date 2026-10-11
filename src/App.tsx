@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { DroneSoccerHero } from './components/DroneSoccerHero';
 import { TournamentOverviewSection } from './components/TournamentOverviewSection';
@@ -12,13 +12,54 @@ import { TeamRegistrationPage } from './pages/TeamRegistrationPage';
 import { RulesAndSpecsPage } from './pages/RulesAndSpecsPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { ContactPage } from './pages/ContactPage';
+import { TeamLoginPage } from './pages/TeamLoginPage';
+import { TeamDashboardPage } from './pages/TeamDashboardPage';
+
+// Session store
+import {
+  getCurrentSession,
+  setCurrentSession,
+  clearCurrentSession,
+  RegisteredTeamProfile,
+  INITIAL_REGISTERED_TEAMS,
+} from './data/teamAuthData';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'home' | 'bracket' | 'register' | 'rules' | 'gallery' | 'contact'>('home');
+  const [activeTab, setActiveTab] = useState<
+    'home' | 'bracket' | 'register' | 'rules' | 'gallery' | 'contact' | 'login' | 'dashboard'
+  >('home');
+
+  const [currentTeam, setCurrentTeam] = useState<RegisteredTeamProfile | null>(null);
+
+  useEffect(() => {
+    // Hydrate existing session
+    const session = getCurrentSession();
+    if (session) {
+      setCurrentTeam(session);
+    }
+  }, []);
 
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab as typeof activeTab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLoginSuccess = (team: RegisteredTeamProfile) => {
+    setCurrentTeam(team);
+    setCurrentSession(team);
+    setActiveTab('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogout = () => {
+    clearCurrentSession();
+    setCurrentTeam(null);
+    setActiveTab('login');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateTeam = (updated: RegisteredTeamProfile) => {
+    setCurrentTeam(updated);
   };
 
   const isHomePage = activeTab === 'home';
@@ -34,6 +75,7 @@ export function App() {
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
           onOpenRegister={() => handleSelectTab('register')}
+          loggedInTeam={currentTeam}
         />
       </div>
 
@@ -90,6 +132,24 @@ export function App() {
       {/* Dedicated Page: Contact & Secretariat Helpline */}
       {activeTab === 'contact' && (
         <ContactPage onNavigate={handleSelectTab} />
+      )}
+
+      {/* Dedicated Page: Team Login Portal */}
+      {activeTab === 'login' && (
+        <TeamLoginPage
+          onLoginSuccess={handleLoginSuccess}
+          onNavigate={handleSelectTab}
+        />
+      )}
+
+      {/* Dedicated Page: Registered Squad Dashboard */}
+      {activeTab === 'dashboard' && (
+        <TeamDashboardPage
+          team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
+          onLogout={handleLogout}
+          onNavigate={handleSelectTab}
+          onUpdateTeam={handleUpdateTeam}
+        />
       )}
 
       {/* Global Comprehensive Tournament Footer */}
