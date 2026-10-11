@@ -49,7 +49,7 @@ export function App() {
             />
           </section>
 
-          {/* Tournament Overview: Explainer, ₹1,00,000 Prize Breakdown, 3-Day Timeline, Arena Host */}
+          {/* Tournament Overview: Explainer, ₹1,00,000 Prize Breakdown, 2-Day Timeline, Arena Host */}
           <TournamentOverviewSection
             onRegisterClick={() => handleSelectTab('register')}
             onBracketClick={() => handleSelectTab('bracket')}

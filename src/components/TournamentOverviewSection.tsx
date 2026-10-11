@@ -137,7 +137,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
           </div>
         </section>
 
-        {/* SECTION 3: 3-DAY TOURNAMENT TIMELINE */}
+        {/* SECTION 3: 2-DAY TOURNAMENT TIMELINE */}
         <section className="space-y-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="text-left max-w-2xl">
@@ -145,7 +145,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 OFFICIAL ROADMAP
               </span>
               <h2 className="mt-3 text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
-                3-DAY CHAMPIONSHIP SCHEDULE
+                2-DAY CHAMPIONSHIP SCHEDULE
               </h2>
               <p className="mt-2 text-slate-600 text-base">
                 From technical scrutineering to the illuminated grand championship match in the indoor drone cage arena.

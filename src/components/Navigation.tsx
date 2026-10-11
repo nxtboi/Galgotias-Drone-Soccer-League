@@ -29,7 +29,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   };
 
   return (
-    <header className="relative z-50 w-full px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between pointer-events-auto bg-transparent">
+    <header className="relative z-50 max-w-7xl w-full mx-auto px-4 sm:px-8 py-3 flex items-center justify-between pointer-events-auto bg-transparent">
       {/* Brand Circular Logo with Official Event Wordmark */}
       <div className="flex items-center">
         <button
@@ -41,25 +41,27 @@ export const Navigation: React.FC<NavigationProps> = ({
         </button>
       </div>
 
-      {/* Main Desktop Navigation Items */}
-      <nav
-        aria-label="Tournament Navigation"
-        className="hidden md:flex items-center gap-1 bg-blue-50/80 border border-blue-200/80 rounded-full px-2 py-1 shadow-xs"
-      >
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleNavClick(item.id)}
-            className={`relative px-4 py-1.5 rounded-full text-xs font-sans font-bold tracking-wide uppercase transition-all duration-200 whitespace-nowrap ${
-              activeTab === item.id
-                ? 'bg-blue-950 text-white shadow-xs scale-102'
-                : 'text-slate-700 hover:text-blue-950 hover:bg-blue-100/70'
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
+      {/* Main Desktop Navigation Items in the Centre */}
+      <div className="hidden md:flex flex-1 justify-center px-4">
+        <nav
+          aria-label="Tournament Navigation"
+          className="flex items-center gap-1 bg-blue-50/90 border border-blue-200/80 rounded-full px-2 py-1 shadow-xs"
+        >
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              className={`relative px-4 py-1.5 rounded-full text-xs font-sans font-bold tracking-wide uppercase transition-all duration-200 whitespace-nowrap ${
+                activeTab === item.id
+                  ? 'bg-blue-950 text-white shadow-xs scale-102'
+                  : 'text-slate-700 hover:text-blue-950 hover:bg-blue-100/70'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {/* Right Side Event CTAs */}
       <div className="flex items-center gap-3">

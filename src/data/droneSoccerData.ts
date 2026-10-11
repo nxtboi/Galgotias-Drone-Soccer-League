@@ -63,13 +63,13 @@ export const GDSL_TOURNAMENT_INFO = {
   hostInstitution: 'Galgotias University',
   organizingBody: 'GCDIS (Galgotias Centre for Drone Intelligence & Simulation)',
   location: 'Indoor Sports Arena & Proving Ground, Galgotias University, Greater Noida, Uttar Pradesh, India',
-  dates: 'November 14 – 16, 2026',
+  dates: 'December 02 – 03, 2026',
   totalPrizePool: '₹1,00,000',
   teamCapacity: 32,
   registeredTeamsCount: 28,
   matchFormat: '5 vs 5 & 3 vs 3 Caged Aerial Soccer',
   setDuration: '3 sets × 3 minutes each',
-  regDeadline: 'November 05, 2026 · 23:59 IST',
+  regDeadline: 'November 25, 2026 · 23:59 IST',
   emergencyHelpline: '+91 98712 34567',
   supportEmail: 'gcdis.dronesoccer@galgotiasuniversity.edu.in',
   governingStandard: 'FIDA (Federation of International Dronesoccer Association) 5th Revision',
@@ -78,7 +78,7 @@ export const GDSL_TOURNAMENT_INFO = {
 export const PRIZE_POOL: PrizeItem[] = [
   {
     place: '1st Place',
-    amount: '₹50,000',
+    amount: '₹21,000',
     title: 'GDSL National Championship Trophy',
     perks: [
       'GDSL Grand Trophy + Individual Gold Medals',
@@ -90,7 +90,7 @@ export const PRIZE_POOL: PrizeItem[] = [
   },
   {
     place: '2nd Place',
-    amount: '₹25,000',
+    amount: '₹11,000',
     title: 'Runners-Up Silver Cup',
     perks: [
       'Silver Trophy + Individual Silver Medals',
@@ -100,7 +100,7 @@ export const PRIZE_POOL: PrizeItem[] = [
   },
   {
     place: '3rd Place',
-    amount: '₹15,000',
+    amount: '₹5,000',
     title: 'Bronze Plate Podium',
     perks: [
       'Bronze Trophy + Individual Bronze Medals',
@@ -110,11 +110,11 @@ export const PRIZE_POOL: PrizeItem[] = [
   },
   {
     place: 'Special Awards',
-    amount: '₹10,000',
+    amount: '₹3,000',
     title: 'Pilot & Engineering Distinction',
     perks: [
-      '₹5,000 · Golden Striker MVP (Top Scorer of the League)',
-      '₹5,000 · Best Engineered Protective Cage (Aerodynamics & Strength)',
+      '₹1,500 · Golden Striker MVP (Top Scorer of the League)',
+      '₹1,500 · Best Engineered Protective Cage (Aerodynamics & Strength)',
     ],
   },
 ];
@@ -122,7 +122,7 @@ export const PRIZE_POOL: PrizeItem[] = [
 export const TOURNAMENT_TIMELINE: TournamentPhase[] = [
   {
     phase: 'Phase 01',
-    date: 'Oct 01 – Nov 05, 2026',
+    date: 'Oct 01 – Nov 25, 2026',
     time: 'Online Registration',
     title: 'Squad Entry & Drone Spec Submission',
     location: 'Official GDSL Portal',
@@ -132,7 +132,7 @@ export const TOURNAMENT_TIMELINE: TournamentPhase[] = [
   },
   {
     phase: 'Phase 02',
-    date: 'Nov 14, 2026',
+    date: 'Dec 02, 2026',
     time: '08:00 – 12:00 IST',
     title: 'Technical Scrutineering & Calibration',
     location: 'GCDIS Flight Pit Hangar',
@@ -142,43 +142,43 @@ export const TOURNAMENT_TIMELINE: TournamentPhase[] = [
   },
   {
     phase: 'Phase 03',
-    date: 'Nov 14 – 15, 2026',
-    time: '13:00 – 19:00 IST',
+    date: 'Dec 02, 2026',
+    time: '13:00 – 20:00 IST',
     title: 'Group Stage 5v5 Aerial Clashes',
     location: 'Main Arena Cage 1 & 2',
     description:
       '32 squads compete across 4 groups (Alpha, Beta, Gamma, Delta). Round-robin matches of 3 sets of 3 minutes.',
-    badge: 'DAY 1-2',
+    badge: 'DAY 1 AFTERNOON',
   },
   {
     phase: 'Phase 04',
-    date: 'Nov 15, 2026',
-    time: '14:00 – 18:30 IST',
+    date: 'Dec 03, 2026',
+    time: '09:00 – 12:30 IST',
     title: 'Knockout Round of 16 & Quarter-Finals',
     location: 'Main Arena Center Cage',
     description:
       'Sudden death elimination bracket. Top 2 teams from each group battle for semi-final spots under stadium lighting.',
-    badge: 'DAY 2 EVENING',
+    badge: 'DAY 2 MORNING',
   },
   {
     phase: 'Phase 05',
-    date: 'Nov 16, 2026',
-    time: '10:00 – 15:30 IST',
+    date: 'Dec 03, 2026',
+    time: '13:30 – 16:30 IST',
     title: 'Semi-Finals & Grand Championship Clash',
     location: 'Main Arena Center Cage',
     description:
-      'High-stakes 5v5 aerial clash for the ₹50,000 championship trophy, broadcasted live on arena LED video walls.',
-    badge: 'DAY 3 FINALE',
+      'High-stakes 5v5 aerial clash for the ₹21,000 championship trophy, broadcasted live on arena LED video walls.',
+    badge: 'DAY 2 FINALE',
   },
   {
     phase: 'Phase 06',
-    date: 'Nov 16, 2026',
-    time: '16:00 – 18:00 IST',
+    date: 'Dec 03, 2026',
+    time: '17:00 – 19:00 IST',
     title: 'Podium Ceremony & GCDIS Aerial Light Show',
     location: 'Indoor Amphitheatre',
     description:
       'Trophy presentation by university dignitaries, prize distribution, and autonomous swarm drone formation show by GCDIS researchers.',
-    badge: 'AWARDS NIGHT',
+    badge: 'DAY 2 AWARDS NIGHT',
   },
 ];
 
@@ -383,7 +383,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Quarter-Final',
     teamA: 'Galgotias Aero Hawks',
     teamB: 'BITS Pilani Falcons',
-    scheduledTime: 'Nov 15 · 14:00 IST',
+    scheduledTime: 'Dec 03 · 09:30 IST',
     court: 'Arena Cage 1',
     status: 'Completed',
     scores: {
@@ -397,7 +397,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Quarter-Final',
     teamA: 'DTU Sky Phoenix',
     teamB: 'IIT Delhi AeroVortex',
-    scheduledTime: 'Nov 15 · 15:15 IST',
+    scheduledTime: 'Dec 03 · 10:45 IST',
     court: 'Arena Cage 1',
     status: 'Completed',
     scores: {
@@ -411,7 +411,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Quarter-Final',
     teamA: 'IIIT Hyderabad Pulse',
     teamB: 'Thapar Velocity',
-    scheduledTime: 'Nov 15 · 16:30 IST',
+    scheduledTime: 'Dec 03 · 11:30 IST',
     court: 'Arena Cage 2',
     status: 'Completed',
     scores: {
@@ -425,7 +425,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Quarter-Final',
     teamA: 'SRM Air Drifters',
     teamB: 'NSUT Strike Wing',
-    scheduledTime: 'Nov 15 · 17:45 IST',
+    scheduledTime: 'Dec 03 · 12:15 IST',
     court: 'Arena Cage 2',
     status: 'Completed',
     scores: {
@@ -439,7 +439,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Semi-Final',
     teamA: 'Galgotias Aero Hawks',
     teamB: 'IIT Delhi AeroVortex',
-    scheduledTime: 'Nov 16 · 10:30 IST',
+    scheduledTime: 'Dec 03 · 13:30 IST',
     court: 'Arena Cage 1',
     status: 'Completed',
     scores: {
@@ -453,7 +453,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Semi-Final',
     teamA: 'IIIT Hyderabad Pulse',
     teamB: 'SRM Air Drifters',
-    scheduledTime: 'Nov 16 · 12:00 IST',
+    scheduledTime: 'Dec 03 · 14:45 IST',
     court: 'Arena Cage 1',
     status: 'Completed',
     scores: {
@@ -467,7 +467,7 @@ export const MATCH_FIXTURES: MatchFixture[] = [
     round: 'Grand Finale',
     teamA: 'Galgotias Aero Hawks',
     teamB: 'IIIT Hyderabad Pulse',
-    scheduledTime: 'Nov 16 · 14:30 IST',
+    scheduledTime: 'Dec 03 · 16:00 IST',
     court: 'Arena Cage 1',
     status: 'Live',
     scores: {

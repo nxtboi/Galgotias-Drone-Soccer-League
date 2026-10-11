@@ -270,7 +270,7 @@ export const TournamentBracketPage: React.FC<TournamentBracketPageProps> = ({
                     <span>GRAND FINALE CLASH</span>
                   </h3>
                   <span className="font-mono text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">
-                    ₹50,000 CUP
+                    ₹21,000 CUP
                   </span>
                 </div>
 

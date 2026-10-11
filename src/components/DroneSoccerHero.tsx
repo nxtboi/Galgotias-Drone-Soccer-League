@@ -14,11 +14,11 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onBracketClick,
   onRulesClick,
 }) => {
-  // Live Tournament Countdown to Nov 14, 2026
-  const [timeLeft, setTimeLeft] = useState({ days: 36, hours: 14, minutes: 22, seconds: 48 });
+  // Live Tournament Countdown to Dec 02, 2026
+  const [timeLeft, setTimeLeft] = useState({ days: 54, hours: 6, minutes: 15, seconds: 30 });
 
   useEffect(() => {
-    const targetDate = new Date('2026-11-14T09:00:00+05:30').getTime();
+    const targetDate = new Date('2026-12-02T09:00:00+05:30').getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
