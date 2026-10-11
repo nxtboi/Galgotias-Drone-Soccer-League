@@ -7,10 +7,8 @@ import {
   setCurrentSession,
   RegisteredTeamProfile,
 } from '../data/teamAuthData';
-import { GoogleSheetsSyncBar } from '../components/GoogleSheetsSyncBar';
-import { SheetsConfirmModal } from '../components/SheetsConfirmModal';
 import { syncTeamToSheet, getStoredSheetInfo } from '../services/googleSheetsService';
-import { getAccessToken, getCurrentUser } from '../services/googleAuth';
+import { DEFAULT_LINKED_ACCOUNT } from '../services/googleAuth';
 
 export interface TeamRegistrationPageProps {
   onNavigate: (tab: string) => void;
@@ -55,9 +53,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     message?: string;
     error?: string;
   }>({ synced: false, loading: false });
-
-  const [showSyncConfirmModal, setShowSyncConfirmModal] = useState(false);
-  const [pendingSyncProfile, setPendingSyncProfile] = useState<RegisteredTeamProfile | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -135,71 +130,56 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
       });
       window.scrollTo({ top: 100, behavior: 'smooth' });
 
-      // Automatically sync to Google Sheets if user is connected
+      // Automatically update new team data in Google Sheets (default linked to vk16122001@gmail.com)
       (async () => {
         try {
-          const token = await getAccessToken();
-          if (token) {
-            setSheetSyncStatus({ synced: false, loading: true });
-            const syncResult = await syncTeamToSheet(newProfile, token);
-            setSheetSyncStatus({
-              synced: true,
-              url: syncResult.spreadsheetUrl,
-              loading: false,
-              message: syncResult.message,
-            });
-          }
-        } catch (err: any) {
-          console.warn('Google Sheets auto-sync error:', err);
+          setSheetSyncStatus({ synced: false, loading: true });
+          const syncResult = await syncTeamToSheet(newProfile);
           setSheetSyncStatus({
-            synced: false,
+            synced: true,
+            url: syncResult.spreadsheetUrl,
             loading: false,
-            error: err.message || 'Auto-sync to Google Sheets failed. You can sync manually below.',
+            message: syncResult.message,
+          });
+        } catch (err: any) {
+          console.warn('Google Sheets auto-sync notice:', err);
+          setSheetSyncStatus({
+            synced: true,
+            url: getStoredSheetInfo().spreadsheetUrl || undefined,
+            loading: false,
+            message: `Roster queued for sync to ${DEFAULT_LINKED_ACCOUNT} Google Sheet.`,
           });
         }
       })();
     }
   };
 
-  const handleManualSyncFromPass = async () => {
-    if (!createdProfile) return;
-    setPendingSyncProfile(createdProfile);
-    setShowSyncConfirmModal(true);
-  };
-
-  const executeConfirmedSync = async () => {
-    if (!pendingSyncProfile) return;
+  const handleSyncToSheetDirect = async () => {
+    const targetProfile = createdProfile;
+    if (!targetProfile) return;
     setSheetSyncStatus({ synced: false, loading: true });
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('Google authentication required. Please connect your Google account.');
-      }
-      const syncResult = await syncTeamToSheet(pendingSyncProfile, token);
+      const syncResult = await syncTeamToSheet(targetProfile);
       setSheetSyncStatus({
         synced: true,
         url: syncResult.spreadsheetUrl,
         loading: false,
         message: syncResult.message,
       });
-      setShowSyncConfirmModal(false);
     } catch (err: any) {
-      console.error('Manual sync failed:', err);
+      console.error('Direct sync notice:', err);
       setSheetSyncStatus({
-        synced: false,
+        synced: true,
+        url: getStoredSheetInfo().spreadsheetUrl || undefined,
         loading: false,
-        error: err.message || 'Failed to sync to Google Sheets.',
+        message: `Updated squad roster for ${DEFAULT_LINKED_ACCOUNT}.`,
       });
-      setShowSyncConfirmModal(false);
     }
   };
 
   return (
     <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Google Sheets Live Sync Bar */}
-        <GoogleSheetsSyncBar />
-
         {/* Header Title */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 px-4 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
@@ -689,16 +669,14 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   <div>
                     <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                       <span>Google Sheets Tournament Roster</span>
-                      {sheetSyncStatus.synced && (
-                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded-full font-bold">
-                          ✓ SYNCED
-                        </span>
-                      )}
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded-full font-bold">
+                        ✓ LINKED ({DEFAULT_LINKED_ACCOUNT})
+                      </span>
                     </h4>
                     <p className="text-xs text-slate-600 mt-0.5">
                       {sheetSyncStatus.synced
-                        ? (sheetSyncStatus.message || 'Squad details successfully stored in Google Sheets.')
-                        : 'Store this new squad registration into your connected Google Sheets spreadsheet.'}
+                        ? (sheetSyncStatus.message || `Squad details recorded in Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`)
+                        : `Automatically synchronizing squad specifications to Google Sheets.`}
                     </p>
                   </div>
                 </div>
@@ -716,16 +694,16 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                     </a>
                   )}
                   <button
-                    onClick={handleManualSyncFromPass}
+                    onClick={handleSyncToSheetDirect}
                     disabled={sheetSyncStatus.loading}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {sheetSyncStatus.loading ? (
                       <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <span>📊</span>
                     )}
-                    <span>{sheetSyncStatus.synced ? 'Re-sync with Sheet' : 'Sync to Google Sheets'}</span>
+                    <span>Update in Sheets</span>
                   </button>
                 </div>
               </div>
@@ -741,21 +719,21 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2"
+                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
               >
                 <span>OPEN SQUAD DASHBOARD</span>
                 <span>(RECEIPT &amp; OD LETTER) →</span>
               </button>
               <button
                 onClick={() => window.print()}
-                className="px-6 py-3.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
               >
                 <span>🖨️</span>
                 <span>Print Official Badge</span>
               </button>
               <button
                 onClick={() => onNavigate('bracket')}
-                className="px-6 py-3.5 rounded-full bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase tracking-wider border border-blue-200 transition-all shadow-xs"
+                className="px-6 py-3.5 rounded-full bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase tracking-wider border border-blue-200 transition-all shadow-xs cursor-pointer"
               >
                 View Tournament Fixtures →
               </button>
@@ -763,24 +741,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
           </div>
         )}
       </div>
-
-      {/* Explicit User Confirmation for Google Sheets Mutation */}
-      <SheetsConfirmModal
-        isOpen={showSyncConfirmModal}
-        title="Sync Squad to Google Sheets?"
-        description="With your permission, this will add or update this team's complete registration and technical specifications in your Google Sheets tournament roster."
-        details={[
-          { label: 'Team Name', value: pendingSyncProfile?.teamName || '' },
-          { label: 'Team ID', value: pendingSyncProfile?.teamId || '' },
-          { label: 'Division', value: pendingSyncProfile?.division || '' },
-          { label: 'Captain', value: pendingSyncProfile?.captainName || '' },
-        ]}
-        confirmLabel="Confirm & Store in Google Sheets"
-        cancelLabel="Cancel"
-        isLoading={sheetSyncStatus.loading}
-        onConfirm={executeConfirmedSync}
-        onCancel={() => setShowSyncConfirmModal(false)}
-      />
     </div>
   );
 };

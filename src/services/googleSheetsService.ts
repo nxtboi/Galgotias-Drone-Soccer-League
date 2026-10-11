@@ -1,5 +1,5 @@
-import { RegisteredTeamProfile } from '../data/teamAuthData';
-import { getAccessToken } from './googleAuth';
+import { RegisteredTeamProfile, getRegisteredTeams } from '../data/teamAuthData';
+import { getAccessToken, DEFAULT_LINKED_ACCOUNT } from './googleAuth';
 
 const SPREADSHEET_TITLE = 'GDSL 2026 - Galgotias Drone Soccer League (Teams & Rosters)';
 const LOCAL_STORAGE_SHEET_KEY = 'gdsl_google_spreadsheet_id_v1';
@@ -306,15 +306,15 @@ export async function getOrCreateSpreadsheet(
 }
 
 /**
- * Stores or updates a team in the connected Google Sheet
+ * Stores or updates a team in the connected Google Sheet (default linked account: vk16122001@gmail.com)
  */
 export async function syncTeamToSheet(
   team: RegisteredTeamProfile,
   explicitToken?: string
 ): Promise<SheetSyncResult> {
-  const token = explicitToken || (await getAccessToken());
+  const token = explicitToken || (await getAccessToken(true));
   if (!token) {
-    throw new Error('Google authentication required. Please sign in with your Google account.');
+    throw new Error(`Google authentication required for ${DEFAULT_LINKED_ACCOUNT}.`);
   }
 
   const { id: spreadsheetId, url: spreadsheetUrl, sheetName } = await getOrCreateSpreadsheet(token);
@@ -371,7 +371,7 @@ export async function syncTeamToSheet(
       spreadsheetId,
       spreadsheetUrl,
       action: 'updated',
-      message: `Team "${team.teamName}" (${team.teamId}) successfully updated at row ${existingRowIndex} in Google Sheets.`,
+      message: `Team "${team.teamName}" (${team.teamId}) successfully updated at row ${existingRowIndex} in Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`,
       updatedAt: now,
     };
   } else {
@@ -402,7 +402,7 @@ export async function syncTeamToSheet(
       spreadsheetId,
       spreadsheetUrl,
       action: 'inserted',
-      message: `Team "${team.teamName}" (${team.teamId}) successfully appended to Google Sheets roster.`,
+      message: `Team "${team.teamName}" (${team.teamId}) successfully added to Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`,
       updatedAt: now,
     };
   }
@@ -415,9 +415,9 @@ export async function syncAllTeamsToSheet(
   teams: RegisteredTeamProfile[],
   explicitToken?: string
 ): Promise<SheetSyncResult> {
-  const token = explicitToken || (await getAccessToken());
+  const token = explicitToken || (await getAccessToken(true));
   if (!token) {
-    throw new Error('Google authentication required. Please sign in with your Google account.');
+    throw new Error(`Google authentication required for ${DEFAULT_LINKED_ACCOUNT}.`);
   }
 
   const { id: spreadsheetId, url: spreadsheetUrl, sheetName } = await getOrCreateSpreadsheet(token);
@@ -450,7 +450,15 @@ export async function syncAllTeamsToSheet(
     spreadsheetId,
     spreadsheetUrl,
     action: 'batch_synced',
-    message: `All ${teams.length} tournament squads synced with Google Sheets!`,
+    message: `All ${teams.length} tournament squads updated on Google Sheets (${DEFAULT_LINKED_ACCOUNT})!`,
     updatedAt: new Date().toLocaleTimeString(),
   };
+}
+
+/**
+ * High-level helper to update all existing data on sheets
+ */
+export async function updateAllTournamentDataOnSheets(): Promise<SheetSyncResult> {
+  const teams = getRegisteredTeams();
+  return syncAllTeamsToSheet(teams);
 }

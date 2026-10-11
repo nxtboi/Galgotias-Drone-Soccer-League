@@ -9,6 +9,8 @@ import {
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 
+export const DEFAULT_LINKED_ACCOUNT = 'vk16122001@gmail.com';
+
 export const SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/drive.file',
@@ -26,9 +28,9 @@ SCOPES.forEach((scope) => {
   provider.addScope(scope);
 });
 
-// Prompt consent to ensure refreshed tokens with granted scopes
+// Default to linking vk16122001@gmail.com with login_hint
 provider.setCustomParameters({
-  prompt: 'select_account',
+  login_hint: DEFAULT_LINKED_ACCOUNT,
 });
 
 // Flag to track sign-in in-flight
@@ -101,17 +103,38 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
 };
 
 /**
- * Get current in-memory access token or null
+ * Get current in-memory access token, or prompt interactive sign-in with default account vk16122001@gmail.com if missing
  */
-export const getAccessToken = async (): Promise<string | null> => {
-  return cachedAccessToken;
+export const getAccessToken = async (interactiveIfMissing: boolean = false): Promise<string | null> => {
+  if (cachedAccessToken) {
+    return cachedAccessToken;
+  }
+  if (interactiveIfMissing) {
+    try {
+      const res = await googleSignIn();
+      return res?.accessToken || null;
+    } catch (err) {
+      console.warn('Interactive OAuth token acquisition error:', err);
+      return null;
+    }
+  }
+  return null;
 };
 
 /**
- * Get current cached user
+ * Get current user or default linked account
  */
-export const getCurrentUser = (): User | null => {
-  return cachedUser || auth.currentUser;
+export const getCurrentUser = (): User | { email: string; displayName: string } | null => {
+  if (cachedUser) return cachedUser;
+  if (auth.currentUser) return auth.currentUser;
+  return {
+    email: DEFAULT_LINKED_ACCOUNT,
+    displayName: 'vk16122001',
+  };
+};
+
+export const getLinkedAccountEmail = (): string => {
+  return DEFAULT_LINKED_ACCOUNT;
 };
 
 /**
