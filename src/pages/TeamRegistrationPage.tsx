@@ -248,10 +248,10 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 bg-white font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Class 40 (400mm Heavy Sphere)">
-                    Class 40 (400mm Heavy Sphere · 5v5 Main Arena)
+                    Class 40 / D-40 (400mm Sphere · 5v5 Arena · ₹57,000 Prize Pool)
                   </option>
                   <option value="Class 20 (200mm Varsity Sphere)">
-                    Class 20 (200mm Varsity Sphere · 3v3 Junior Varsity)
+                    Class 20 / D-20 (200mm Sphere · 3v3 Arena · ₹37,000 Prize Pool)
                   </option>
                 </select>
               </div>

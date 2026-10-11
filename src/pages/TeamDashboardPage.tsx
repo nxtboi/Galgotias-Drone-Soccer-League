@@ -4,7 +4,6 @@ import {
   RegisteredTeamProfile,
   saveRegisteredTeam,
   setCurrentSession,
-  clearCurrentSession,
 } from '../data/teamAuthData';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
@@ -21,21 +20,18 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   onNavigate,
   onUpdateTeam,
 }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'receipt' | 'attendance' | 'schedule'>('profile');
+  const [activeTab, setActiveTab] = useState<'overview' | 'receipt' | 'attendance' | 'profile' | 'schedule'>('overview');
 
-  // Profile editable state
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [phoneInput, setPhoneInput] = useState(team.captainPhone);
-  const [droneModelInput, setDroneModelInput] = useState(team.droneModel);
-  const [vtxBandInput, setVtxBandInput] = useState(team.vtxBand);
-  const [profileSavedMsg, setProfileSavedMsg] = useState(false);
+  // Edit Profile State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPhone, setEditPhone] = useState(team.captainPhone);
+  const [editDroneModel, setEditDroneModel] = useState(team.droneModel);
+  const [editVtx, setEditVtx] = useState(team.vtxBand);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Attendance Letter generator state
+  // Attendance Letter State
   const [facultyName, setFacultyName] = useState(
     team.attendanceData?.facultyName || 'The Dean / Head of Department'
-  );
-  const [designation, setDesignation] = useState(
-    team.attendanceData?.designation || 'Head of Department'
   );
   const [department, setDepartment] = useState(
     team.attendanceData?.department || 'Department of Mechanical / Aerospace Engineering'
@@ -43,894 +39,841 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [collegeName, setCollegeName] = useState(
     team.attendanceData?.collegeName || team.institution
   );
-  const [includeTravelDates, setIncludeTravelDates] = useState(
-    team.attendanceData?.travelDatesIncluded ?? true
-  );
-
-  // Default students roster with roll numbers
   const [students, setStudents] = useState(
     team.attendanceData?.students || [
-      { name: team.captainName, role: 'Team Captain & Telemetry Lead', rollNo: 'ROLL-01' },
-      { name: team.strikerPilot, role: 'Designated Striker Pilot', rollNo: 'ROLL-02' },
+      { name: team.captainName, role: 'Team Captain / Pilot', rollNo: 'ROLL-01' },
+      { name: team.strikerPilot, role: 'Striker Pilot', rollNo: 'ROLL-02' },
       { name: team.goalkeeper, role: 'Goalkeeper Pilot', rollNo: 'ROLL-03' },
       { name: team.defender1, role: 'Defender 1 (Libero)', rollNo: 'ROLL-04' },
       { name: team.defender2, role: 'Defender 2 (Sweeper)', rollNo: 'ROLL-05' },
       { name: team.pitMechanic, role: 'Pit Engineer / Mechanic', rollNo: 'ROLL-06' },
     ]
   );
-
-  const [odDispatchedAlert, setOdDispatchedAlert] = useState<string | null>(null);
-  const [copiedReceiptId, setCopiedReceiptId] = useState(false);
-  const [scheduleSubscribed, setScheduleSubscribed] = useState(false);
+  const [odDispatchedAlert, setOdDispatchedAlert] = useState(false);
+  const [scheduleAlert, setScheduleAlert] = useState(false);
+  const [copiedReceipt, setCopiedReceipt] = useState(false);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     const updatedTeam: RegisteredTeamProfile = {
       ...team,
-      captainPhone: phoneInput,
-      droneModel: droneModelInput,
-      vtxBand: vtxBandInput,
+      captainPhone: editPhone,
+      droneModel: editDroneModel,
+      vtxBand: editVtx,
     };
     saveRegisteredTeam(updatedTeam);
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
-    setIsEditingProfile(false);
-    setProfileSavedMsg(true);
-    setTimeout(() => setProfileSavedMsg(false), 3000);
+    setIsEditing(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  const handleUpdateStudentRoll = (index: number, roll: string) => {
+  const handleUpdateRoll = (index: number, roll: string) => {
     const updated = [...students];
     updated[index].rollNo = roll;
     setStudents(updated);
   };
 
-  const handleDispatchOdRequest = () => {
-    // Save attendance configuration to team profile
+  const handleSaveAttendance = () => {
     const updatedTeam: RegisteredTeamProfile = {
       ...team,
       attendanceData: {
         facultyName,
-        designation,
+        designation: 'Head of Department',
         department,
         collegeName,
-        travelDatesIncluded: includeTravelDates,
+        travelDatesIncluded: true,
         students,
       },
     };
     saveRegisteredTeam(updatedTeam);
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
-
-    setOdDispatchedAlert(
-      `Official Attendance OD Request (Ref: GCDIS/OD-2026/${team.teamId}) has been registered and emailed to ${team.captainEmail} & the GCDIS Academic Liaison office!`
-    );
-    setTimeout(() => setOdDispatchedAlert(null), 6000);
-  };
-
-  const handleCopyReceipt = () => {
-    navigator.clipboard.writeText(team.paymentInfo.receiptNo);
-    setCopiedReceiptId(true);
-    setTimeout(() => setCopiedReceiptId(false), 2500);
+    setOdDispatchedAlert(true);
+    setTimeout(() => setOdDispatchedAlert(false), 4000);
   };
 
   const handlePrint = () => {
     window.print();
   };
 
+  const handleCopyReceiptNo = () => {
+    navigator.clipboard.writeText(team.paymentInfo.receiptNo);
+    setCopiedReceipt(true);
+    setTimeout(() => setCopiedReceipt(false), 2000);
+  };
+
   return (
-    <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Top Header Card */}
-        <div className="bg-gradient-to-br from-blue-950 via-blue-900 to-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-400/30 flex flex-col md:flex-row md:items-center justify-between gap-6 text-left">
-          <div className="flex items-start sm:items-center gap-4">
-            <div className="shrink-0 p-2 bg-white/10 rounded-2xl border border-white/20">
-              <GcdisLogo size="md" showWordmark={false} />
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 max-w-6xl mx-auto text-slate-800">
+      
+      {/* 1. Basic Clean Dashboard Header */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs mb-6 text-left">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+              <GcdisLogo size="sm" showWordmark={false} />
             </div>
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full uppercase">
-                  {team.teamId}
-                </span>
-                <span className="font-mono text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  CONFIRMED ENTRY
-                </span>
-                <span className="font-mono text-xs bg-white/10 text-sky-200 px-2.5 py-0.5 rounded-full">
-                  {team.division}
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+                  {team.teamName}
+                </h1>
+                <span className="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">
+                  Registered
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-4xl font-sans font-black uppercase tracking-tight text-white">
-                {team.teamName}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-300 font-sans">
+              <p className="text-sm text-slate-500 mt-0.5">
                 {team.institution} · {team.city}, {team.state}
               </p>
             </div>
           </div>
 
-          {/* Quick Stats & Logout */}
-          <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-white/10">
-            <div className="text-left md:text-right">
-              <span className="text-[10px] font-mono uppercase text-slate-400 block">PIT ASSIGNMENT</span>
-              <span className="text-xs font-mono font-bold text-amber-300">{team.allocatedPit}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onNavigate('home')}
+              className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              Main Site
+            </button>
+            <button
+              onClick={onLogout}
+              className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Quick info row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 text-sm">
+          <div>
+            <span className="text-xs text-slate-400 block font-medium">Team ID</span>
+            <span className="font-mono font-bold text-slate-800">{team.teamId}</span>
+          </div>
+          <div>
+            <span className="text-xs text-slate-400 block font-medium">Division &amp; Prize Pool</span>
+            <span className="font-semibold text-slate-800">
+              {team.division} ({team.division?.includes('20') ? 'D-20: ₹37,000 Pool' : 'D-40: ₹57,000 Pool'})
+            </span>
+          </div>
+          <div>
+            <span className="text-xs text-slate-400 block font-medium">Captain</span>
+            <span className="font-semibold text-slate-800">{team.captainName}</span>
+          </div>
+          <div>
+            <span className="text-xs text-slate-400 block font-medium">Tournament Dates</span>
+            <span className="font-semibold text-slate-800">{GDSL_TOURNAMENT_INFO.dates}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Basic Navigation Tabs - Horizontally scrollable on mobile */}
+      <div className="flex items-center gap-2 mb-6 border-b border-slate-200 pb-2 overflow-x-auto scrollbar-none sm:flex-wrap">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
+            activeTab === 'overview'
+              ? 'bg-blue-900 text-white'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          Dashboard Overview
+        </button>
+        <button
+          onClick={() => setActiveTab('receipt')}
+          className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
+            activeTab === 'receipt'
+              ? 'bg-blue-900 text-white'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          Payment Receipt
+        </button>
+        <button
+          onClick={() => setActiveTab('attendance')}
+          className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
+            activeTab === 'attendance'
+              ? 'bg-blue-900 text-white'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          Attendance (OD Letter)
+        </button>
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
+            activeTab === 'profile'
+              ? 'bg-blue-900 text-white'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          Team Profile &amp; Roster
+        </button>
+        <button
+          onClick={() => setActiveTab('schedule')}
+          className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
+            activeTab === 'schedule'
+              ? 'bg-blue-900 text-white'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          Match Schedule
+        </button>
+      </div>
+
+      {/* ========================================================= */}
+      {/* TAB: OVERVIEW (Basic 4-card dashboard view)               */}
+      {/* ========================================================= */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6 text-left">
+          {/* 4 Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* Card 1: Payment Receipt */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">🧾</span>
+                  <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-emerald-200">
+                    PAID
+                  </span>
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Payment Receipt</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Registration fee of ₹{team.paymentInfo.amount} paid. Download official receipt.
+                </p>
+                <div className="mt-3 text-xs font-mono text-slate-600">
+                  Ref: {team.paymentInfo.receiptNo}
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('receipt')}
+                className="mt-4 w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-lg transition-colors text-center"
+              >
+                Download Receipt →
+              </button>
+            </div>
+
+            {/* Card 2: Attendance Request */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">🎓</span>
+                  <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-blue-200">
+                    AVAILABLE
+                  </span>
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Attendance Request</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Generate On-Duty (OD) sanction letter for your college/university faculty.
+                </p>
+                <div className="mt-3 text-xs text-slate-600">
+                  {students.length} students enrolled
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('attendance')}
+                className="mt-4 w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-lg transition-colors text-center"
+              >
+                Apply for OD Letter →
+              </button>
+            </div>
+
+            {/* Card 3: Team Profile */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">👤</span>
+                  <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-purple-200">
+                    {team.division}
+                  </span>
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Team Profile</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  View full squad roster, captain contact info, and drone hardware specifications.
+                </p>
+                <div className="mt-3 text-xs text-slate-600 truncate">
+                  Captain: {team.captainName}
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className="mt-4 w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold rounded-lg transition-colors text-center"
+              >
+                View Profile →
+              </button>
+            </div>
+
+            {/* Card 4: Match Schedule */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-2xl">⏱️</span>
+                  <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-amber-200">
+                    COMING SOON
+                  </span>
+                </div>
+                <h3 className="font-bold text-slate-900 text-base">Match Schedule</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Arena matches and pool stage timing will be announced ahead of the event.
+                </p>
+                <div className="mt-3 text-xs text-slate-600 font-medium">
+                  {GDSL_TOURNAMENT_INFO.dates}
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('schedule')}
+                className="mt-4 w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold rounded-lg transition-colors text-center"
+              >
+                Schedule Status →
+              </button>
+            </div>
+
+          </div>
+
+          {/* Quick Details Table in Overview */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
+            <h3 className="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">
+              Registration Summary
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Institution:</span>
+                <span className="font-semibold text-slate-800">{team.institution}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Registration Date:</span>
+                <span className="font-semibold text-slate-800">{team.paymentInfo.paidAt}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Captain Contact:</span>
+                <span className="font-semibold text-slate-800">{team.captainPhone}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Captain Email:</span>
+                <span className="font-semibold text-slate-800">{team.captainEmail}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Drone Hardware:</span>
+                <span className="font-semibold text-slate-800">{team.droneModel}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">Allocated Pit:</span>
+                <span className="font-semibold text-blue-900">{team.allocatedPit}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: PAYMENT RECEIPT                                      */}
+      {/* ========================================================= */}
+      {activeTab === 'receipt' && (
+        <div className="space-y-6 text-left">
+          {/* Action bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Official Payment Receipt</h2>
+              <p className="text-xs text-slate-500">Official proof of tournament fee payment.</p>
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => onNavigate('home')}
-                className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-sans text-xs uppercase font-bold transition-all border border-white/10"
+                onClick={handleCopyReceiptNo}
+                className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                Website Home
+                {copiedReceipt ? '✓ Copied' : 'Copy Receipt #'}
               </button>
               <button
-                onClick={onLogout}
-                className="px-3.5 py-1.5 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white font-sans text-xs uppercase font-bold transition-all shadow-xs"
+                onClick={handlePrint}
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white hover:bg-blue-950 flex items-center gap-1.5"
               >
-                Logout
+                <span>🖨️</span>
+                <span>Print / Save PDF</span>
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Dashboard Navigation Tabs */}
-        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 border-b border-blue-200 pb-3">
-          {[
-            { id: 'profile', label: 'Squad Profile & Roster', icon: '📋' },
-            { id: 'receipt', label: 'Payment Receipt (₹2,500)', icon: '🧾' },
-            { id: 'attendance', label: 'Attendance OD Application', icon: '🎓' },
-            { id: 'schedule', label: 'Match Schedule (Coming Soon)', icon: '⏱️' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`px-4 sm:px-5 py-2.5 rounded-full font-sans font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
-                activeTab === tab.id
-                  ? 'bg-blue-950 text-white shadow-sm scale-102'
-                  : 'bg-white text-slate-700 border border-blue-200 hover:bg-blue-50'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* ============================================================== */}
-        {/* TAB 1: SQUAD PROFILE & PILOT ROSTER */}
-        {/* ============================================================== */}
-        {activeTab === 'profile' && (
-          <div className="space-y-6 text-left">
-            {profileSavedMsg && (
-              <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-2xl flex items-center gap-2 animate-fade-in font-medium">
-                <span>✓</span>
-                <span>Team contact and drone specifications updated successfully!</span>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Card 1: Official Pilot Roster */}
-              <div className="lg:col-span-2 bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-                <div className="flex items-center justify-between border-b border-blue-100 pb-4">
+          {/* Printable Receipt Paper */}
+          <div className="bg-white border border-slate-300 rounded-xl p-8 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6">
+            {/* Receipt Header */}
+            <div className="flex items-start justify-between border-b border-slate-200 pb-6">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-900 text-white flex items-center justify-center font-bold text-lg">
+                    G
+                  </div>
                   <div>
-                    <span className="font-mono text-xs font-bold text-blue-700 uppercase">
-                      OFFICIAL 6-PERSON CREW
-                    </span>
-                    <h3 className="text-xl font-sans font-black text-blue-950 uppercase">
-                      PILOT &amp; PIT ROSTER
-                    </h3>
+                    <h3 className="font-bold text-slate-900 text-lg">Galgotias University</h3>
+                    <p className="text-xs text-slate-500">Galgotias Centre for Drone &amp; Innovative Systems (GCDIS)</p>
                   </div>
-                  <span className="text-xs font-mono bg-blue-50 text-blue-900 px-3 py-1 rounded-full font-bold border border-blue-200">
-                    FIDA 5TH REVISION ROSTER
-                  </span>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Striker */}
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-emerald-800 uppercase">
-                        STRIKER PILOT
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" title="Green LED Tag" />
-                    </div>
-                    <div className="font-sans font-black text-base text-emerald-950 uppercase">
-                      {team.strikerPilot}
-                    </div>
-                    <p className="text-[11px] text-emerald-800">
-                      Sole designated scoring drone ball. Equipped with Green LED and ribbon tag.
-                    </p>
-                  </div>
-
-                  {/* Goalkeeper */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-slate-700 uppercase">
-                        GOALKEEPER PILOT
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400 border border-slate-600 shadow-xs" title="White LED" />
-                    </div>
-                    <div className="font-sans font-black text-base text-slate-950 uppercase">
-                      {team.goalkeeper}
-                    </div>
-                    <p className="text-[11px] text-slate-600">
-                      Guards own hoop. White LED strip. Anti-reverse entry rule enforced.
-                    </p>
-                  </div>
-
-                  {/* Defender 1 (Libero) */}
-                  <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-sky-800 uppercase">
-                        DEFENDER 1 · LIBERO
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-xs" title="Sky Blue LED" />
-                    </div>
-                    <div className="font-sans font-black text-base text-sky-950 uppercase">
-                      {team.defender1}
-                    </div>
-                    <p className="text-[11px] text-sky-800">
-                      Frontline defensive blocker. Attacks opposing guide. Sky Blue LED.
-                    </p>
-                  </div>
-
-                  {/* Defender 2 (Sweeper) */}
-                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-amber-800 uppercase">
-                        DEFENDER 2 · SWEEPER
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-xs" title="Yellow LED" />
-                    </div>
-                    <div className="font-sans font-black text-base text-amber-950 uppercase">
-                      {team.defender2}
-                    </div>
-                    <p className="text-[11px] text-amber-800">
-                      Rear guard defender. Positioned behind keeper. Yellow LED.
-                    </p>
-                  </div>
-
-                  {/* Captain */}
-                  <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-blue-800 uppercase">
-                      TEAM CAPTAIN
-                    </span>
-                    <div className="font-sans font-black text-base text-blue-950 uppercase">
-                      {team.captainName}
-                    </div>
-                    <p className="text-[11px] text-blue-800">
-                      Liaison with Head Referee &amp; VAR Challenge Ticket submissions.
-                    </p>
-                  </div>
-
-                  {/* Pit Mechanic */}
-                  <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-purple-800 uppercase">
-                      PIT MECHANIC &amp; SAFETY
-                    </span>
-                    <div className="font-sans font-black text-base text-purple-950 uppercase">
-                      {team.pitMechanic}
-                    </div>
-                    <p className="text-[11px] text-purple-800">
-                      Inter-set battery swaps, cage mesh repair &amp; LiPo safety compliance.
-                    </p>
-                  </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  Plot No. 2, Sector 17-A, Yamuna Expressway, Greater Noida, UP - 203201
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="inline-block bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded font-bold">
+                  PAID RECEIPT
+                </span>
+                <div className="text-xs text-slate-500 mt-2">
+                  Date: <span className="font-semibold text-slate-800">{team.paymentInfo.paidAt}</span>
+                </div>
+                <div className="text-xs text-slate-500">
+                  Receipt No: <span className="font-mono font-bold text-slate-800">{team.paymentInfo.receiptNo}</span>
                 </div>
               </div>
+            </div>
 
-              {/* Card 2: Drone Specs & Scrutineering Status */}
-              <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-                <div className="border-b border-blue-100 pb-4">
-                  <span className="font-mono text-xs font-bold text-blue-700 uppercase">
-                    TECHNICAL HARDWARE
-                  </span>
-                  <h3 className="text-xl font-sans font-black text-blue-950 uppercase">
-                    SCRUTINEERING STATUS
-                  </h3>
-                </div>
+            {/* Billed To */}
+            <div className="grid grid-cols-2 gap-4 text-xs py-2">
+              <div>
+                <span className="text-slate-400 block font-medium">Billed To (Team):</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.teamName}</span>
+                <span className="text-slate-600 block">{team.institution}</span>
+                <span className="text-slate-600 block">{team.city}, {team.state}</span>
+                <span className="text-slate-500 block mt-1">Captain: {team.captainName} ({team.captainPhone})</span>
+              </div>
+              <div className="text-right">
+                <span className="text-slate-400 block font-medium">Event:</span>
+                <span className="font-bold text-slate-900 block">Galgotias Drone Soccer League 2026</span>
+                <span className="text-slate-600 block">Division: {team.division}</span>
+                <span className="text-slate-600 block">Team ID: {team.teamId}</span>
+                <span className="text-slate-600 block">Payment Mode: {team.paymentInfo.paymentMode}</span>
+              </div>
+            </div>
 
-                <div className="space-y-4 text-xs">
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1">
-                    <div className="font-bold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                      <span>{team.scrutineeringStatus.replace('_', ' ')}</span>
-                    </div>
-                    <p className="text-[11px] text-emerald-800 leading-relaxed">
-                      Pre-verified for {team.division}. On-site cage weight &amp; LED inspection will take place at Bay {team.allocatedPit} on December 02 at 08:30 IST.
-                    </p>
-                  </div>
+            {/* Line Items Table */}
+            <table className="w-full text-xs text-left border-t border-b border-slate-200">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="py-2.5 font-semibold">Description</th>
+                  <th className="py-2.5 font-semibold text-center">Division</th>
+                  <th className="py-2.5 font-semibold text-center">Qty</th>
+                  <th className="py-2.5 font-semibold text-right">Amount (INR)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                <tr>
+                  <td className="py-3">
+                    <span className="font-bold text-slate-900 block">Team Entry &amp; Pilot Accreditation Fee</span>
+                    <span className="text-slate-500">Official tournament registration for 6-member squad</span>
+                  </td>
+                  <td className="py-3 text-center">{team.division}</td>
+                  <td className="py-3 text-center">1 Squad</td>
+                  <td className="py-3 text-right font-semibold">₹2,500.00</td>
+                </tr>
+                <tr className="bg-slate-50/50">
+                  <td className="py-2 font-medium text-slate-700">Subtotal</td>
+                  <td></td>
+                  <td></td>
+                  <td className="py-2 text-right font-semibold">₹2,500.00</td>
+                </tr>
+                <tr className="bg-slate-50/50">
+                  <td className="py-2 font-medium text-slate-700">GST / Educational Exemption</td>
+                  <td></td>
+                  <td></td>
+                  <td className="py-2 text-right font-semibold">₹0.00</td>
+                </tr>
+                <tr className="bg-slate-100/70 font-bold text-slate-900 text-sm">
+                  <td className="py-3">Total Amount Paid</td>
+                  <td></td>
+                  <td></td>
+                  <td className="py-3 text-right text-blue-900 font-mono text-base">₹2,500.00</td>
+                </tr>
+              </tbody>
+            </table>
 
-                  {!isEditingProfile ? (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-500">Drone Model</span>
-                        <span className="font-bold text-blue-950">{team.droneModel}</span>
-                      </div>
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-500">RC Protocol</span>
-                        <span className="font-mono font-bold text-blue-900">{team.controlProtocol}</span>
-                      </div>
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-500">VTX Channel</span>
-                        <span className="font-mono font-bold text-blue-900">{team.vtxBand}</span>
-                      </div>
-                      <div className="flex justify-between py-1.5 border-b border-slate-100">
-                        <span className="text-slate-500">Captain Phone</span>
-                        <span className="font-mono font-bold text-blue-950">{team.captainPhone}</span>
-                      </div>
-                      <div className="flex justify-between py-1.5">
-                        <span className="text-slate-500">Captain Email</span>
-                        <span className="font-mono text-blue-950 truncate max-w-[160px]">{team.captainEmail}</span>
-                      </div>
+            {/* Payment Verification Box */}
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs flex flex-col sm:flex-row justify-between gap-3 items-center">
+              <div>
+                <span className="font-bold text-slate-800 block">Transaction Reference:</span>
+                <span className="font-mono text-slate-600">{team.paymentInfo.transactionId}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-emerald-700 font-bold flex items-center gap-1">
+                  <span>✓</span> Payment Verified &amp; Slot Confirmed
+                </span>
+                <span className="text-slate-400 text-[11px]">GCDIS Finance Secretariat</span>
+              </div>
+            </div>
 
-                      <div className="pt-4">
-                        <button
-                          onClick={() => setIsEditingProfile(true)}
-                          className="w-full py-2.5 rounded-full border border-blue-300 hover:bg-blue-50 text-blue-900 font-sans font-bold text-xs uppercase transition-all"
-                        >
-                          ✏️ Update Hardware / Contact
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSaveProfile} className="space-y-3 pt-2">
-                      <div>
-                        <label className="block text-[11px] font-bold text-blue-950 uppercase mb-1">
-                          Drone Exoskeleton Model
-                        </label>
-                        <input
-                          type="text"
-                          value={droneModelInput}
-                          onChange={(e) => setDroneModelInput(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs text-blue-950 font-bold"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-blue-950 uppercase mb-1">
-                          VTX Band &amp; Frequency
-                        </label>
-                        <input
-                          type="text"
-                          value={vtxBandInput}
-                          onChange={(e) => setVtxBandInput(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs font-mono text-blue-950"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-blue-950 uppercase mb-1">
-                          Captain Emergency Contact
-                        </label>
-                        <input
-                          type="text"
-                          value={phoneInput}
-                          onChange={(e) => setPhoneInput(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs font-mono text-blue-950"
-                        />
-                      </div>
-                      <div className="pt-2 flex items-center gap-2">
-                        <button
-                          type="submit"
-                          className="flex-1 py-2.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase"
-                        >
-                          Save Changes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingProfile(false)}
-                          className="px-4 py-2.5 rounded-full border border-slate-300 text-slate-600 font-sans font-bold text-xs uppercase"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
+            {/* Footer Note */}
+            <div className="text-[11px] text-slate-400 text-center border-t border-slate-100 pt-4">
+              This is a computer-generated receipt issued by Galgotias Centre for Drone &amp; Innovative Systems (GCDIS). No signature required.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: ATTENDANCE APPLICATION (OD LETTER)                   */}
+      {/* ========================================================= */}
+      {activeTab === 'attendance' && (
+        <div className="space-y-6 text-left">
+          {/* Action bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Attendance Application (On-Duty / OD Letter)</h2>
+              <p className="text-xs text-slate-500">
+                Official attendance recommendation letter to submit to your Dean / Head of Department.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSaveAttendance}
+                className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={handlePrint}
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white hover:bg-blue-950 flex items-center gap-1.5"
+              >
+                <span>🖨️</span>
+                <span>Print / Save OD Letter</span>
+              </button>
+            </div>
+          </div>
+
+          {odDispatchedAlert && (
+            <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-lg font-medium">
+              ✓ Attendance letter details updated successfully!
+            </div>
+          )}
+
+          {/* Configuration Form */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4 text-xs">
+            <h3 className="font-bold text-slate-800 text-sm">Recipient Details (Customize for Your College)</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-slate-500 font-medium mb-1">To (Authority Title):</label>
+                <input
+                  type="text"
+                  value={facultyName}
+                  onChange={(e) => setFacultyName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-500 font-medium mb-1">Department:</label>
+                <input
+                  type="text"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-500 font-medium mb-1">College / University Name:</label>
+                <input
+                  type="text"
+                  value={collegeName}
+                  onChange={(e) => setCollegeName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                />
               </div>
             </div>
           </div>
-        )}
 
-        {/* ============================================================== */}
-        {/* TAB 2: PAYMENT RECEIPT (DOWNLOAD & PRINT) */}
-        {/* ============================================================== */}
-        {activeTab === 'receipt' && (
-          <div className="space-y-6 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Printable Official OD Letter */}
+          <div className="bg-white border border-slate-300 rounded-xl p-8 sm:p-10 shadow-sm max-w-3xl mx-auto space-y-6 text-slate-800 font-serif leading-relaxed">
+            {/* Letter Header */}
+            <div className="flex items-center justify-between border-b-2 border-slate-800 pb-4">
               <div>
-                <span className="font-mono text-xs font-bold text-blue-700 uppercase">
-                  FINANCIAL ACCREDITATION &amp; ENTRY INVOICE
-                </span>
-                <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
-                  OFFICIAL TOURNAMENT ENTRY RECEIPT
-                </h2>
+                <h3 className="font-bold text-slate-900 text-base uppercase font-sans tracking-wide">
+                  Galgotias Centre for Drone &amp; Innovative Systems
+                </h3>
+                <p className="text-xs text-slate-600 font-sans">
+                  Galgotias University, Greater Noida · Secretariat of Student Aeromodelling
+                </p>
               </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleCopyReceipt}
-                  className="px-4 py-2.5 rounded-full border border-blue-300 bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase transition-all shadow-xs flex items-center gap-1.5"
-                >
-                  <span>📋</span>
-                  <span>{copiedReceiptId ? 'Copied Receipt No!' : 'Copy Receipt ID'}</span>
-                </button>
-                <button
-                  onClick={handlePrint}
-                  className="px-6 py-2.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
-                >
-                  <span>🖨️</span>
-                  <span>Download / Print Receipt (PDF)</span>
-                </button>
+              <div className="text-right font-sans text-xs text-slate-500">
+                <div>Ref: GCDIS/OD-2026/{team.teamId}</div>
+                <div>Date: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
               </div>
             </div>
 
-            {/* Printable Receipt Paper Container */}
-            <div
-              id="printable-receipt"
-              className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-12 shadow-lg space-y-8 max-w-4xl mx-auto"
-            >
-              {/* Receipt Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b-2 border-blue-900/20 pb-6">
-                <div className="flex items-center gap-4">
-                  <GcdisLogo size="lg" showWordmark={true} />
-                </div>
-                <div className="text-left sm:text-right font-mono text-xs text-slate-600 space-y-1">
-                  <div className="font-bold text-sm text-blue-950">GALGOTIAS UNIVERSITY</div>
-                  <div>Centre for Drone Intelligence &amp; Simulation (GCDIS)</div>
-                  <div>Plot No. 2, Sector 17A, Yamuna Expressway, Greater Noida, UP</div>
-                  <div className="text-blue-900 font-bold">GSTIN / TAX ID: 09AAATG3821K1ZM</div>
-                </div>
-              </div>
-
-              {/* Receipt Reference Numbers & Metadata */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-200 text-xs">
-                <div>
-                  <span className="font-mono text-[10px] text-slate-500 uppercase block">RECEIPT NO.</span>
-                  <span className="font-mono font-black text-blue-950 text-sm">{team.paymentInfo.receiptNo}</span>
-                </div>
-                <div>
-                  <span className="font-mono text-[10px] text-slate-500 uppercase block">TRANSACTION REF</span>
-                  <span className="font-mono font-bold text-blue-950">{team.paymentInfo.transactionId}</span>
-                </div>
-                <div>
-                  <span className="font-mono text-[10px] text-slate-500 uppercase block">DATE &amp; TIME</span>
-                  <span className="font-mono font-medium text-slate-700">{team.paymentInfo.paidAt}</span>
-                </div>
-                <div>
-                  <span className="font-mono text-[10px] text-slate-500 uppercase block">PAYMENT STATUS</span>
-                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-mono font-black text-[11px] border border-emerald-300">
-                    ✓ {team.paymentInfo.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Billed Entity (Participating Squad) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-1 text-xs text-slate-700">
-                  <div className="font-mono font-bold text-blue-900 uppercase text-[11px]">
-                    BILLED TO PARTICIPATING INSTITUTION:
-                  </div>
-                  <div className="font-black text-base text-blue-950 uppercase">{team.teamName}</div>
-                  <div className="font-semibold text-slate-900">{team.institution}</div>
-                  <div>{team.city}, {team.state}, India</div>
-                  <div className="font-mono text-slate-600">Assigned Team ID: {team.teamId}</div>
-                </div>
-
-                <div className="space-y-1 text-xs text-slate-700 sm:text-right">
-                  <div className="font-mono font-bold text-blue-900 uppercase text-[11px]">
-                    EVENT PARTICIPATION DETAILS:
-                  </div>
-                  <div className="font-bold text-slate-950">Galgotias Drone Soccer League (GDSL 2026)</div>
-                  <div className="font-mono text-blue-900">Tournament Dates: {GDSL_TOURNAMENT_INFO.dates}</div>
-                  <div className="font-mono text-amber-800 font-bold">Division: {team.division}</div>
-                  <div className="font-mono text-slate-600">Allocated Pit: {team.allocatedPit}</div>
-                </div>
-              </div>
-
-              {/* Itemized Invoice Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
-                  <thead className="bg-blue-950 text-white font-mono text-[11px] uppercase">
-                    <tr>
-                      <th className="py-3 px-4">#</th>
-                      <th className="py-3 px-4">Item &amp; Service Description</th>
-                      <th className="py-3 px-4 text-center">HSN/SAC</th>
-                      <th className="py-3 px-4 text-center">Qty</th>
-                      <th className="py-3 px-4 text-right">Amount (INR)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-sans">
-                    <tr>
-                      <td className="py-3 px-4 font-mono">01</td>
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-blue-950">
-                          GDSL 2026 National Championship Official Team Entry License
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          Official squad registration for 5v5 / 3v3 caged aerial soccer, arena cage time &amp; broadcast tracking
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center font-mono">999291</td>
-                      <td className="py-3 px-4 text-center font-mono">1 Squad</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold">₹2,000.00</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 font-mono">02</td>
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-blue-950">
-                          Arena Scrutineering, Frequency Allocation &amp; Safety Cage Certification
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          FIDA Class compliance calibration, 5.8GHz VTX spectrum analyzer lock &amp; pit bay power access
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center font-mono">999291</td>
-                      <td className="py-3 px-4 text-center font-mono">1 Unit</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold">₹300.00</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4 font-mono">03</td>
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-blue-950">
-                          Official FAI Pilot Accreditation Passes &amp; Arena Lanyards (6 Pax)
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          Laminated NFC pilot credentials, pit mechanic passes &amp; emergency medical coverage
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center font-mono">999291</td>
-                      <td className="py-3 px-4 text-center font-mono">6 Badges</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold">₹200.00</td>
-                    </tr>
-                  </tbody>
-                  <tfoot className="bg-slate-50 font-bold border-t-2 border-slate-200">
-                    <tr>
-                      <td colSpan={4} className="py-3 px-4 text-right font-mono uppercase text-slate-700">
-                        Total Amount Paid (Inclusive of all applicable event taxes):
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono text-base text-blue-950">
-                        {team.paymentInfo.amount}.00
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-
-              {/* Digital Seal & Authorizer */}
-              <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                <div className="text-xs text-slate-500 space-y-1">
-                  <div className="font-mono text-slate-700 font-bold">PAYMENT GATEWAY: {team.paymentInfo.paymentMode}</div>
-                  <div>This is a digitally generated institutional receipt verified by GCDIS Accounts.</div>
-                  <div className="font-mono text-[10px] text-slate-400">VERIFICATION HASH: 8f4a-9c2b-e104-9428-f19b</div>
-                </div>
-
-                <div className="text-center sm:text-right space-y-1 border-t sm:border-t-0 pt-4 sm:pt-0">
-                  <div className="w-32 h-12 border-b border-dashed border-slate-400 mx-auto sm:ml-auto flex items-end justify-center pb-1">
-                    <span className="font-serif italic text-xs text-blue-900 font-bold">Finance Officer</span>
-                  </div>
-                  <span className="text-[11px] font-mono text-slate-600 block">
-                    Finance &amp; Accounts Division
-                  </span>
-                  <span className="text-[10px] font-mono font-bold text-blue-900 uppercase block">
-                    GALGOTIAS UNIVERSITY · GCDIS
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* TAB 3: ATTENDANCE ON-DUTY (OD) APPLICATION & LETTER GENERATOR */}
-        {/* ============================================================== */}
-        {activeTab === 'attendance' && (
-          <div className="space-y-6 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span className="font-mono text-xs font-bold text-blue-700 uppercase">
-                  ACADEMIC EXEMPTION &amp; ON-DUTY PERMISSION
-                </span>
-                <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
-                  APPLICATION FOR ON-DUTY (OD) ATTENDANCE
-                </h2>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleDispatchOdRequest}
-                  className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5"
-                >
-                  <span>✉️</span>
-                  <span>Request Secretariat Dispatch</span>
-                </button>
-                <button
-                  onClick={handlePrint}
-                  className="px-6 py-2.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
-                >
-                  <span>🖨️</span>
-                  <span>Print OD Letter (PDF)</span>
-                </button>
-              </div>
+            {/* Letter To */}
+            <div className="text-xs space-y-0.5 pt-2">
+              <div className="font-bold">To,</div>
+              <div>{facultyName}</div>
+              <div>{department}</div>
+              <div>{collegeName}</div>
             </div>
 
-            {odDispatchedAlert && (
-              <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs rounded-2xl flex items-start gap-2.5 animate-fade-in">
-                <span className="text-base leading-none">✓</span>
-                <div className="space-y-1">
-                  <div className="font-bold">OD Request Dispatched Successfully!</div>
-                  <div className="leading-relaxed">{odDispatchedAlert}</div>
-                </div>
-              </div>
-            )}
+            {/* Subject */}
+            <div className="text-xs font-bold pt-2 border-l-2 border-blue-900 pl-3 py-1 font-sans">
+              Subject: Official Request for Attendance Grant / On-Duty (OD) Leave for Students Participating in the Galgotias Drone Soccer League 2026.
+            </div>
 
-            {/* Customizer Panel */}
-            <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-              <h3 className="font-sans font-black text-base text-blue-950 uppercase border-b border-blue-100 pb-3">
-                CUSTOMIZE LETTER FOR YOUR COLLEGE / UNIVERSITY AUTHORITY
-              </h3>
+            {/* Letter Body */}
+            <div className="text-xs space-y-3 font-sans text-slate-700">
+              <p>Respected Sir / Madam,</p>
+              <p>
+                This is to officially certify that the following bonafide students of your esteemed institution have qualified and registered their team <strong>"{team.teamName}"</strong> (Team ID: <span className="font-mono font-bold text-slate-900">{team.teamId}</span>) to compete in the prestigious <strong>Galgotias Drone Soccer League 2026</strong>.
+              </p>
+              <p>
+                The national tournament will be conducted under the international FIDA 5th Revision regulations at the Galgotias Drone Arena, Greater Noida on <strong>{GDSL_TOURNAMENT_INFO.dates}</strong>.
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div>
-                  <label className="block font-bold text-blue-950 uppercase mb-1">
-                    Addressed Authority Name / Designation
-                  </label>
-                  <input
-                    type="text"
-                    value={facultyName}
-                    onChange={(e) => setFacultyName(e.target.value)}
-                    placeholder="e.g. Dr. R. K. Sharma / The Dean"
-                    className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs text-blue-950"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-blue-950 uppercase mb-1">
-                    Department / Faculty
-                  </label>
-                  <input
-                    type="text"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    placeholder="e.g. Dept of Aerospace &amp; Mechanical Engineering"
-                    className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs text-blue-950"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-blue-950 uppercase mb-1">
-                    College / Institute Name
-                  </label>
-                  <input
-                    type="text"
-                    value={collegeName}
-                    onChange={(e) => setCollegeName(e.target.value)}
-                    placeholder="e.g. Indian Institute of Technology Delhi"
-                    className="w-full px-3 py-2 rounded-xl border border-blue-200 text-xs text-blue-950"
-                  />
-                </div>
-              </div>
-
-              {/* Editable Student Roll Numbers */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-950 uppercase">
-                    STUDENT PILOT ROSTER &amp; ROLL NUMBERS (FOR COLLEGE RECORDS):
-                  </span>
-                  <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeTravelDates}
-                      onChange={(e) => setIncludeTravelDates(e.target.checked)}
-                      className="w-4 h-4 rounded text-blue-900 border-blue-300"
-                    />
-                    <span>Include 1-day travel buffer (Dec 01 arrival &amp; Dec 04 return)</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {students.map((st, idx) => (
-                    <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-1.5">
-                      <div className="font-bold text-blue-950 truncate">{st.name}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">{st.role}</div>
-                      <div>
+            {/* Students Table with Editable Roll Numbers */}
+            <div className="font-sans">
+              <h4 className="text-xs font-bold text-slate-800 mb-2 uppercase">Official Participating Student Contingent:</h4>
+              <table className="w-full text-xs border border-slate-200">
+                <thead>
+                  <tr className="bg-slate-100 text-slate-700">
+                    <th className="p-2 border border-slate-200 text-left">#</th>
+                    <th className="p-2 border border-slate-200 text-left">Student Name</th>
+                    <th className="p-2 border border-slate-200 text-left">Tournament Role</th>
+                    <th className="p-2 border border-slate-200 text-left">Roll / Reg No</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((st, i) => (
+                    <tr key={i} className="hover:bg-slate-50">
+                      <td className="p-2 border border-slate-200">{i + 1}</td>
+                      <td className="p-2 border border-slate-200 font-semibold">{st.name}</td>
+                      <td className="p-2 border border-slate-200 text-slate-600">{st.role}</td>
+                      <td className="p-2 border border-slate-200">
                         <input
                           type="text"
                           value={st.rollNo || ''}
-                          onChange={(e) => handleUpdateStudentRoll(idx, e.target.value)}
-                          placeholder="Enter Roll / Reg No."
-                          className="w-full px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-mono text-blue-900 bg-white"
+                          onChange={(e) => handleUpdateRoll(i, e.target.value)}
+                          className="w-full px-1.5 py-0.5 border border-slate-300 rounded text-xs font-mono font-bold"
+                          placeholder="Enter Roll No"
                         />
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
-              </div>
+                </tbody>
+              </table>
             </div>
 
-            {/* Official Letterhead Preview */}
-            <div
-              id="printable-od-letter"
-              className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-12 shadow-lg space-y-6 max-w-4xl mx-auto"
+            {/* Request note */}
+            <div className="text-xs space-y-2 font-sans text-slate-700">
+              <p>
+                Kindly consider their participation as official academic On-Duty (OD) representation, and grant academic attendance dispensation for the event days (including travel allowances where applicable).
+              </p>
+              <p>Thanking you in anticipation of your kind support for collegiate student innovation.</p>
+            </div>
+
+            {/* Signature Block */}
+            <div className="pt-8 flex justify-between items-end font-sans text-xs">
+              <div>
+                <div className="text-slate-400 italic mb-2">[Official Stamp / Seal]</div>
+                <div className="font-bold text-slate-800">Organizing Committee</div>
+                <div className="text-slate-500">Galgotias Drone Soccer League</div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold text-slate-800">Director, GCDIS</div>
+                <div className="text-slate-500">Galgotias University</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: TEAM PROFILE & ROSTER                                */}
+      {/* ========================================================= */}
+      {activeTab === 'profile' && (
+        <div className="space-y-6 text-left">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Team Profile &amp; Pilot Roster</h2>
+              <p className="text-xs text-slate-500">Your registered team details and drone specifications.</p>
+            </div>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
             >
-              {/* University Letterhead */}
-              <div className="flex items-center justify-between border-b-2 border-blue-950 pb-5">
-                <div className="flex items-center gap-3">
-                  <GcdisLogo size="lg" showWordmark={true} />
+              {isEditing ? 'Cancel Editing' : '✏️ Edit Contact / Hardware'}
+            </button>
+          </div>
+
+          {saveSuccess && (
+            <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-lg font-medium">
+              ✓ Profile updated successfully!
+            </div>
+          )}
+
+          {/* Edit Form Modal/Box if toggled */}
+          {isEditing && (
+            <form onSubmit={handleSaveProfile} className="bg-white border border-blue-200 rounded-xl p-5 shadow-xs space-y-4 text-xs">
+              <h3 className="font-bold text-slate-900 text-sm">Update Contact &amp; Drone Specs</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-500 font-medium mb-1">Captain Phone Number:</label>
+                  <input
+                    type="text"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold"
+                  />
                 </div>
-                <div className="text-right font-mono text-[10px] text-slate-600 space-y-0.5">
-                  <div className="font-bold text-xs text-blue-950">GALGOTIAS UNIVERSITY</div>
-                  <div>Centre for Drone Intelligence &amp; Simulation (GCDIS)</div>
-                  <div>Office of the Tournament Organizing Committee</div>
-                  <div className="font-bold text-blue-900">REF: GCDIS/GDSL-2026/OD-REQ/{team.teamId}</div>
-                  <div>DATE: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                <div>
+                  <label className="block text-slate-500 font-medium mb-1">Drone Model:</label>
+                  <input
+                    type="text"
+                    value={editDroneModel}
+                    onChange={(e) => setEditDroneModel(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-500 font-medium mb-1">VTX Band / Channel:</label>
+                  <input
+                    type="text"
+                    value={editVtx}
+                    onChange={(e) => setEditVtx(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold"
+                  />
                 </div>
               </div>
-
-              {/* Addressee */}
-              <div className="space-y-1 text-xs text-slate-800">
-                <div className="font-bold">To,</div>
-                <div className="font-bold text-blue-950">{facultyName}</div>
-                <div>{designation}</div>
-                <div>{department}</div>
-                <div className="font-semibold">{collegeName}</div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-900 hover:bg-blue-950 text-white rounded-lg font-bold text-xs"
+                >
+                  Save Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="px-3 py-2 border border-slate-300 text-slate-600 rounded-lg text-xs"
+                >
+                  Cancel
+                </button>
               </div>
+            </form>
+          )}
 
-              {/* Subject */}
-              <div className="p-3 bg-blue-50/80 border-l-4 border-blue-900 rounded-r-xl text-xs text-blue-950 font-bold leading-relaxed">
-                SUBJECT: OFFICIAL REQUEST FOR GRANT OF ACADEMIC ON-DUTY (OD) ATTENDANCE EXEMPTION FOR PARTICIPATION IN GALGOTIAS DRONE SOCCER LEAGUE (GDSL 2026) – REG.
+          {/* Basic Roster Table */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">
+              Official 6-Person Squad Roster
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-emerald-700 font-bold block uppercase">Striker Pilot</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.strikerPilot}</span>
+                <span className="text-slate-500 text-[11px]">Primary scorer · Green LED</span>
               </div>
-
-              {/* Letter Body */}
-              <div className="space-y-3 text-xs text-slate-700 leading-relaxed font-sans">
-                <p>
-                  Respected Sir / Madam,
-                </p>
-                <p>
-                  Greetings from <strong>Galgotias University</strong> and the <strong>Galgotias Centre for Drone Intelligence &amp; Simulation (GCDIS)</strong>.
-                </p>
-                <p>
-                  We are pleased to inform your good office that the student delegation representing <strong>{team.teamName}</strong> from your esteemed institution has successfully registered and qualified to compete in the <strong>Galgotias Drone Soccer League (GDSL 2026)</strong>. GDSL 2026 is India&apos;s premier national intercollegiate 3D aerial robotics e-sport championship, organized under the technical regulations of the Federation of International Dronesoccer Association (FIDA) and FAI Class F9A.
-                </p>
-                <p>
-                  The tournament will be held at the <strong>Galgotias University Indoor Drone Arena, Greater Noida, Uttar Pradesh</strong> on <strong>{GDSL_TOURNAMENT_INFO.dates}</strong>{includeTravelDates ? ', with official team arrival on December 01, 2026 and return travel scheduled on December 04, 2026' : ''}.
-                </p>
-                <p>
-                  The following bona fide students from your institution constitute the official participating crew:
-                </p>
-
-                {/* Table of students */}
-                <div className="overflow-x-auto py-2">
-                  <table className="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
-                    <thead className="bg-slate-100 font-mono text-[11px] uppercase text-blue-950">
-                      <tr>
-                        <th className="py-2.5 px-3">#</th>
-                        <th className="py-2.5 px-3">Student Full Name</th>
-                        <th className="py-2.5 px-3">Designated Role</th>
-                        <th className="py-2.5 px-3 font-mono">College Roll / Reg No.</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {students.map((st, idx) => (
-                        <tr key={idx}>
-                          <td className="py-2 px-3 font-mono">{idx + 1}</td>
-                          <td className="py-2 px-3 font-bold text-blue-950">{st.name}</td>
-                          <td className="py-2 px-3 text-slate-600">{st.role}</td>
-                          <td className="py-2 px-3 font-mono font-bold text-blue-900">{st.rollNo || 'N/A'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <p>
-                  Considering the technical rigor and national significance of this collegiate championship, where teams compete for a grand prize pool of <strong>{GDSL_TOURNAMENT_INFO.totalPrizePool}</strong> and represent their respective universities on live arena broadcast, we respectfully request your esteemed administration to kindly grant <strong>On-Duty (OD) Academic Attendance exemption</strong> to the aforementioned students for the period of <strong>{includeTravelDates ? 'December 01, 2026 to December 04, 2026' : GDSL_TOURNAMENT_INFO.dates}</strong> so that their academic records remain unaffected.
-                </p>
-                <p>
-                  Your encouragement towards student innovation in aerial robotics and autonomous systems is deeply appreciated.
-                </p>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-blue-700 font-bold block uppercase">Goalkeeper Pilot</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.goalkeeper}</span>
+                <span className="text-slate-500 text-[11px]">Hoop defender · White LED</span>
               </div>
-
-              {/* Signatures */}
-              <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-slate-200">
-                <div className="text-xs text-slate-600 space-y-1">
-                  <div className="font-bold text-blue-950">Event Organizing Secretariat</div>
-                  <div>Galgotias Drone Soccer League (GDSL 2026)</div>
-                  <div className="font-mono text-[10px] text-slate-400">Email: {GDSL_TOURNAMENT_INFO.supportEmail}</div>
-                </div>
-
-                <div className="text-left sm:text-right space-y-1">
-                  <div className="font-serif italic text-sm text-blue-950 font-bold">Dr. V. K. Singh</div>
-                  <div className="text-xs font-bold text-blue-900">Director, GCDIS</div>
-                  <div className="text-[11px] text-slate-500">Galgotias Centre for Drone Intelligence &amp; Simulation</div>
-                  <div className="text-[10px] font-mono font-bold text-blue-950">GALGOTIAS UNIVERSITY</div>
-                </div>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-sky-700 font-bold block uppercase">Defender 1 (Libero)</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.defender1}</span>
+                <span className="text-slate-500 text-[11px]">Blocker · Sky Blue LED</span>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-amber-700 font-bold block uppercase">Defender 2 (Sweeper)</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.defender2}</span>
+                <span className="text-slate-500 text-[11px]">Zone sweeper · Yellow LED</span>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-purple-700 font-bold block uppercase">Team Captain &amp; Pilot</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.captainName}</span>
+                <span className="text-slate-500 text-[11px]">Telemetry &amp; Tactics</span>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-[10px] text-slate-700 font-bold block uppercase">Pit Mechanic</span>
+                <span className="font-bold text-slate-900 text-sm block">{team.pitMechanic}</span>
+                <span className="text-slate-500 text-[11px]">Battery &amp; Airframe repair</span>
               </div>
             </div>
           </div>
-        )}
 
-        {/* ============================================================== */}
-        {/* TAB 4: MATCH SCHEDULE (COMING SOON) */}
-        {/* ============================================================== */}
-        {activeTab === 'schedule' && (
-          <div className="space-y-6 text-left">
-            <div className="bg-white border border-blue-200 rounded-3xl p-8 sm:p-12 shadow-md text-center space-y-6">
-              {/* Coming soon banner */}
-              <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-900 px-4 py-1.5 rounded-full text-xs font-mono font-black uppercase tracking-wider border border-amber-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-                <span>OFFICIAL FIXTURE DRAW IN PROGRESS</span>
+          {/* Technical Hardware Card */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2 mb-4">
+              Drone Hardware &amp; Telemetry
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+              <div>
+                <span className="text-slate-400 block font-medium">Exoskeleton Model:</span>
+                <span className="font-bold text-slate-800">{team.droneModel}</span>
               </div>
-
-              <div className="space-y-3 max-w-2xl mx-auto">
-                <h2 className="text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
-                  MATCH SCHEDULE · COMING SOON
-                </h2>
-                <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                  The official group stage allocations and arena match timings for <strong>{team.teamName}</strong> ({team.division}) will be published right after tournament registrations close on <strong>November 05, 2026</strong>.
-                </p>
+              <div>
+                <span className="text-slate-400 block font-medium">Radio Protocol:</span>
+                <span className="font-bold text-slate-800">{team.controlProtocol}</span>
               </div>
-
-              {/* Reveal Timeline Card */}
-              <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
-                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
-                  <span className="text-[10px] font-mono font-bold text-blue-700 uppercase block">STEP 1</span>
-                  <div className="font-bold text-sm text-blue-950">Scrutineering Close</div>
-                  <p className="text-[11px] text-slate-600">Nov 05, 2026 · Frequency lock and 32 squad verification</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
-                  <span className="text-[10px] font-mono font-bold text-amber-800 uppercase block">STEP 2</span>
-                  <div className="font-bold text-sm text-amber-950">Live Fixture Draw</div>
-                  <p className="text-[11px] text-amber-900">Nov 28, 2026 · Live-streamed from GCDIS Broadcast Studio</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
-                  <span className="text-[10px] font-mono font-bold text-emerald-800 uppercase block">STEP 3</span>
-                  <div className="font-bold text-sm text-emerald-950">Tournament Clash</div>
-                  <p className="text-[11px] text-emerald-900">Dec 02 – 03, 2026 · 5v5 Aerial Caged Action at GU Arena</p>
-                </div>
+              <div>
+                <span className="text-slate-400 block font-medium">VTX Band:</span>
+                <span className="font-mono font-bold text-slate-800">{team.vtxBand}</span>
               </div>
-
-              {/* WhatsApp Notification Subscription */}
-              <div className="max-w-xl mx-auto p-5 bg-gradient-to-br from-blue-950 to-slate-900 text-white rounded-2xl border border-blue-400/30 text-left space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-amber-300 font-bold uppercase">
-                    CAPTAIN ALERT SUBSCRIPTION
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-300">AUTO-NOTIFY ENABLED</span>
-                </div>
-                <p className="text-xs text-slate-300">
-                  We will dispatch your exact arena cage assignment, match timing, and opponent roster directly to <strong>{team.captainPhone}</strong> &amp; <strong>{team.captainEmail}</strong> as soon as the live draw concludes.
-                </p>
-
-                <div className="pt-1">
-                  <button
-                    onClick={() => {
-                      setScheduleSubscribed(true);
-                      setTimeout(() => setScheduleSubscribed(false), 4000);
-                    }}
-                    disabled={scheduleSubscribed}
-                    className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                  >
-                    <span>{scheduleSubscribed ? '✓ ALERT CONFIRMED FOR CAPTAIN' : '🔔 PUSH SCHEDULE ALERT TO MY PHONE'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Fixtures Simulator Link */}
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                <button
-                  onClick={() => onNavigate('bracket')}
-                  className="px-5 py-2.5 rounded-full border border-blue-300 hover:bg-blue-50 text-blue-900 font-sans font-bold text-xs uppercase tracking-wider transition-all"
-                >
-                  View Tournament Bracket Structure →
-                </button>
-                <button
-                  onClick={() => onNavigate('rules')}
-                  className="px-5 py-2.5 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-700 font-sans font-bold text-xs uppercase tracking-wider transition-all"
-                >
-                  Review FIDA Match Rules →
-                </button>
+              <div>
+                <span className="text-slate-400 block font-medium">Pit Allocation:</span>
+                <span className="font-bold text-blue-900">{team.allocatedPit}</span>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: MATCH SCHEDULE (COMING SOON)                         */}
+      {/* ========================================================= */}
+      {activeTab === 'schedule' && (
+        <div className="space-y-6 text-left">
+          <div className="bg-white border border-slate-200 rounded-xl p-8 sm:p-12 shadow-xs text-center max-w-2xl mx-auto space-y-4">
+            <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mx-auto border border-amber-200">
+              ⏱️
+            </div>
+            <div className="space-y-1">
+              <span className="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide">
+                Coming Soon
+              </span>
+              <h2 className="text-2xl font-bold text-slate-900 mt-2">
+                Tournament Fixtures &amp; Match Schedule
+              </h2>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">
+                The official pool draws and arena time slots will be published prior to tournament kick-off.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 max-w-md mx-auto space-y-2 text-left">
+              <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500">Event Dates:</span>
+                <span className="font-bold text-slate-900">{GDSL_TOURNAMENT_INFO.dates}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500">Fixture Release:</span>
+                <span className="font-bold text-slate-900">December 01, 2026 (7:00 PM IST)</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500">Your Allocated Pit:</span>
+                <span className="font-bold text-blue-900">{team.allocatedPit}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-500">Team Classification:</span>
+                <span className="font-bold text-slate-900">{team.division}</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => {
+                  setScheduleAlert(true);
+                  setTimeout(() => setScheduleAlert(false), 3000);
+                }}
+                className="px-5 py-2.5 rounded-lg bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs transition-colors shadow-xs"
+              >
+                {scheduleAlert ? '✓ Alert Enabled for ' + team.captainEmail : 'Notify Captain on WhatsApp/Email When Live'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
 export default TeamDashboardPage;

@@ -15,27 +15,27 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
   return (
     <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-16 space-y-12 pointer-events-auto text-slate-900">
       {/* Banner 1: Call for Teams */}
-      <div className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-r from-blue-900 via-blue-950 to-slate-950 text-white p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 border border-blue-400/30">
-        <div className="flex items-center gap-6 text-left">
+      <div className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-r from-blue-900 via-blue-950 to-slate-950 text-white p-5 sm:p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 border border-blue-400/30">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-left">
           <GcdisLogo size="lg" showWordmark={false} />
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-blue-800/80 border border-blue-600 text-sky-300 text-xs font-mono font-bold uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>OFFICIAL INVITATION · INTERCOLLEGIATE CUP</span>
             </div>
-            <h3 className="text-2xl sm:text-4xl font-sans font-black tracking-tight uppercase text-white">
+            <h3 className="text-xl sm:text-3xl md:text-4xl font-sans font-black tracking-tight uppercase text-white">
               REGISTER YOUR DRONE SOCCER SQUAD
             </h3>
-            <p className="text-sm text-blue-200 max-w-xl font-medium leading-relaxed">
-              32 team slots. Class 20 &amp; Class 40 divisions. FAI rules, live stream broadcasting, and ₹1,00,000 cash prizes at Galgotias University.
+            <p className="text-xs sm:text-sm text-blue-200 max-w-xl font-medium leading-relaxed">
+              32 team slots. Total pool of ₹1,00,000 (including trophy and cash prize). Class 20 (₹37,000 pool) &amp; Class 40 (₹57,000 pool) divisions, FIDA rules, and live arena stream at Galgotias University.
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
           <button
             onClick={() => handleJump('register')}
-            className="px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto min-h-[44px] px-6 sm:px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95 text-center justify-center flex items-center"
           >
             Register Squad (Free Entry) →
           </button>
@@ -60,18 +60,23 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
             className="group cursor-pointer p-6 rounded-2xl bg-white border border-blue-200 hover:border-blue-400 transition-all hover:shadow-md space-y-3 flex flex-col justify-between"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors mb-3 font-mono font-black text-sm">
-                01
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors font-mono font-black text-sm">
+                  01
+                </div>
+                <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-850 px-2 py-0.5 rounded-full border border-amber-300">
+                  COMING SOON
+                </span>
               </div>
               <h4 className="font-sans font-black text-base text-blue-950 uppercase">
                 Knockout Bracket
               </h4>
               <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Live match fixtures, group stage points tables, and interactive 3-minute set simulation.
+                Official draw, group seeding, and knockout tree will unlock once team registrations close.
               </p>
             </div>
             <div className="text-xs text-blue-700 font-bold flex items-center gap-1 uppercase tracking-wider pt-2">
-              <span>View Bracket</span>
+              <span>View Bracket Status</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </div>

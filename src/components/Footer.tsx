@@ -13,10 +13,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   return (
-    <footer className="relative z-30 w-full px-6 md:px-16 lg:px-24 border-t border-blue-200/80 pt-16 pb-12 bg-white/95 backdrop-blur-xl text-blue-950 pointer-events-auto shadow-sm">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <footer className="relative z-30 w-full px-4 sm:px-8 md:px-16 lg:px-24 border-t border-blue-200/80 pt-10 sm:pt-16 pb-8 sm:pb-12 bg-white/95 backdrop-blur-xl text-blue-950 pointer-events-auto shadow-sm">
+      <div className="max-w-7xl mx-auto space-y-10 sm:space-y-12">
         {/* Top Grid: Brand & Directory */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 text-left">
           {/* Col 1 & 2: Circular Brand Emblem & Mission */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
@@ -44,13 +44,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNav('bracket')} className="hover:text-blue-900 transition-colors">
-                  Bracket &amp; Live Scores
+                <button onClick={() => handleNav('bracket')} className="hover:text-blue-900 transition-colors flex items-center gap-1.5">
+                  <span>Bracket &amp; Fixtures</span>
+                  <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded">SOON</span>
                 </button>
               </li>
               <li>
                 <button onClick={() => handleNav('register')} className="hover:text-blue-900 transition-colors font-bold text-blue-900">
-                  Squad Entry (₹1,00,000 Cup)
+                  Squad Entry (D-20 &amp; D-40 Cups)
                 </button>
               </li>
               <li>

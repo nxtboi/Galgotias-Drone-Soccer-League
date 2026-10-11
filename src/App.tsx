@@ -70,7 +70,7 @@ export function App() {
       <StormSkyBackground />
 
       {/* 2. Fixed Event Navigation Bar */}
-      <div className="fixed top-0 left-0 w-full z-40 bg-transparent pointer-events-auto">
+      <div className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-blue-100/70 shadow-xs pointer-events-auto transition-all">
         <Navigation
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
@@ -91,7 +91,7 @@ export function App() {
             />
           </section>
 
-          {/* Tournament Overview: Explainer, ₹1,00,000 Prize Breakdown, 2-Day Timeline, Arena Host */}
+          {/* Tournament Overview: Explainer, D-20 & D-40 Prize Pools, 2-Day Timeline, Arena Host */}
           <TournamentOverviewSection
             onRegisterClick={() => handleSelectTab('register')}
             onBracketClick={() => handleSelectTab('bracket')}

@@ -65,6 +65,10 @@ export const GDSL_TOURNAMENT_INFO = {
   location: 'Indoor Sports Arena & Proving Ground, Galgotias University, Greater Noida, Uttar Pradesh, India',
   dates: 'December 02 – 03, 2026',
   totalPrizePool: '₹1,00,000',
+  totalPrizePoolBreakdown: '₹1,00,000 (including trophy and cash prize)',
+  cashPrizePool: '₹94,000',
+  d20PrizePool: '₹37,000',
+  d40PrizePool: '₹57,000',
   teamCapacity: 32,
   registeredTeamsCount: 28,
   matchFormat: '5 vs 5 & 3 vs 3 Caged Aerial Soccer',
@@ -75,48 +79,106 @@ export const GDSL_TOURNAMENT_INFO = {
   governingStandard: 'FIDA (Federation of International Dronesoccer Association) 5th Revision',
 };
 
+export interface DivisionPrizePool {
+  divisionCode: 'D-20' | 'D-40';
+  divisionName: string;
+  droneClass: string;
+  arenaFormat: string;
+  totalAmount: string;
+  badge: string;
+  prizes: PrizeItem[];
+}
+
+export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
+  d40: {
+    divisionCode: 'D-40',
+    divisionName: 'Class 40 (400mm) Heavyweight Division',
+    droneClass: 'D-40 Spherical Drone (≤1100g, 40cm)',
+    arenaFormat: '5 vs 5 Full Arena (16m × 8m)',
+    totalAmount: '₹57,000',
+    badge: 'D-40 DIVISION · 5v5 ARENA',
+    prizes: [
+      {
+        place: '1st Place',
+        amount: '₹31,000',
+        title: 'D-40 Grand Champions Trophy',
+        perks: [
+          'GDSL D-40 Grand Rolling Trophy + Individual Gold Medals',
+          'FIDA National Championship Citation & Accreditation',
+          'GCDIS Aerospace Research Lab Fellowship & Incubation',
+          'Full 400mm Carbon-fiber Flight Kit & Brushless Motor Spares',
+        ],
+        highlight: true,
+      },
+      {
+        place: '2nd Place',
+        amount: '₹21,000',
+        title: 'D-40 Runners-Up Silver Cup',
+        perks: [
+          'Silver Trophy + Individual Silver Medals',
+          'Official GDSL Silver Merit Certificates',
+          'High-C LiPo Flight Battery Arsenal & Multi-Port Smart Charger',
+        ],
+      },
+      {
+        place: 'Special Prize',
+        amount: '₹5,000',
+        title: 'D-40 Engineering & MVP Awards',
+        perks: [
+          'Golden Striker MVP (Top Scorer in D-40 5v5 Arena)',
+          'Best Impact-Resistant Cage Engineering & Aerodynamics',
+          'Official GCDIS Merit Citation & Distinction Badge',
+        ],
+      },
+    ],
+  },
+  d20: {
+    divisionCode: 'D-20',
+    divisionName: 'Class 20 (200mm) High-Speed Division',
+    droneClass: 'D-20 Spherical Drone (≤110g, 20cm)',
+    arenaFormat: '3 vs 3 High-Agility Micro Arena (8m × 4m)',
+    totalAmount: '₹37,000',
+    badge: 'D-20 DIVISION · 3v3 ARENA',
+    prizes: [
+      {
+        place: '1st Place',
+        amount: '₹21,000',
+        title: 'D-20 National Champions Trophy',
+        perks: [
+          'GDSL D-20 Gold Cup + Individual Gold Medals',
+          'FIDA-aligned National Citation & Merit Badges',
+          'Exclusive GCDIS Aerospace Research Lab Fellowship',
+          'Complete 200mm Flight Kit & Carbon Cage Spares Hub',
+        ],
+        highlight: true,
+      },
+      {
+        place: '2nd Place',
+        amount: '₹11,000',
+        title: 'D-20 Runners-Up Silver Cup',
+        perks: [
+          'Silver Trophy + Individual Silver Medals',
+          'Official GDSL Silver Merit Certificates',
+          'High-performance 3S/4S LiPo Battery Packs & Rapid Charger',
+        ],
+      },
+      {
+        place: 'Special Prize',
+        amount: '₹5,000',
+        title: 'D-20 MVP & Flight Agility Distinction',
+        perks: [
+          'Golden Striker MVP (Top Scorer in D-20 Arena)',
+          'Best Engineered 200mm Agility Cage & Pilot Innovation',
+          'Official GCDIS Certificate of Sporting Excellence',
+        ],
+      },
+    ],
+  },
+};
+
 export const PRIZE_POOL: PrizeItem[] = [
-  {
-    place: '1st Place',
-    amount: '₹21,000',
-    title: 'GDSL National Championship Trophy',
-    perks: [
-      'GDSL Grand Trophy + Individual Gold Medals',
-      'FIDA-aligned National Drone Soccer Citation',
-      'Exclusive GCDIS Aerospace Research Lab Fellowship',
-      'Full Flight Kit & High-Performance Carbon Cage Spares',
-    ],
-    highlight: true,
-  },
-  {
-    place: '2nd Place',
-    amount: '₹11,000',
-    title: 'Runners-Up Silver Cup',
-    perks: [
-      'Silver Trophy + Individual Silver Medals',
-      'Official GDSL Silver Merit Certificates',
-      'High-C LiPo Battery Packs & Rapid Charger Hub',
-    ],
-  },
-  {
-    place: '3rd Place',
-    amount: '₹5,000',
-    title: 'Bronze Plate Podium',
-    perks: [
-      'Bronze Trophy + Individual Bronze Medals',
-      'Certificate of Sporting Distinction',
-      'High-Speed Brushless Motor & Propeller Spares Kit',
-    ],
-  },
-  {
-    place: 'Special Awards',
-    amount: '₹3,000',
-    title: 'Pilot & Engineering Distinction',
-    perks: [
-      '₹1,500 · Golden Striker MVP (Top Scorer of the League)',
-      '₹1,500 · Best Engineered Protective Cage (Aerodynamics & Strength)',
-    ],
-  },
+  ...PRIZE_POOLS.d40.prizes,
+  ...PRIZE_POOLS.d20.prizes,
 ];
 
 export const TOURNAMENT_TIMELINE: TournamentPhase[] = [
@@ -167,7 +229,7 @@ export const TOURNAMENT_TIMELINE: TournamentPhase[] = [
     title: 'Semi-Finals & Grand Championship Clash',
     location: 'Main Arena Center Cage',
     description:
-      'High-stakes 5v5 aerial clash for the ₹21,000 championship trophy, broadcasted live on arena LED video walls.',
+      'High-stakes aerial clash for the D-40 (₹31,000) and D-20 (₹21,000) championship trophies, broadcasted live on arena LED video walls.',
     badge: 'DAY 2 FINALE',
   },
   {
@@ -381,99 +443,65 @@ export const MATCH_FIXTURES: MatchFixture[] = [
   {
     id: 'QF-1',
     round: 'Quarter-Final',
-    teamA: 'Galgotias Aero Hawks',
-    teamB: 'BITS Pilani Falcons',
-    scheduledTime: 'Dec 03 · 09:30 IST',
+    teamA: 'Quarter-Finalist 1',
+    teamB: 'Quarter-Finalist 2',
+    scheduledTime: 'Dec 03, 2026 · Morning',
     court: 'Arena Cage 1',
-    status: 'Completed',
-    scores: {
-      teamA: [9, 12, 11],
-      teamB: [5, 7, 8],
-      winner: 'Galgotias Aero Hawks',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'QF-2',
     round: 'Quarter-Final',
-    teamA: 'DTU Sky Phoenix',
-    teamB: 'IIT Delhi AeroVortex',
-    scheduledTime: 'Dec 03 · 10:45 IST',
+    teamA: 'Quarter-Finalist 3',
+    teamB: 'Quarter-Finalist 4',
+    scheduledTime: 'Dec 03, 2026 · Morning',
     court: 'Arena Cage 1',
-    status: 'Completed',
-    scores: {
-      teamA: [8, 10, 7],
-      teamB: [9, 8, 11],
-      winner: 'IIT Delhi AeroVortex',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'QF-3',
     round: 'Quarter-Final',
-    teamA: 'IIIT Hyderabad Pulse',
-    teamB: 'Thapar Velocity',
-    scheduledTime: 'Dec 03 · 11:30 IST',
+    teamA: 'Quarter-Finalist 5',
+    teamB: 'Quarter-Finalist 6',
+    scheduledTime: 'Dec 03, 2026 · Morning',
     court: 'Arena Cage 2',
-    status: 'Completed',
-    scores: {
-      teamA: [11, 9, 12],
-      teamB: [6, 8, 7],
-      winner: 'IIIT Hyderabad Pulse',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'QF-4',
     round: 'Quarter-Final',
-    teamA: 'SRM Air Drifters',
-    teamB: 'NSUT Strike Wing',
-    scheduledTime: 'Dec 03 · 12:15 IST',
+    teamA: 'Quarter-Finalist 7',
+    teamB: 'Quarter-Finalist 8',
+    scheduledTime: 'Dec 03, 2026 · Midday',
     court: 'Arena Cage 2',
-    status: 'Completed',
-    scores: {
-      teamA: [10, 8, 9],
-      teamB: [5, 9, 6],
-      winner: 'SRM Air Drifters',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'SF-1',
     round: 'Semi-Final',
-    teamA: 'Galgotias Aero Hawks',
-    teamB: 'IIT Delhi AeroVortex',
-    scheduledTime: 'Dec 03 · 13:30 IST',
+    teamA: 'Winner QF-1',
+    teamB: 'Winner QF-2',
+    scheduledTime: 'Dec 03, 2026 · Afternoon',
     court: 'Arena Cage 1',
-    status: 'Completed',
-    scores: {
-      teamA: [12, 11, 14],
-      teamB: [9, 10, 11],
-      winner: 'Galgotias Aero Hawks',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'SF-2',
     round: 'Semi-Final',
-    teamA: 'IIIT Hyderabad Pulse',
-    teamB: 'SRM Air Drifters',
-    scheduledTime: 'Dec 03 · 14:45 IST',
+    teamA: 'Winner QF-3',
+    teamB: 'Winner QF-4',
+    scheduledTime: 'Dec 03, 2026 · Afternoon',
     court: 'Arena Cage 1',
-    status: 'Completed',
-    scores: {
-      teamA: [13, 12, 10],
-      teamB: [8, 9, 7],
-      winner: 'IIIT Hyderabad Pulse',
-    },
+    status: 'Upcoming',
   },
   {
     id: 'GF-1',
     round: 'Grand Finale',
-    teamA: 'Galgotias Aero Hawks',
-    teamB: 'IIIT Hyderabad Pulse',
-    scheduledTime: 'Dec 03 · 16:00 IST',
+    teamA: 'Winner SF-1',
+    teamB: 'Winner SF-2',
+    scheduledTime: 'Dec 03, 2026 · Grand Championship',
     court: 'Arena Cage 1',
-    status: 'Live',
-    scores: {
-      teamA: [14, 13],
-      teamB: [11, 12],
-    },
+    status: 'Upcoming',
   },
 ];
 
@@ -481,6 +509,8 @@ export const MATCH_FIXTURES: MatchFixture[] = [
 export interface FidaClassSpec {
   classId: 'Class 20' | 'Class 40';
   targetCategory: string;
+  prizePool: string;
+  prizeBreakdown: string;
   ballDiameter: string;
   ballWeightMax: string;
   exoskeletonOpenArea: string;
@@ -509,6 +539,8 @@ export const FIDA_CLASS_SPECS: Record<'class20' | 'class40', FidaClassSpec> = {
   class20: {
     classId: 'Class 20',
     targetCategory: 'Junior / Varsity / Educational (No modifications allowed)',
+    prizePool: '₹37,000 Total Pool',
+    prizeBreakdown: '1st: ₹21,000 · 2nd: ₹11,000 · Special: ₹5,000',
     ballDiameter: '20 cm ± 1 cm',
     ballWeightMax: '110 grams (max during play)',
     exoskeletonOpenArea: '≤ 70 cm² per single surface',
@@ -535,6 +567,8 @@ export const FIDA_CLASS_SPECS: Record<'class20' | 'class40', FidaClassSpec> = {
   class40: {
     classId: 'Class 40',
     targetCategory: 'Standard Collegiate / Professional Championship Division',
+    prizePool: '₹57,000 Total Pool',
+    prizeBreakdown: '1st: ₹31,000 · 2nd: ₹21,000 · Special: ₹5,000',
     ballDiameter: '40 cm ± 2 cm',
     ballWeightMax: '1,100 grams (max during play)',
     exoskeletonOpenArea: '≤ 150 cm² per single surface',

@@ -91,8 +91,8 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           )}
         </div>
 
-        {/* Section Navigation Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-2 border-b border-blue-200 pb-4">
+        {/* Section Navigation Tabs - Horizontally scrollable on mobile, wrapped on desktop */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 sm:flex-wrap sm:justify-center border-b border-blue-200">
           {[
             { id: 'specs', label: 'Class 20 vs 40 Specs' },
             { id: 'positions', label: '7-Color Position LEDs' },
@@ -105,7 +105,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`px-4 py-2 rounded-full font-sans font-bold text-xs uppercase tracking-wider transition-all ${
+              className={`px-3.5 sm:px-4 py-2 min-h-[40px] shrink-0 whitespace-nowrap rounded-full font-sans font-bold text-xs uppercase tracking-wider transition-all ${
                 activeTab === tab.id
                   ? 'bg-blue-950 text-white shadow-xs'
                   : 'bg-white text-slate-700 border border-blue-200 hover:bg-blue-50'
@@ -120,8 +120,8 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
         {activeTab === 'specs' && (
           <div className="space-y-8 text-left">
             {/* Division Switcher */}
-            <div className="flex items-center justify-between bg-blue-50/80 p-4 rounded-2xl border border-blue-200">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50/80 p-4 rounded-2xl border border-blue-200">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="font-mono text-xs font-bold text-blue-900 uppercase">SELECT DIVISION:</span>
                 <div className="flex items-center gap-2">
                   <button
@@ -132,7 +132,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                         : 'bg-white text-slate-700 hover:bg-blue-100'
                     }`}
                   >
-                    Class 40 (Standard Collegiate)
+                    Class 40 / D-40 (₹57K Purse)
                   </button>
                   <button
                     onClick={() => setSelectedClass('class20')}
@@ -142,13 +142,15 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                         : 'bg-white text-slate-700 hover:bg-blue-100'
                     }`}
                   >
-                    Class 20 (Junior / Varsity)
+                    Class 20 / D-20 (₹37K Purse)
                   </button>
                 </div>
               </div>
-              <span className="text-[11px] font-mono text-blue-700 font-bold hidden sm:inline">
-                {spec.targetCategory}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full">
+                  🏆 {spec.prizeBreakdown}
+                </span>
+              </div>
             </div>
 
             {/* Drone Ball & Goal Visual Cards */}

@@ -71,7 +71,7 @@ export const RealDroneSoccerArena: React.FC<RealDroneSoccerArenaProps> = ({
   return (
     <div className="relative w-full overflow-hidden rounded-3xl bg-slate-950 border border-blue-900/60 shadow-2xl text-white">
       {/* Real Broadcast Video Layer */}
-      <div className={`relative w-full ${isCinemaMode ? 'aspect-[16/9] min-h-[580px]' : 'aspect-[16/9] sm:aspect-[21/9] min-h-[460px] max-h-[680px]'} bg-black overflow-hidden`}>
+      <div className={`relative w-full ${isCinemaMode ? 'aspect-[16/9] min-h-[260px] sm:min-h-[580px]' : 'aspect-[16/9] sm:aspect-[21/9] min-h-[220px] sm:min-h-[460px] max-h-[680px]'} bg-black overflow-hidden`}>
         {/* Real YouTube Video Player Embed */}
         <iframe
           key={`${activeChannel.videoId}-${isMuted}`}
@@ -83,80 +83,80 @@ export const RealDroneSoccerArena: React.FC<RealDroneSoccerArenaProps> = ({
         />
 
         {/* Live Broadcast Telemetry HUD Overlay (Top) */}
-        <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+        <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
           {/* Channel Info & Live Pulse */}
-          <div className="flex items-center gap-3 bg-slate-950/85 backdrop-blur-md px-4 py-2 rounded-2xl border border-blue-500/40 pointer-events-auto shadow-lg">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-              <span className="font-mono text-xs font-black tracking-widest text-red-400 uppercase">
+          <div className="flex items-center gap-2 sm:gap-3 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-blue-500/40 pointer-events-auto shadow-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-500 animate-ping" />
+              <span className="font-mono text-[10px] sm:text-xs font-black tracking-widest text-red-400 uppercase">
                 {activeChannel.badge}
               </span>
             </div>
-            <span className="text-slate-500">|</span>
+            <span className="text-slate-500 text-xs">|</span>
             <div className="text-left">
-              <div className="text-xs font-bold text-white leading-tight">
+              <div className="text-[11px] sm:text-xs font-bold text-white leading-tight truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
                 {activeChannel.title}
               </div>
-              <div className="text-[10px] font-mono text-sky-400">
-                {activeChannel.source} · 1080p 60FPS
+              <div className="text-[9px] sm:text-[10px] font-mono text-sky-400">
+                {activeChannel.source} · 1080p
               </div>
             </div>
           </div>
 
           {/* Controls: Audio, Cinema Mode, Video Switcher */}
-          <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white font-mono text-xs font-bold border border-white/20 transition-all flex items-center gap-2 backdrop-blur-md"
+              className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white font-mono text-[10px] sm:text-xs font-bold border border-white/20 transition-all flex items-center gap-1 sm:gap-2 backdrop-blur-md min-h-[34px]"
               title={isMuted ? 'Unmute match audio' : 'Mute audio'}
             >
-              <span>{isMuted ? '🔇 SOUND OFF' : '🔊 LIVE AUDIO'}</span>
+              <span>{isMuted ? '🔇 MUTE' : '🔊 AUDIO'}</span>
             </button>
 
             <button
               onClick={() => setIsCinemaMode(!isCinemaMode)}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-900/90 hover:bg-blue-800 text-white font-mono text-xs font-bold border border-blue-400 transition-all backdrop-blur-md"
+              className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-900/90 hover:bg-blue-800 text-white font-mono text-[10px] sm:text-xs font-bold border border-blue-400 transition-all backdrop-blur-md min-h-[34px]"
             >
-              {isCinemaMode ? 'STANDARD VIEW' : 'EXPAND CINEMA ⛶'}
+              {isCinemaMode ? 'STANDARD' : 'CINEMA ⛶'}
             </button>
           </div>
         </div>
 
         {/* Live Score Bug HUD Overlay (Bottom-Left) */}
-        <div className="absolute bottom-4 left-4 z-20 hidden sm:flex items-center gap-3 bg-slate-950/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20 pointer-events-auto">
+        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-20 hidden xs:flex items-center gap-2 sm:gap-3 bg-slate-950/90 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-white/20 pointer-events-auto">
           <div className="flex items-center gap-2 font-mono">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-blue-600" />
-              <span className="text-xs font-black text-white">HAWKS</span>
-              <span className="text-base font-black text-sky-300 ml-1">14</span>
+            <div className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+              <span className="text-[11px] sm:text-xs font-black text-white">HAWKS</span>
+              <span className="text-sm sm:text-base font-black text-sky-300 ml-1">14</span>
             </div>
-            <span className="text-slate-500 px-1 font-bold">-</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-black text-amber-300 mr-1">11</span>
-              <span className="text-xs font-black text-white">VORTEX</span>
-              <span className="w-3 h-3 rounded-full bg-red-600" />
+            <span className="text-slate-500 px-0.5 sm:px-1 font-bold">-</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm sm:text-base font-black text-amber-300 mr-1">11</span>
+              <span className="text-[11px] sm:text-xs font-black text-white">VORTEX</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600" />
             </div>
           </div>
-          <span className="text-slate-600">|</span>
-          <div className="font-mono text-xs">
+          <span className="text-slate-600 hidden sm:inline">|</span>
+          <div className="font-mono text-[10px] sm:text-xs hidden sm:block">
             <span className="text-amber-400 font-bold">SET 2</span>
-            <span className="text-slate-400 ml-2">1:42 REMAINING</span>
+            <span className="text-slate-400 ml-2">1:42</span>
           </div>
         </div>
       </div>
 
       {/* Camera Angles Switcher Bar */}
-      <div className="p-4 sm:p-6 bg-slate-900/90 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold text-sky-400 uppercase tracking-wider">
+      <div className="p-3 sm:p-5 md:p-6 bg-slate-900/90 border-t border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 overflow-hidden">
+          <span className="font-mono text-[10px] sm:text-xs font-bold text-sky-400 uppercase tracking-wider shrink-0 text-left">
             ARENA CAMERAS:
           </span>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
             {CHANNELS.map((ch, idx) => (
               <button
                 key={ch.id}
                 onClick={() => setActiveChannelIndex(idx)}
-                className={`px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg sm:rounded-xl font-mono text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                   activeChannelIndex === idx
                     ? 'bg-blue-600 text-white shadow-md border border-sky-300 ring-2 ring-blue-500/30'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
@@ -168,11 +168,11 @@ export const RealDroneSoccerArena: React.FC<RealDroneSoccerArenaProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3 shrink-0">
           {onRegisterClick && (
             <button
               onClick={onRegisterClick}
-              className="px-5 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 text-center"
             >
               Register Team For League →
             </button>
