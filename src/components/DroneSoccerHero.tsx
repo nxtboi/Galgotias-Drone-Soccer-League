@@ -40,10 +40,10 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   return (
     <div className="relative w-full pt-2 sm:pt-3 pb-12 px-4 sm:px-6 lg:px-12 text-slate-900">
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
-        {/* Top Header Row with Event Brand & Badges - Responsive mobile layout */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-6 mt-1 sm:mt-2">
+        {/* Top Header Row with Event Brand & Badges - Matched heights */}
+        <div className="flex flex-col lg:flex-row items-stretch justify-between gap-3 sm:gap-6 mt-1 sm:mt-2">
           {/* Official Circular Logo with Event Accreditation */}
-          <div className="flex items-center gap-3 sm:gap-4 bg-white/95 backdrop-blur-md border border-blue-200/80 rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 pr-4 sm:pr-6 shadow-sm w-full lg:w-auto">
+          <div className="flex items-center gap-3 sm:gap-4 bg-white/95 backdrop-blur-md border border-blue-200/80 rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 pr-4 sm:pr-6 shadow-sm w-full lg:w-auto min-h-[72px] sm:min-h-[78px]">
             <GcdisLogo size="lg" showWordmark={false} />
             <div className="text-left">
               <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
           </div>
 
           {/* Live Tournament Countdown Timer */}
-          <div className="bg-white/95 backdrop-blur-md border border-blue-200/80 rounded-2xl sm:rounded-3xl p-3 px-4 sm:px-6 shadow-sm flex items-center justify-between sm:justify-start gap-3 sm:gap-5 w-full lg:w-auto">
+          <div className="bg-white/95 backdrop-blur-md border border-blue-200/80 rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 px-4 sm:px-6 shadow-sm flex items-center justify-between sm:justify-start gap-3 sm:gap-5 w-full lg:w-auto min-h-[72px] sm:min-h-[78px]">
             <div className="text-left">
               <div className="text-[9px] font-mono font-bold tracking-widest uppercase text-blue-600">
                 KICKOFF COUNTDOWN

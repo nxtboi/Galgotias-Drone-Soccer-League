@@ -70,7 +70,7 @@ export function App() {
       <StormSkyBackground />
 
       {/* 2. Fixed Event Navigation Bar */}
-      <div className="fixed top-0 left-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-blue-100/70 shadow-xs pointer-events-auto transition-all">
+      <div className="fixed top-0 left-0 w-full z-40 bg-transparent pointer-events-auto">
         <Navigation
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
