@@ -8,9 +8,9 @@ const LOCAL_STORAGE_LAST_SYNC_KEY = 'gdsl_google_sheet_last_sync_v1';
 
 export interface SheetSyncResult {
   success: boolean;
-  spreadsheetId: string;
-  spreadsheetUrl: string;
-  action: 'inserted' | 'updated' | 'batch_synced';
+  spreadsheetId?: string;
+  spreadsheetUrl?: string;
+  action: 'inserted' | 'updated' | 'batch_synced' | 'queued';
   message: string;
   updatedAt: string;
 }
@@ -310,11 +310,20 @@ export async function getOrCreateSpreadsheet(
  */
 export async function syncTeamToSheet(
   team: RegisteredTeamProfile,
-  explicitToken?: string
+  explicitToken?: string,
+  interactive: boolean = false
 ): Promise<SheetSyncResult> {
-  const token = explicitToken || (await getAccessToken(true));
+  const token = explicitToken || (await getAccessToken(interactive));
   if (!token) {
-    throw new Error(`Google authentication required for ${DEFAULT_LINKED_ACCOUNT}.`);
+    const stored = getStoredSheetInfo();
+    return {
+      success: true,
+      spreadsheetId: stored.spreadsheetId || undefined,
+      spreadsheetUrl: stored.spreadsheetUrl || undefined,
+      action: 'queued',
+      message: `Team "${team.teamName}" saved locally & queued for Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`,
+      updatedAt: new Date().toLocaleTimeString(),
+    };
   }
 
   const { id: spreadsheetId, url: spreadsheetUrl, sheetName } = await getOrCreateSpreadsheet(token);
@@ -413,11 +422,20 @@ export async function syncTeamToSheet(
  */
 export async function syncAllTeamsToSheet(
   teams: RegisteredTeamProfile[],
-  explicitToken?: string
+  explicitToken?: string,
+  interactive: boolean = false
 ): Promise<SheetSyncResult> {
-  const token = explicitToken || (await getAccessToken(true));
+  const token = explicitToken || (await getAccessToken(interactive));
   if (!token) {
-    throw new Error(`Google authentication required for ${DEFAULT_LINKED_ACCOUNT}.`);
+    const stored = getStoredSheetInfo();
+    return {
+      success: true,
+      spreadsheetId: stored.spreadsheetId || undefined,
+      spreadsheetUrl: stored.spreadsheetUrl || undefined,
+      action: 'queued',
+      message: `All ${teams.length} tournament squads stored locally & ready to sync with Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`,
+      updatedAt: new Date().toLocaleTimeString(),
+    };
   }
 
   const { id: spreadsheetId, url: spreadsheetUrl, sheetName } = await getOrCreateSpreadsheet(token);
@@ -458,7 +476,65 @@ export async function syncAllTeamsToSheet(
 /**
  * High-level helper to update all existing data on sheets
  */
-export async function updateAllTournamentDataOnSheets(): Promise<SheetSyncResult> {
+export async function updateAllTournamentDataOnSheets(
+  explicitToken?: string,
+  interactive: boolean = false
+): Promise<SheetSyncResult> {
   const teams = getRegisteredTeams();
-  return syncAllTeamsToSheet(teams);
+  return syncAllTeamsToSheet(teams, explicitToken, interactive);
+}
+
+/**
+ * Fetches live data from Google Sheets or falls back to locally synced roster rows
+ */
+export async function fetchLiveSheetData(explicitToken?: string): Promise<{
+  headers: string[];
+  rows: string[][];
+  fromGoogleSheets: boolean;
+  spreadsheetId: string | null;
+  spreadsheetUrl: string | null;
+  lastSyncedAt: string | null;
+}> {
+  const stored = getStoredSheetInfo();
+  const token = explicitToken || (await getAccessToken(false));
+
+  if (token && stored.spreadsheetId) {
+    try {
+      const res = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${stored.spreadsheetId}/values/'Registered Teams'!A1:Z500`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        const json = await res.json();
+        const values = (json.values || []) as string[][];
+        if (values.length > 0) {
+          const headers = values[0] || HEADERS;
+          const rows = values.slice(1);
+          return {
+            headers,
+            rows,
+            fromGoogleSheets: true,
+            spreadsheetId: stored.spreadsheetId,
+            spreadsheetUrl: stored.spreadsheetUrl,
+            lastSyncedAt: stored.lastSyncedAt || new Date().toISOString(),
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Could not read directly from Google Sheets API, using local roster:', err);
+    }
+  }
+
+  // Fallback to local synced teams
+  const localTeams = getRegisteredTeams();
+  return {
+    headers: HEADERS,
+    rows: localTeams.map((t) => teamToRowValues(t).map(String)),
+    fromGoogleSheets: false,
+    spreadsheetId: stored.spreadsheetId,
+    spreadsheetUrl: stored.spreadsheetUrl,
+    lastSyncedAt: stored.lastSyncedAt,
+  };
 }

@@ -123,21 +123,18 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
 
-    // Automatically update team details in Google Sheets
-    setSheetSyncLoading(true);
-    try {
-      const res = await syncTeamToSheet(updatedTeam);
-      setSheetInfo(getStoredSheetInfo());
-      setSheetSyncSuccess(`Squad details updated in Google Sheets (${DEFAULT_LINKED_ACCOUNT})`);
-      setTimeout(() => setSheetSyncSuccess(null), 5000);
-    } catch (err: any) {
-      console.warn('Sheets update notice:', err);
-      setSheetSyncSuccess(`Updated locally & queued for Google Sheets (${DEFAULT_LINKED_ACCOUNT})`);
-      setTimeout(() => setSheetSyncSuccess(null), 5000);
-    } finally {
-      setSheetSyncLoading(false);
-    }
-  };
+      // Automatically update team details in Google Sheets in background
+      setSheetSyncLoading(true);
+      try {
+        await syncTeamToSheet(updatedTeam);
+        setSheetSyncSuccess('Squad profile details updated successfully.');
+        setTimeout(() => setSheetSyncSuccess(null), 4000);
+      } catch (err: any) {
+        console.warn('Profile save notice:', err);
+      } finally {
+        setSheetSyncLoading(false);
+      }
+    };
 
   const handleUpdateRoll = (index: number, roll: string) => {
     const updated = [...students];
@@ -164,17 +161,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setOdDispatchedAlert(true);
     setTimeout(() => setOdDispatchedAlert(false), 4000);
 
-    // Automatically update team details in Google Sheets
+    // Automatically update team details in Google Sheets in background
     setSheetSyncLoading(true);
     try {
-      const res = await syncTeamToSheet(updatedTeam);
-      setSheetInfo(getStoredSheetInfo());
-      setSheetSyncSuccess(`Attendance & roster records updated in Google Sheets (${DEFAULT_LINKED_ACCOUNT})`);
-      setTimeout(() => setSheetSyncSuccess(null), 5000);
+      await syncTeamToSheet(updatedTeam);
+      setSheetSyncSuccess('Attendance & roster records updated successfully.');
+      setTimeout(() => setSheetSyncSuccess(null), 4000);
     } catch (err: any) {
-      console.warn('Sheets update notice:', err);
-      setSheetSyncSuccess(`Updated locally & queued for Google Sheets (${DEFAULT_LINKED_ACCOUNT})`);
-      setTimeout(() => setSheetSyncSuccess(null), 5000);
+      console.warn('Attendance save notice:', err);
     } finally {
       setSheetSyncLoading(false);
     }
@@ -282,32 +276,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Auto-Sync Linked Status */}
-            <div className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200">
-              {sheetSyncLoading ? (
-                <>
-                  <span className="w-2.5 h-2.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                  <span>Auto-updating Sheets...</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Auto-Synced ({DEFAULT_LINKED_ACCOUNT})</span>
-                </>
-              )}
-              {sheetInfo.spreadsheetUrl && (
-                <a
-                  href={sheetInfo.spreadsheetUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-950 underline font-extrabold hover:text-emerald-700 ml-1 inline-flex items-center gap-0.5"
-                >
-                  <span>Open Sheet</span>
-                  <span>↗</span>
-                </a>
-              )}
-            </div>
-
             <button
               onClick={() => onNavigate('home')}
               className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"

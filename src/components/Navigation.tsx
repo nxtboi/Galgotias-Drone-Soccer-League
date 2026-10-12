@@ -7,20 +7,24 @@ export interface NavigationProps {
   onSelectTab: (tab: string) => void;
   onOpenRegister?: () => void;
   loggedInTeam?: RegisteredTeamProfile | null;
+  isAdminLoggedIn?: boolean;
+  onLogout?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onSelectTab,
   loggedInTeam,
+  isAdminLoggedIn = false,
+  onLogout,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dedicated Event Navigation for Galgotias Drone Soccer League
   const navItems = [
     { id: 'home', label: 'League Overview' },
+    { id: 'practice', label: 'Practice Arena' },
     { id: 'bracket', label: 'Bracket & Fixtures' },
-    { id: 'register', label: 'Team Registration' },
     { id: 'rules', label: 'Rules & Specs' },
     { id: 'contact', label: 'Helpdesk' },
   ];
@@ -67,25 +71,65 @@ export const Navigation: React.FC<NavigationProps> = ({
       </div>
 
       {/* Right Side Event CTAs */}
-      <div className="flex items-center gap-1.5 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        {/* Admin Hub Button & Logout (when Admin is logged in) */}
+        {isAdminLoggedIn && (
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => handleNavClick('admin')}
+              className={`px-3 sm:px-4 py-2 min-h-[40px] rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all shadow-xs flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'admin'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300'
+              }`}
+              title="Tournament Admin Control Panel"
+            >
+              <span>👑</span>
+              <span className="hidden xs:inline">Admin Hub</span>
+            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="px-3 py-2 min-h-[40px] rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
+                title="Log out from Admin session"
+              >
+                <span>🚪</span>
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Team Portal / Login Button */}
         {loggedInTeam ? (
-          <button
-            onClick={() => handleNavClick('dashboard')}
-            className={`px-3 sm:px-4 py-2 min-h-[40px] rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all shadow-xs flex items-center gap-1.5 ${
-              activeTab === 'dashboard'
-                ? 'bg-blue-950 text-white'
-                : 'bg-white hover:bg-blue-50 text-blue-950 border border-blue-200'
-            }`}
-            title={`Logged in as ${loggedInTeam.teamName}`}
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="truncate max-w-[80px] sm:max-w-[130px]">{loggedInTeam.teamName.split(' ')[0]} Hub</span>
-          </button>
-        ) : (
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => handleNavClick('dashboard')}
+              className={`px-3 sm:px-4 py-2 min-h-[40px] rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all shadow-xs flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'bg-blue-950 text-white'
+                  : 'bg-white hover:bg-blue-50 text-blue-950 border border-blue-200'
+              }`}
+              title={`Logged in as ${loggedInTeam.teamName}`}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="truncate max-w-[80px] sm:max-w-[130px]">{loggedInTeam.teamName.split(' ')[0]} Hub</span>
+            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="px-3 py-2 min-h-[40px] rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
+                title="Log out from squad portal"
+              >
+                <span>🚪</span>
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            )}
+          </div>
+        ) : !isAdminLoggedIn ? (
           <button
             onClick={() => handleNavClick('login')}
-            className={`hidden sm:inline-flex px-3 sm:px-4 py-2 min-h-[40px] rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all ${
+            className={`hidden sm:inline-flex px-3 sm:px-4 py-2 min-h-[40px] rounded-full font-sans font-bold text-xs uppercase tracking-wide transition-all cursor-pointer ${
               activeTab === 'login'
                 ? 'bg-blue-950 text-white'
                 : 'bg-white hover:bg-blue-50 text-blue-950 border border-blue-200'
@@ -93,7 +137,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <span>Team Login</span>
           </button>
-        )}
+        ) : null}
 
         {/* Primary CTA: Register Squad */}
         <button
@@ -155,20 +199,80 @@ export const Navigation: React.FC<NavigationProps> = ({
               </button>
             ))}
 
-            {/* Mobile Drawer: Team Portal option */}
-            <button
-              onClick={() => handleNavClick(loggedInTeam ? 'dashboard' : 'login')}
-              className={`w-full text-left px-4 py-3 min-h-[48px] rounded-2xl font-sans font-bold text-sm tracking-wide uppercase transition-all flex items-center justify-between border ${
-                activeTab === 'login' || activeTab === 'dashboard'
-                  ? 'bg-blue-950 text-white border-blue-950'
-                  : 'bg-blue-50/70 text-blue-950 border-blue-200 hover:bg-blue-100'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span>{loggedInTeam ? `🔑 ${loggedInTeam.teamName} Portal` : '🔑 Squad Login (Registered Teams)'}</span>
+            {/* Mobile Drawer: Admin Portal option if logged in */}
+            {isAdminLoggedIn && (
+              <div className="space-y-1.5 pt-1">
+                <button
+                  onClick={() => handleNavClick('admin')}
+                  className={`w-full text-left px-4 py-3 min-h-[48px] rounded-2xl font-sans font-bold text-sm tracking-wide uppercase transition-all flex items-center justify-between border ${
+                    activeTab === 'admin'
+                      ? 'bg-amber-500 text-white border-amber-500'
+                      : 'bg-amber-50 text-amber-950 border-amber-200 hover:bg-amber-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>👑 Tournament Admin Hub</span>
+                  </div>
+                  <span className="text-xs font-mono opacity-60">→</span>
+                </button>
+                {onLogout && (
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 rounded-xl bg-red-50 text-red-700 border border-red-200 font-bold text-xs uppercase flex items-center justify-between cursor-pointer"
+                  >
+                    <span>🚪 Logout Administrator</span>
+                    <span>✕</span>
+                  </button>
+                )}
               </div>
-              <span className="text-xs font-mono opacity-60">→</span>
-            </button>
+            )}
+
+            {/* Mobile Drawer: Team Portal option if logged in */}
+            {loggedInTeam ? (
+              <div className="space-y-1.5 pt-1">
+                <button
+                  onClick={() => handleNavClick('dashboard')}
+                  className={`w-full text-left px-4 py-3 min-h-[48px] rounded-2xl font-sans font-bold text-sm tracking-wide uppercase transition-all flex items-center justify-between border ${
+                    activeTab === 'dashboard'
+                      ? 'bg-blue-950 text-white border-blue-950'
+                      : 'bg-blue-50/70 text-blue-950 border-blue-200 hover:bg-blue-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{loggedInTeam.teamName} Hub</span>
+                  </div>
+                  <span className="text-xs font-mono opacity-60">→</span>
+                </button>
+                {onLogout && (
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 rounded-xl bg-red-50 text-red-700 border border-red-200 font-bold text-xs uppercase flex items-center justify-between cursor-pointer"
+                  >
+                    <span>🚪 Logout Squad</span>
+                    <span>✕</span>
+                  </button>
+                )}
+              </div>
+            ) : !isAdminLoggedIn ? (
+              <button
+                onClick={() => handleNavClick('login')}
+                className={`w-full text-left px-4 py-3 min-h-[48px] rounded-2xl font-sans font-bold text-sm tracking-wide uppercase transition-all flex items-center justify-between border ${
+                  activeTab === 'login'
+                    ? 'bg-blue-950 text-white border-blue-950'
+                    : 'bg-blue-50/70 text-blue-950 border-blue-200 hover:bg-blue-100'
+                }`}
+              >
+                <span>🔑 Squad &amp; Admin Login</span>
+                <span className="text-xs font-mono opacity-60">→</span>
+              </button>
+            ) : null}
           </div>
 
           <div className="pt-5 border-t border-blue-100 space-y-3">

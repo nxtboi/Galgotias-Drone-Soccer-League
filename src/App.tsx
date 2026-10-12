@@ -14,6 +14,8 @@ import { GalleryPage } from './pages/GalleryPage';
 import { ContactPage } from './pages/ContactPage';
 import { TeamLoginPage } from './pages/TeamLoginPage';
 import { TeamDashboardPage } from './pages/TeamDashboardPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { PracticeArenaPage } from './pages/PracticeArenaPage';
 
 // Session store
 import {
@@ -26,16 +28,24 @@ import {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<
-    'home' | 'bracket' | 'register' | 'rules' | 'gallery' | 'contact' | 'login' | 'dashboard'
+    'home' | 'practice' | 'bracket' | 'register' | 'rules' | 'gallery' | 'contact' | 'login' | 'dashboard' | 'admin'
   >('home');
 
   const [currentTeam, setCurrentTeam] = useState<RegisteredTeamProfile | null>(null);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Hydrate existing session
+    // Hydrate existing admin session
+    if (localStorage.getItem('gdsl_admin_session_v1') === 'true') {
+      setIsAdminLoggedIn(true);
+      setCurrentTeam(null);
+      return;
+    }
+    // Hydrate existing team session
     const session = getCurrentSession();
     if (session) {
       setCurrentTeam(session);
+      setIsAdminLoggedIn(false);
     }
   }, []);
 
@@ -45,15 +55,33 @@ export function App() {
   };
 
   const handleLoginSuccess = (team: RegisteredTeamProfile) => {
+    // Clear admin session
+    setIsAdminLoggedIn(false);
+    localStorage.removeItem('gdsl_admin_session_v1');
+    // Set team session
     setCurrentTeam(team);
     setCurrentSession(team);
     setActiveTab('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLogout = () => {
+  const handleAdminLoginSuccess = () => {
+    // Clear team session
     clearCurrentSession();
     setCurrentTeam(null);
+    // Set admin session
+    setIsAdminLoggedIn(true);
+    localStorage.setItem('gdsl_admin_session_v1', 'true');
+    setActiveTab('admin');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogout = () => {
+    // Clear all active sessions
+    clearCurrentSession();
+    setCurrentTeam(null);
+    setIsAdminLoggedIn(false);
+    localStorage.removeItem('gdsl_admin_session_v1');
     setActiveTab('login');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -76,6 +104,8 @@ export function App() {
           onSelectTab={handleSelectTab}
           onOpenRegister={() => handleSelectTab('register')}
           loggedInTeam={currentTeam}
+          isAdminLoggedIn={isAdminLoggedIn}
+          onLogout={handleLogout}
         />
       </div>
 
@@ -88,6 +118,7 @@ export function App() {
               onRegisterClick={() => handleSelectTab('register')}
               onBracketClick={() => handleSelectTab('bracket')}
               onRulesClick={() => handleSelectTab('rules')}
+              onPracticeClick={() => handleSelectTab('practice')}
             />
           </section>
 
@@ -101,6 +132,11 @@ export function App() {
           {/* Quick Hub Spotlight Banner */}
           <GcdisSpotlightBanner onNavigate={handleSelectTab} />
         </div>
+      )}
+
+      {/* Dedicated Page: 3D Practice Arena & Transmitter Flight Simulator */}
+      {activeTab === 'practice' && (
+        <PracticeArenaPage onNavigate={handleSelectTab} />
       )}
 
       {/* Dedicated Page: Tournament Bracket, Fixtures & Simulator */}
@@ -138,7 +174,11 @@ export function App() {
       {activeTab === 'login' && (
         <TeamLoginPage
           onLoginSuccess={handleLoginSuccess}
+          onAdminLoginSuccess={handleAdminLoginSuccess}
           onNavigate={handleSelectTab}
+          loggedInTeam={currentTeam}
+          isAdminLoggedIn={isAdminLoggedIn}
+          onLogout={handleLogout}
         />
       )}
 
@@ -149,6 +189,14 @@ export function App() {
           onLogout={handleLogout}
           onNavigate={handleSelectTab}
           onUpdateTeam={handleUpdateTeam}
+        />
+      )}
+
+      {/* Dedicated Page: Tournament Admin Control Panel (Google Sheets Data) */}
+      {activeTab === 'admin' && (
+        <AdminDashboardPage
+          onLogout={handleLogout}
+          onNavigate={handleSelectTab}
         />
       )}
 

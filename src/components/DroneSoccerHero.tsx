@@ -7,12 +7,14 @@ export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
   onBracketClick: () => void;
   onRulesClick: () => void;
+  onPracticeClick?: () => void;
 }
 
 export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
   onBracketClick,
   onRulesClick,
+  onPracticeClick,
 }) => {
   // Live Tournament Countdown to Dec 02, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 54, hours: 6, minutes: 15, seconds: 30 });
@@ -129,6 +131,16 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </button>
+
+            {onPracticeClick && (
+              <button
+                onClick={onPracticeClick}
+                className="w-full sm:w-auto min-h-[46px] px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs sm:text-sm tracking-wider uppercase shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border border-emerald-500"
+              >
+                <span>🎮</span>
+                <span>PRACTICE ARENA (3D)</span>
+              </button>
+            )}
 
             <button
               onClick={onBracketClick}

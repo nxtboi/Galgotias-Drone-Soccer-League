@@ -634,63 +634,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
               </div>
             </div>
 
-            {/* Google Sheets Sync Status Card */}
-            <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm4-4H6v-2h10v2zm0-4H6V7h10v2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <span>Google Sheets Tournament Roster</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded-full font-bold">
-                        ✓ LINKED ({DEFAULT_LINKED_ACCOUNT})
-                      </span>
-                    </h4>
-                    <p className="text-xs text-slate-600 mt-0.5">
-                      {sheetSyncStatus.synced
-                        ? (sheetSyncStatus.message || `Squad details recorded in Google Sheets (${DEFAULT_LINKED_ACCOUNT}).`)
-                        : `Automatically synchronizing squad specifications to Google Sheets.`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {sheetSyncStatus.loading ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 text-xs font-semibold inline-flex items-center gap-1.5 border border-amber-200">
-                      <span className="w-3 h-3 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
-                      <span>Auto-updating Sheet...</span>
-                    </span>
-                  ) : (
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold inline-flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Auto-Updated</span>
-                    </span>
-                  )}
-                  {sheetSyncStatus.url && (
-                    <a
-                      href={sheetSyncStatus.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>Open Sheet</span>
-                      <span>↗</span>
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {sheetSyncStatus.error && (
-                <div className="mt-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
-                  <span>⚠️ {sheetSyncStatus.error}</span>
-                </div>
-              )}
-            </div>
-
             {/* Post-Registration Actions */}
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <button

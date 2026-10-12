@@ -9,12 +9,20 @@ import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
 export interface TeamLoginPageProps {
   onLoginSuccess: (team: RegisteredTeamProfile) => void;
+  onAdminLoginSuccess?: () => void;
   onNavigate: (tab: string) => void;
+  loggedInTeam?: RegisteredTeamProfile | null;
+  isAdminLoggedIn?: boolean;
+  onLogout?: () => void;
 }
 
 export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   onLoginSuccess,
+  onAdminLoginSuccess,
   onNavigate,
+  loggedInTeam,
+  isAdminLoggedIn = false,
+  onLogout,
 }) => {
   const [identifier, setIdentifier] = useState('');
   const [accessCode, setAccessCode] = useState('');
@@ -27,6 +35,20 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     setErrorMessage(null);
     setIsLoading(true);
 
+    const idClean = identifier.trim().toLowerCase();
+    const passClean = accessCode.trim();
+
+    // Administrator Authentication
+    if (idClean === 'admin' && passClean === 'gdsl@147896') {
+      setTimeout(() => {
+        setIsLoading(false);
+        if (onAdminLoginSuccess) {
+          onAdminLoginSuccess();
+        }
+      }, 300);
+      return;
+    }
+
     setTimeout(() => {
       const result = authenticateTeam(identifier, accessCode);
       setIsLoading(false);
@@ -36,17 +58,34 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
       } else {
         setErrorMessage(result.error || 'Authentication failed. Please check credentials.');
       }
-    }, 400);
+    }, 350);
+  };
+
+  const handleAdminQuickLogin = () => {
+    setIdentifier('admin');
+    setAccessCode('gdsl@147896');
+    setErrorMessage(null);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      if (onAdminLoginSuccess) {
+        onAdminLoginSuccess();
+      }
+    }, 200);
   };
 
   const handleQuickDemoLogin = (team: RegisteredTeamProfile) => {
     setIdentifier(team.teamId);
     setAccessCode(team.accessCode);
     setErrorMessage(null);
-    const result = authenticateTeam(team.teamId, team.accessCode);
-    if (result.success && result.team) {
-      onLoginSuccess(result.team);
-    }
+    setIsLoading(true);
+    setTimeout(() => {
+      const result = authenticateTeam(team.teamId, team.accessCode);
+      setIsLoading(false);
+      if (result.success && result.team) {
+        onLoginSuccess(result.team);
+      }
+    }, 200);
   };
 
   return (
@@ -74,13 +113,72 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
               <GcdisLogo size="sm" showWordmark={false} />
               <div>
                 <h3 className="font-sans font-black text-lg text-blue-950 uppercase">
-                  SQUAD CREDENTIALS
+                  SQUAD &amp; ADMIN CREDENTIALS
                 </h3>
                 <p className="text-xs text-slate-500 font-mono">
-                  Sign in with Team ID (e.g. GDSL-26-T101) or Captain Email
+                  Sign in with Team ID, Captain Email, or Admin (<span className="text-blue-900 font-bold">admin</span> / <span className="text-blue-900 font-bold">gdsl@147896</span>)
                 </p>
               </div>
             </div>
+
+            {/* Active Session Status (if already authenticated) */}
+            {loggedInTeam && (
+              <div className="mb-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <div>
+                    <span className="font-bold">Currently Logged In:</span> {loggedInTeam.teamName} ({loggedInTeam.teamId})
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('dashboard')}
+                    className="px-3 py-1.5 rounded-lg bg-blue-950 text-white font-bold text-xs hover:bg-blue-900 transition-colors cursor-pointer"
+                  >
+                    Go to Hub →
+                  </button>
+                  {onLogout && (
+                    <button
+                      type="button"
+                      onClick={onLogout}
+                      className="px-3 py-1.5 rounded-lg bg-red-100 text-red-800 font-bold text-xs hover:bg-red-200 transition-colors cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isAdminLoggedIn && (
+              <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                  <div>
+                    <span className="font-bold">Administrator Session Active:</span> GDSL Secretariat
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('admin')}
+                    className="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition-colors cursor-pointer"
+                  >
+                    Go to Admin Hub →
+                  </button>
+                  {onLogout && (
+                    <button
+                      type="button"
+                      onClick={onLogout}
+                      className="px-3 py-1.5 rounded-lg bg-red-100 text-red-800 font-bold text-xs hover:bg-red-200 transition-colors cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {errorMessage && (
               <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-start gap-3">
@@ -102,7 +200,10 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                     type="text"
                     required
                     value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    onChange={(e) => {
+                      setIdentifier(e.target.value);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
                     placeholder="e.g. GDSL-26-T101 or captain@university.edu"
                     className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:border-blue-700 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-sans transition-all text-blue-950 bg-slate-50/50"
                   />
@@ -120,7 +221,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-[11px] font-mono text-blue-700 hover:text-blue-900 font-semibold"
+                    className="text-[11px] font-mono text-blue-700 hover:text-blue-900 font-semibold cursor-pointer"
                   >
                     {showPassword ? 'Hide PIN' : 'Show PIN'}
                   </button>
@@ -130,7 +231,10 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={accessCode}
-                    onChange={(e) => setAccessCode(e.target.value)}
+                    onChange={(e) => {
+                      setAccessCode(e.target.value);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
                     placeholder="Enter team access passcode"
                     className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:border-blue-700 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-sans transition-all text-blue-950 bg-slate-50/50"
                   />
@@ -190,6 +294,28 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
               </p>
 
               <div className="space-y-2.5 pt-1">
+                {/* 1-Click Tournament Admin Access */}
+                <button
+                  type="button"
+                  onClick={handleAdminQuickLogin}
+                  className="w-full text-left p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 hover:to-amber-600/20 border border-amber-400/40 hover:border-amber-400 transition-all group flex items-center justify-between cursor-pointer"
+                >
+                  <div>
+                    <div className="font-bold text-sm text-amber-300 group-hover:text-amber-200 transition-colors flex items-center gap-1.5">
+                      <span>👑</span>
+                      <span>Tournament Admin Panel</span>
+                    </div>
+                    <div className="text-[11px] text-amber-100/80 font-mono">
+                      User: <span className="font-bold text-white">admin</span> · Pass: <span className="font-bold text-white">gdsl@147896</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md transition-all">
+                      Admin Hub →
+                    </span>
+                  </div>
+                </button>
+
                 {INITIAL_REGISTERED_TEAMS.map((team) => (
                   <button
                     key={team.teamId}

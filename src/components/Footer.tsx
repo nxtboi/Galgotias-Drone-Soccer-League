@@ -44,6 +44,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
+                <button onClick={() => handleNav('practice')} className="hover:text-blue-900 transition-colors font-bold text-blue-900 flex items-center gap-1.5">
+                  <span>Practice Arena (3D Simulator)</span>
+                  <span className="text-[9px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded">NEW</span>
+                </button>
+              </li>
+              <li>
                 <button onClick={() => handleNav('bracket')} className="hover:text-blue-900 transition-colors flex items-center gap-1.5">
                   <span>Bracket &amp; Fixtures</span>
                   <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded">SOON</span>
@@ -67,6 +73,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button onClick={() => handleNav('login')} className="hover:text-blue-900 transition-colors font-medium text-blue-900">
                   Registered Squad Portal (Login) 🔑
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNav('login')} className="hover:text-amber-900 transition-colors font-bold text-amber-800 flex items-center gap-1">
+                  <span>👑</span>
+                  <span>Tournament Admin &amp; Sheets Hub</span>
                 </button>
               </li>
             </ul>
