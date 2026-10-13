@@ -3,8 +3,10 @@ import { Navigation } from './components/Navigation';
 import { DroneSoccerHero } from './components/DroneSoccerHero';
 import { TournamentOverviewSection } from './components/TournamentOverviewSection';
 import { GcdisSpotlightBanner } from './components/GcdisSpotlightBanner';
+import { EventVoicesAndQuotes } from './components/EventVoicesAndQuotes';
 import { Footer } from './components/Footer';
 import { StormSkyBackground } from './components/StormSkyBackground';
+import { SocialShareModal } from './components/SocialShareModal';
 
 // Dedicated Event Pages
 import { TournamentBracketPage } from './pages/TournamentBracketPage';
@@ -33,6 +35,7 @@ export function App() {
 
   const [currentTeam, setCurrentTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     // Hydrate existing admin session
@@ -103,6 +106,7 @@ export function App() {
           activeTab={activeTab}
           onSelectTab={handleSelectTab}
           onOpenRegister={() => handleSelectTab('register')}
+          onOpenShare={() => setIsShareModalOpen(true)}
           loggedInTeam={currentTeam}
           isAdminLoggedIn={isAdminLoggedIn}
           onLogout={handleLogout}
@@ -119,6 +123,7 @@ export function App() {
               onBracketClick={() => handleSelectTab('bracket')}
               onRulesClick={() => handleSelectTab('rules')}
               onPracticeClick={() => handleSelectTab('practice')}
+              onShareClick={() => setIsShareModalOpen(true)}
             />
           </section>
 
@@ -127,6 +132,12 @@ export function App() {
             onRegisterClick={() => handleSelectTab('register')}
             onBracketClick={() => handleSelectTab('bracket')}
             onRulesClick={() => handleSelectTab('rules')}
+          />
+
+          {/* Championship Voices, Leadership & Press Endorsements */}
+          <EventVoicesAndQuotes
+            onRegisterClick={() => handleSelectTab('register')}
+            onShareClick={() => setIsShareModalOpen(true)}
           />
 
           {/* Quick Hub Spotlight Banner */}
@@ -201,7 +212,16 @@ export function App() {
       )}
 
       {/* Global Comprehensive Tournament Footer */}
-      <Footer onNavigate={handleSelectTab} />
+      <Footer
+        onNavigate={handleSelectTab}
+        onOpenShare={() => setIsShareModalOpen(true)}
+      />
+
+      {/* Global Social Share Modal */}
+      <SocialShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </main>
   );
 }

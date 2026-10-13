@@ -6,6 +6,7 @@ export interface NavigationProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   onOpenRegister?: () => void;
+  onOpenShare?: () => void;
   loggedInTeam?: RegisteredTeamProfile | null;
   isAdminLoggedIn?: boolean;
   onLogout?: () => void;
@@ -14,6 +15,7 @@ export interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onSelectTab,
+  onOpenShare,
   loggedInTeam,
   isAdminLoggedIn = false,
   onLogout,
@@ -138,6 +140,18 @@ export const Navigation: React.FC<NavigationProps> = ({
             <span>Team Login</span>
           </button>
         ) : null}
+
+        {/* Share Event Button */}
+        {onOpenShare && (
+          <button
+            onClick={onOpenShare}
+            className="px-3 sm:px-3.5 py-2 min-h-[40px] rounded-full bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-sans font-bold text-xs uppercase tracking-wide transition-all shadow-xs hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+            title="Share GDSL 2026 on Social Media"
+          >
+            <span className="text-sm">📢</span>
+            <span className="hidden lg:inline">Share</span>
+          </button>
+        )}
 
         {/* Primary CTA: Register Squad */}
         <button
@@ -275,10 +289,23 @@ export const Navigation: React.FC<NavigationProps> = ({
             ) : null}
           </div>
 
-          <div className="pt-5 border-t border-blue-100 space-y-3">
+          <div className="pt-5 border-t border-blue-100 space-y-2.5">
+            {onOpenShare && (
+              <button
+                onClick={() => {
+                  onOpenShare();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-3 min-h-[46px] rounded-2xl bg-blue-50 border border-blue-200 text-blue-950 hover:bg-blue-100 font-sans font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>📢</span>
+                <span>SHARE EVENT ON SOCIAL MEDIA</span>
+              </button>
+            )}
+
             <button
               onClick={() => handleNavClick('register')}
-              className="w-full py-3.5 min-h-[48px] rounded-2xl bg-blue-900 active:bg-blue-950 text-white font-sans font-black text-xs uppercase tracking-wider text-center shadow-md flex items-center justify-center gap-2"
+              className="w-full py-3.5 min-h-[48px] rounded-2xl bg-blue-900 active:bg-blue-950 text-white font-sans font-black text-xs uppercase tracking-wider text-center shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>REGISTER SQUAD (D-20 &amp; D-40 POOLS)</span>
             </button>

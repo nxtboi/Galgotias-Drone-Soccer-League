@@ -4,9 +4,10 @@ import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
 export interface FooterProps {
   onNavigate: (page: string) => void;
+  onOpenShare?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
   const handleNav = (page: string) => {
     onNavigate(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -92,13 +93,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <p className="text-xs text-slate-600 leading-relaxed">
               Open to university students, college robotics clubs, and collegiate flight teams nationwide.
             </p>
-            <div className="pt-1">
+            <div className="pt-1 space-y-2">
               <button
                 onClick={() => handleNav('register')}
-                className="w-full py-2.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs text-center"
+                className="w-full py-2.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs text-center cursor-pointer"
               >
                 Register Squad Now →
               </button>
+
+              {onOpenShare && (
+                <button
+                  onClick={onOpenShare}
+                  className="w-full py-2.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-950 border border-blue-200 font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>📢</span>
+                  <span>Share Event on Social</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

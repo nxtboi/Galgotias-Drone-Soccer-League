@@ -73,7 +73,7 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
     };
   }, []);
 
-  const bgSource = customImage || '/drone-lab.jpg';
+  const bgSource = customImage || '/bg.jpg';
 
   return (
     <div
@@ -87,8 +87,8 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none transition-opacity duration-700 opacity-80 contrast-[1.08] saturate-[1.1]"
         onError={(e) => {
           const target = e.currentTarget;
-          if (!target.src.includes('drone%20lab.jpg')) {
-            target.src = '/drone lab.jpg';
+          if (!target.src.includes('drone-lab.jpg') && !target.src.includes('drone%20lab.jpg')) {
+            target.src = '/drone-lab.jpg';
           }
         }}
       />

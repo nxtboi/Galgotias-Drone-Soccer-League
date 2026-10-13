@@ -8,6 +8,7 @@ export interface DroneSoccerHeroProps {
   onBracketClick: () => void;
   onRulesClick: () => void;
   onPracticeClick?: () => void;
+  onShareClick?: () => void;
 }
 
 export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
@@ -15,6 +16,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onBracketClick,
   onRulesClick,
   onPracticeClick,
+  onShareClick,
 }) => {
   // Live Tournament Countdown to Dec 02, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 54, hours: 6, minutes: 15, seconds: 30 });
@@ -41,7 +43,18 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
 
   return (
     <div className="relative w-full pt-2 sm:pt-3 pb-12 px-4 sm:px-6 lg:px-12 text-slate-900">
-      <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+        {/* Live Event Marquee Ticker */}
+        <div className="overflow-hidden bg-gradient-to-r from-blue-950 via-blue-900 to-slate-950 text-white text-[11px] font-mono py-2 px-4 rounded-2xl border border-blue-800 shadow-sm flex items-center gap-3">
+          <span className="bg-red-600 text-white font-black text-[9px] px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse shrink-0 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+            EVENT NOTICE
+          </span>
+          <p className="truncate font-semibold tracking-wide text-blue-100 text-xs">
+            🏆 <strong className="text-white uppercase">Galgotias Drone Soccer League 2026</strong> · 📍 Galgotias Indoor Arena · 📅 Dec 02-03, 2026 · 💰 ₹1,00,000 Prize Fund · 🚁 32 University Squads · Free Spectator Entry
+          </p>
+        </div>
+
         {/* Top Header Row with Event Brand & Badges - Matched heights */}
         <div className="flex flex-col lg:flex-row items-stretch justify-between gap-3 sm:gap-6 mt-1 sm:mt-2">
           {/* Official Circular Logo with Event Accreditation */}
@@ -161,6 +174,16 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             >
               <span>FIDA 5TH REVISION RULEBOOK</span>
             </button>
+
+            {onShareClick && (
+              <button
+                onClick={onShareClick}
+                className="w-full sm:w-auto min-h-[46px] px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-gradient-to-r from-blue-900 via-blue-850 to-indigo-900 hover:from-blue-950 hover:to-indigo-950 text-white font-sans font-black text-xs sm:text-sm tracking-wider uppercase shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 border border-blue-700 cursor-pointer"
+              >
+                <span>📢</span>
+                <span>SHARE EVENT</span>
+              </button>
+            )}
           </div>
         </div>
 
