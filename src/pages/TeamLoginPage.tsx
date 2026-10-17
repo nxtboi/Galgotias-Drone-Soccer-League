@@ -1,4 +1,18 @@
 import React, { useState } from 'react';
+import {
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  UserCheck,
+  Terminal,
+  HelpCircle,
+  LogOut,
+  ExternalLink,
+} from 'lucide-react';
 import { GcdisLogo } from '../components/GcdisLogo';
 import {
   authenticateTeam,
@@ -24,11 +38,25 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   isAdminLoggedIn = false,
   onLogout,
 }) => {
+  const [loginMode, setLoginMode] = useState<'squad' | 'admin'>('squad');
   const [identifier, setIdentifier] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberSession, setRememberSession] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleModeSwitch = (mode: 'squad' | 'admin') => {
+    setLoginMode(mode);
+    setErrorMessage(null);
+    if (mode === 'admin') {
+      setIdentifier('admin');
+      setAccessCode('gdsl@147896');
+    } else {
+      setIdentifier('');
+      setAccessCode('');
+    }
+  };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +73,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
         if (onAdminLoginSuccess) {
           onAdminLoginSuccess();
         }
-      }, 300);
+      }, 250);
       return;
     }
 
@@ -56,12 +84,13 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
       if (result.success && result.team) {
         onLoginSuccess(result.team);
       } else {
-        setErrorMessage(result.error || 'Authentication failed. Please check credentials.');
+        setErrorMessage(result.error || 'Authentication failed. Please check your Team ID and Passcode.');
       }
-    }, 350);
+    }, 300);
   };
 
   const handleAdminQuickLogin = () => {
+    setLoginMode('admin');
     setIdentifier('admin');
     setAccessCode('gdsl@147896');
     setErrorMessage(null);
@@ -75,6 +104,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   };
 
   const handleQuickDemoLogin = (team: RegisteredTeamProfile) => {
+    setLoginMode('squad');
     setIdentifier(team.teamId);
     setAccessCode(team.accessCode);
     setErrorMessage(null);
@@ -89,62 +119,174 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   };
 
   return (
-    <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 px-4 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>OFFICIAL PARTICIPANT PORTAL · GDSL 2026</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
-            REGISTERED TEAM LOGIN
-          </h1>
-          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Access your verified squad dashboard to download your official payment receipt, generate University On-Duty (OD) attendance exemption applications, review your pilot roster, and track tournament fixtures.
-          </p>
-        </div>
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-10 flex items-center justify-center">
+      {/* Main Split-Format Login Container */}
+      <div className="w-full max-w-5xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden">
+        {/* Left Visual Showcase Card (Follows Split-Panel Showcase Format) */}
+        <div className="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[360px] lg:min-h-[620px] flex flex-col justify-between p-6 sm:p-7 border border-white/10 bg-[#0d0e0b]">
+          {/* Background Cyberspace Imagery */}
+          <img
+            src="/login-cyber-bg.svg"
+            alt="Futuristic Green Neon Cyberspace Data Transfer Background"
+            referrerPolicy="no-referrer"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-85 scale-105 transition-transform duration-700"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.src.includes('drone-lab.jpg')) {
+                target.src = '/drone-lab.jpg';
+              }
+            }}
+          />
 
-        {/* Main Login Card & Quick Demo Selector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left / Main: Credentials Form */}
-          <div className="lg:col-span-7 bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-md">
-            <div className="flex items-center gap-3 border-b border-blue-100 pb-4 mb-6">
+          {/* Measured Contrast Scrim + Subtle Acid-Lime Glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(13,14,11,0.75) 0%, rgba(13,14,11,0.35) 40%, rgba(13,14,11,0.94) 100%)',
+            }}
+          />
+          <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-[#d0fe1d]/20 blur-3xl pointer-events-none" />
+
+          {/* Top Bar inside Image Panel: Logo + Back to Website Button */}
+          <div className="relative z-10 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
               <GcdisLogo size="sm" showWordmark={false} />
-              <div>
-                <h3 className="font-sans font-black text-lg text-blue-950 uppercase">
-                  SQUAD &amp; ADMIN CREDENTIALS
-                </h3>
-                <p className="text-xs text-slate-500 font-mono">
-                  Sign in with Team ID, Captain Email, or Admin (<span className="text-blue-900 font-bold">admin</span> / <span className="text-blue-900 font-bold">gdsl@147896</span>)
-                </p>
+              <div className="text-left">
+                <span className="font-orbitron font-black text-sm tracking-wider text-white block leading-none">
+                  GDSL<span className="text-[#d0fe1d]">.26</span>
+                </span>
+                <span className="font-mono text-[9px] tracking-widest text-neutral-300 uppercase">
+                  GCDIS · GALGOTIAS
+                </span>
               </div>
             </div>
 
-            {/* Active Session Status (if already authenticated) */}
+            <button
+              type="button"
+              onClick={() => onNavigate('home')}
+              className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+            >
+              <span>Back to website</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#d0fe1d]" />
+            </button>
+          </div>
+
+          {/* Bottom Showcase Copy & Carousel Indicators inside Image Panel */}
+          <div className="relative z-10 space-y-5 text-left pt-12">
+            <div className="space-y-2">
+              <div className="text-[11px] font-rajdhani font-bold uppercase tracking-[0.2em] text-[#d0fe1d]">
+                FIDA CLASS 40 &amp; CLASS 20 · {GDSL_TOURNAMENT_INFO.dates}
+              </div>
+              <h2 className="font-orbitron font-black text-xl sm:text-2xl text-white leading-snug tracking-wide uppercase">
+                Command Your Squad. Track Live Brackets &amp; Official OD Letters.
+              </h2>
+              <p className="text-xs text-neutral-300 leading-relaxed">
+                Verified team captains and tournament officials can manage pilot rosters, download fee receipts, and monitor arena court assignments in real time.
+              </p>
+            </div>
+
+            {/* Progress Bars / Indicators */}
+            <div className="flex items-center gap-2 pt-1">
+              <span className="h-1 w-10 rounded-full bg-[#d0fe1d]" />
+              <span className="h-1 w-6 rounded-full bg-white/30" />
+              <span className="h-1 w-6 rounded-full bg-white/30" />
+            </div>
+
+            {/* Secretariat Support Footer inside Visual Panel */}
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-neutral-300 font-mono">
+              <span>Helpline: {GDSL_TOURNAMENT_INFO.emergencyHelpline}</span>
+              <button
+                type="button"
+                onClick={() => onNavigate('contact')}
+                className="text-[#d0fe1d] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Helpdesk</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Form Panel */}
+        <div className="lg:col-span-7 flex flex-col justify-center px-4 sm:px-8 lg:px-10 py-6 sm:py-8 text-left">
+          <div className="max-w-md w-full mx-auto space-y-6">
+            {/* Title & Register Link */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-rajdhani font-bold uppercase tracking-[0.2em] text-[#d0fe1d]">
+                  OFFICIAL PARTICIPANT PORTAL
+                </span>
+                <span className="text-[11px] font-mono text-neutral-400">
+                  GDSL 2026
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-orbitron font-black text-white tracking-wide uppercase">
+                Sign In to Portal
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a registered squad yet?{' '}
+                <button
+                  type="button"
+                  onClick={() => onNavigate('register')}
+                  className="text-[#d0fe1d] hover:underline font-semibold cursor-pointer"
+                >
+                  Register your squad →
+                </button>
+              </p>
+            </div>
+
+            {/* Role Switcher Tabs (Squad vs Admin) */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-[#0d0e0b] border border-white/10">
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('squad')}
+                className={`py-2 px-3 rounded-lg text-xs font-rajdhani font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  loginMode === 'squad'
+                    ? 'bg-[#d0fe1d] text-[#0b0c0a] shadow-sm font-black'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Squad Captain</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('admin')}
+                className={`py-2 px-3 rounded-lg text-xs font-rajdhani font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  loginMode === 'admin'
+                    ? 'bg-[#d0fe1d] text-[#0b0c0a] shadow-sm font-black'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Tournament Admin</span>
+              </button>
+            </div>
+
+            {/* Active Session Banners */}
             {loggedInTeam && (
-              <div className="mb-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <div>
-                    <span className="font-bold">Currently Logged In:</span> {loggedInTeam.teamName} ({loggedInTeam.teamId})
-                  </div>
+              <div className="p-3.5 rounded-xl bg-[#1c2017] border border-[#d0fe1d]/40 text-xs text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-mono uppercase text-[#d0fe1d]">Active Squad Session</div>
+                  <div className="font-bold">{loggedInTeam.teamName} ({loggedInTeam.teamId})</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => onNavigate('dashboard')}
-                    className="px-3 py-1.5 rounded-lg bg-blue-950 text-white font-bold text-xs hover:bg-blue-900 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[#d0fe1d] text-black font-bold text-xs hover:bg-[#e2ff54] transition-colors cursor-pointer"
                   >
-                    Go to Hub →
+                    Open Hub →
                   </button>
                   {onLogout && (
                     <button
                       type="button"
                       onClick={onLogout}
-                      className="px-3 py-1.5 rounded-lg bg-red-100 text-red-800 font-bold text-xs hover:bg-red-200 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg bg-red-950/70 text-red-300 border border-red-500/30 hover:bg-red-900/80 transition-colors cursor-pointer"
+                      title="Logout"
                     >
-                      Logout
+                      <LogOut className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -152,50 +294,52 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
             )}
 
             {isAdminLoggedIn && (
-              <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                  <div>
-                    <span className="font-bold">Administrator Session Active:</span> GDSL Secretariat
-                  </div>
+              <div className="p-3.5 rounded-xl bg-[#1c2017] border border-[#d0fe1d]/40 text-xs text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-mono uppercase text-[#d0fe1d]">Active Admin Session</div>
+                  <div className="font-bold">GDSL Secretariat Control</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => onNavigate('admin')}
-                    className="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[#d0fe1d] text-black font-bold text-xs hover:bg-[#e2ff54] transition-colors cursor-pointer"
                   >
-                    Go to Admin Hub →
+                    Admin Hub →
                   </button>
                   {onLogout && (
                     <button
                       type="button"
                       onClick={onLogout}
-                      className="px-3 py-1.5 rounded-lg bg-red-100 text-red-800 font-bold text-xs hover:bg-red-200 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg bg-red-950/70 text-red-300 border border-red-500/30 hover:bg-red-900/80 transition-colors cursor-pointer"
+                      title="Logout"
                     >
-                      Logout
+                      <LogOut className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
               </div>
             )}
 
+            {/* Error Alert */}
             {errorMessage && (
-              <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-start gap-3">
-                <span className="text-base leading-none">⚠️</span>
-                <div className="space-y-1">
-                  <span className="font-bold block">Login Issue:</span>
+              <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold block text-red-300">Authentication Error</span>
                   <span>{errorMessage}</span>
                 </div>
               </div>
             )}
 
-            <form onSubmit={handleLoginSubmit} className="space-y-5 text-left">
-              <div>
-                <label className="block text-xs font-mono font-bold text-blue-950 uppercase mb-1.5">
-                  TEAM ID OR CAPTAIN EMAIL <span className="text-rose-600">*</span>
+            {/* Login Form */}
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-rajdhani font-bold uppercase tracking-wider text-neutral-300">
+                  {loginMode === 'admin' ? 'Administrator Username' : 'Team ID or Captain Email'}
                 </label>
                 <div className="relative">
+                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
@@ -204,29 +348,22 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                       setIdentifier(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
-                    placeholder="e.g. GDSL-26-T101 or captain@university.edu"
-                    className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:border-blue-700 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-sans transition-all text-blue-950 bg-slate-50/50"
+                    placeholder={
+                      loginMode === 'admin'
+                        ? 'admin'
+                        : 'e.g. GDSL-26-T101 or captain@university.edu'
+                    }
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#0d0e0b] border border-white/15 focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/40 outline-none text-sm text-white placeholder:text-neutral-500 transition-all"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-slate-500 font-mono">
-                  Assigned upon official tournament registration.
-                </p>
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-mono font-bold text-blue-950 uppercase">
-                    SQUAD ACCESS PASSCODE / PIN <span className="text-rose-600">*</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-[11px] font-mono text-blue-700 hover:text-blue-900 font-semibold cursor-pointer"
-                  >
-                    {showPassword ? 'Hide PIN' : 'Show PIN'}
-                  </button>
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-rajdhani font-bold uppercase tracking-wider text-neutral-300">
+                  {loginMode === 'admin' ? 'Admin Security Key' : 'Squad Access Passcode'}
+                </label>
                 <div className="relative">
+                  <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -235,130 +372,107 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                       setAccessCode(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
-                    placeholder="Enter team access passcode"
-                    className="w-full px-4 py-3 rounded-xl border border-blue-200 focus:border-blue-700 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-sans transition-all text-blue-950 bg-slate-50/50"
+                    placeholder="Enter access passcode"
+                    className="w-full pl-10 pr-11 py-3 rounded-xl bg-[#0d0e0b] border border-white/15 focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/40 outline-none text-sm text-white placeholder:text-neutral-500 transition-all"
                   />
-                </div>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  Demo code for pre-seeded teams: <code className="bg-blue-50 text-blue-800 px-1.5 py-0.5 rounded font-mono">hawks2026</code>, <code className="bg-blue-50 text-blue-800 px-1.5 py-0.5 rounded font-mono">vortex2026</code>
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-full bg-blue-950 hover:bg-blue-900 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-98 flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>AUTHENTICATING SQUAD...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>ENTER TEAM DASHBOARD</span>
-                      <span>→</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-                <span>Not registered yet?</span>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('register')}
-                  className="font-bold text-blue-900 hover:text-blue-950 underline"
-                >
-                  Register Your Squad (₹1L Cup) →
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Right: Quick Demo Accounts & Event Quick Facts */}
-          <div className="lg:col-span-5 space-y-6 text-left">
-            {/* Quick Demo Access Card */}
-            <div className="bg-gradient-to-br from-blue-950 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-blue-400/30 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] text-amber-300 font-bold uppercase tracking-wider">
-                  ⚡ INSTANT DEMO ACCESS
-                </span>
-                <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded font-mono">
-                  1-CLICK LOGIN
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Click any of the pre-verified collegiate squads below to instantly test the attendance letter generator and payment receipt download:
-              </p>
-
-              <div className="space-y-2.5 pt-1">
-                {/* 1-Click Tournament Admin Access */}
-                <button
-                  type="button"
-                  onClick={handleAdminQuickLogin}
-                  className="w-full text-left p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 hover:to-amber-600/20 border border-amber-400/40 hover:border-amber-400 transition-all group flex items-center justify-between cursor-pointer"
-                >
-                  <div>
-                    <div className="font-bold text-sm text-amber-300 group-hover:text-amber-200 transition-colors flex items-center gap-1.5">
-                      <span>👑</span>
-                      <span>Tournament Admin Panel</span>
-                    </div>
-                    <div className="text-[11px] text-amber-100/80 font-mono">
-                      User: <span className="font-bold text-white">admin</span> · Pass: <span className="font-bold text-white">gdsl@147896</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md transition-all">
-                      Admin Hub →
-                    </span>
-                  </div>
-                </button>
-
-                {INITIAL_REGISTERED_TEAMS.map((team) => (
                   <button
-                    key={team.teamId}
                     type="button"
-                    onClick={() => handleQuickDemoLogin(team)}
-                    className="w-full text-left p-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 hover:border-blue-400 transition-all group flex items-center justify-between"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#d0fe1d] transition-colors cursor-pointer"
+                    aria-label={showPassword ? 'Hide passcode' : 'Show passcode'}
                   >
-                    <div>
-                      <div className="font-bold text-sm text-white group-hover:text-amber-300 transition-colors">
-                        {team.teamName}
-                      </div>
-                      <div className="text-[11px] text-sky-200 font-mono">
-                        {team.institution} · <span className="text-amber-300">{team.division.split(' ')[0]} {team.division.split(' ')[1]}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-mono font-bold bg-white/20 px-2 py-1 rounded text-white group-hover:bg-amber-400 group-hover:text-slate-950 transition-all">
-                        Login →
-                      </span>
-                    </div>
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                ))}
+                </div>
               </div>
+
+              {/* Remember Session & Forgot Passcode Row */}
+              <div className="flex items-center justify-between text-xs pt-0.5">
+                <label className="inline-flex items-center gap-2 text-neutral-300 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberSession}
+                    onChange={(e) => setRememberSession(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-white/20 bg-[#0d0e0b] accent-[#d0fe1d]"
+                  />
+                  <span>Keep session signed in</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('contact')}
+                  className="text-neutral-400 hover:text-[#d0fe1d] transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span>Forgot passcode?</span>
+                </button>
+              </div>
+
+              {/* Primary Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-[#0b0c0a] font-orbitron font-black text-xs uppercase tracking-wider transition-all shadow-[0_0_24px_rgba(208,254,29,0.25)] hover:shadow-[0_0_32px_rgba(208,254,29,0.45)] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span>AUTHENTICATING...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{loginMode === 'admin' ? 'ENTER ADMIN CONTROL HUB' : 'ENTER SQUAD DASHBOARD'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider for Instant Demo Logins */}
+            <div className="relative flex items-center py-1">
+              <div className="flex-grow border-t border-white/10" />
+              <span className="flex-shrink mx-3 text-[10px] font-mono uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#d0fe1d]" />
+                <span>Or 1-Click Instant Demo Access</span>
+              </span>
+              <div className="flex-grow border-t border-white/10" />
             </div>
 
-            {/* Need Help Card */}
-            <div className="bg-blue-50/80 border border-blue-200 rounded-3xl p-6 space-y-3">
-              <h4 className="font-sans font-black text-xs uppercase text-blue-950 tracking-wider">
-                NEED REGISTRATION OR PORTAL ASSISTANCE?
-              </h4>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                If your institution requires specialized vendor forms or physical invoice dispatch, reach out to the GCDIS Secretariat:
-              </p>
-              <div className="text-xs font-mono text-blue-900 font-bold space-y-1">
-                <div>📞 Helpline: {GDSL_TOURNAMENT_INFO.emergencyHelpline}</div>
-                <div>✉️ Email: {GDSL_TOURNAMENT_INFO.supportEmail}</div>
-              </div>
+            {/* Compact 2-Column Grid of Quick Demo Accounts (Like Social Auth Buttons in Split Login Format) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {INITIAL_REGISTERED_TEAMS.map((team) => (
+                <button
+                  key={team.teamId}
+                  type="button"
+                  onClick={() => handleQuickDemoLogin(team)}
+                  className="p-2.5 rounded-xl bg-[#0d0e0b] hover:bg-white/5 border border-white/15 hover:border-[#d0fe1d]/60 transition-all text-left flex items-center justify-between group cursor-pointer"
+                >
+                  <div className="min-w-0 pr-2">
+                    <div className="text-xs font-bold text-white group-hover:text-[#d0fe1d] transition-colors truncate">
+                      {team.teamName}
+                    </div>
+                    <div className="text-[10px] text-neutral-400 font-mono truncate">
+                      {team.teamId} · {team.accessCode}
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-neutral-500 group-hover:text-[#d0fe1d] shrink-0 transition-colors" />
+                </button>
+              ))}
+
+              {/* 1-Click Admin Access Button */}
               <button
                 type="button"
-                onClick={() => onNavigate('contact')}
-                className="pt-1 text-xs font-bold text-blue-700 hover:text-blue-900 underline block"
+                onClick={handleAdminQuickLogin}
+                className="p-2.5 rounded-xl bg-[#1a1f14] hover:bg-[#d0fe1d]/15 border border-[#d0fe1d]/40 hover:border-[#d0fe1d] transition-all text-left flex items-center justify-between group cursor-pointer"
               >
-                Open Secretariat Helpdesk →
+                <div className="min-w-0 pr-2">
+                  <div className="text-xs font-bold text-[#d0fe1d] truncate">
+                    Admin Control Hub
+                  </div>
+                  <div className="text-[10px] text-neutral-300 font-mono truncate">
+                    admin · gdsl@147896
+                  </div>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
               </button>
             </div>
           </div>
@@ -367,4 +481,5 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     </div>
   );
 };
+
 export default TeamLoginPage;

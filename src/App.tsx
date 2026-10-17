@@ -195,16 +195,14 @@ export function App() {
 
       {/* Dedicated Page: Team Login Portal */}
       {activeTab === 'login' && (
-        <div className="xotc-page-scope">
-          <TeamLoginPage
-            onLoginSuccess={handleLoginSuccess}
-            onAdminLoginSuccess={handleAdminLoginSuccess}
-            onNavigate={handleSelectTab}
-            loggedInTeam={currentTeam}
-            isAdminLoggedIn={isAdminLoggedIn}
-            onLogout={handleLogout}
-          />
-        </div>
+        <TeamLoginPage
+          onLoginSuccess={handleLoginSuccess}
+          onAdminLoginSuccess={handleAdminLoginSuccess}
+          onNavigate={handleSelectTab}
+          loggedInTeam={currentTeam}
+          isAdminLoggedIn={isAdminLoggedIn}
+          onLogout={handleLogout}
+        />
       )}
 
       {/* Dedicated Page: Registered Squad Dashboard */}
