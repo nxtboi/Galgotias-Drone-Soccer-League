@@ -211,16 +211,31 @@
   box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.45);
 }
 
-/* XOTC Dark Obsidian & Acid Lime Theme Scope for Inner Pages */
+/* XOTC Dark Obsidian & Acid Lime Theme Scope for All Inner Pages */
+.xotc-page-scope,
 .xotc-page-scope > div {
   background-color: transparent !important;
   color: #f3f4f6;
 }
 
+.xotc-page-scope h1,
+.xotc-page-scope h2,
+.xotc-page-scope h3,
+.xotc-page-scope h4 {
+  font-family: 'Orbitron', sans-serif !important;
+  letter-spacing: 0.04em !important;
+}
+
+.xotc-page-scope .rounded-3xl,
+.xotc-page-scope .rounded-2xl {
+  border-radius: 4px !important;
+}
+
 .xotc-page-scope .bg-white,
 .xotc-page-scope .bg-white\/80,
 .xotc-page-scope .bg-white\/90,
-.xotc-page-scope .bg-white\/95 {
+.xotc-page-scope .bg-white\/95,
+.xotc-page-scope .bg-white\/98 {
   background-color: #161814 !important;
   color: #f3f4f6;
 }
@@ -228,29 +243,72 @@
 .xotc-page-scope .bg-blue-50,
 .xotc-page-scope .bg-blue-50\/80,
 .xotc-page-scope .bg-blue-50\/70,
+.xotc-page-scope .bg-blue-50\/50,
 .xotc-page-scope .bg-blue-100,
+.xotc-page-scope .bg-sky-50,
+.xotc-page-scope .bg-sky-100,
+.xotc-page-scope .bg-amber-50,
+.xotc-page-scope .bg-amber-100,
+.xotc-page-scope .bg-emerald-50,
+.xotc-page-scope .bg-emerald-100,
+.xotc-page-scope .bg-indigo-50,
+.xotc-page-scope .bg-purple-50,
 .xotc-page-scope .bg-slate-50,
-.xotc-page-scope .bg-slate-100 {
+.xotc-page-scope .bg-slate-100,
+.xotc-page-scope .bg-slate-200 {
   background-color: #1c1f19 !important;
-  color: #e5e7eb;
+  color: #e5e7eb !important;
+}
+
+.xotc-page-scope div.bg-blue-900,
+.xotc-page-scope div.bg-blue-950,
+.xotc-page-scope section.bg-blue-900,
+.xotc-page-scope section.bg-blue-950,
+.xotc-page-scope thead.bg-blue-950,
+.xotc-page-scope thead.bg-slate-900,
+.xotc-page-scope .from-blue-900,
+.xotc-page-scope .from-blue-950,
+.xotc-page-scope .from-slate-900 {
+  background: linear-gradient(180deg, #181b15 0%, #121410 100%) !important;
+  border-color: rgba(208, 254, 29, 0.4) !important;
 }
 
 .xotc-page-scope .text-blue-950,
 .xotc-page-scope .text-slate-900,
 .xotc-page-scope .text-slate-950,
-.xotc-page-scope .text-blue-900 {
+.xotc-page-scope .text-blue-900,
+.xotc-page-scope .text-slate-800 {
   color: #ffffff !important;
 }
 
 .xotc-page-scope .text-slate-700,
 .xotc-page-scope .text-slate-600,
-.xotc-page-scope .text-slate-500 {
-  color: #a3a8a0 !important;
+.xotc-page-scope .text-slate-500,
+.xotc-page-scope .text-blue-200,
+.xotc-page-scope .text-blue-100 {
+  color: #b5bab2 !important;
 }
 
 .xotc-page-scope .text-blue-700,
 .xotc-page-scope .text-blue-600,
-.xotc-page-scope .text-blue-800 {
+.xotc-page-scope .text-blue-800,
+.xotc-page-scope .text-blue-500,
+.xotc-page-scope .text-blue-400,
+.xotc-page-scope .text-blue-300,
+.xotc-page-scope .text-sky-300,
+.xotc-page-scope .text-sky-400,
+.xotc-page-scope .text-sky-600,
+.xotc-page-scope .text-sky-700,
+.xotc-page-scope .text-amber-300,
+.xotc-page-scope .text-amber-400,
+.xotc-page-scope .text-amber-700,
+.xotc-page-scope .text-amber-800,
+.xotc-page-scope .text-amber-900,
+.xotc-page-scope .text-emerald-400,
+.xotc-page-scope .text-emerald-600,
+.xotc-page-scope .text-emerald-700,
+.xotc-page-scope .text-emerald-800,
+.xotc-page-scope .text-emerald-900 {
   color: #d0fe1d !important;
 }
 
@@ -258,20 +316,47 @@
 .xotc-page-scope .border-blue-200\/80,
 .xotc-page-scope .border-blue-100,
 .xotc-page-scope .border-blue-300,
+.xotc-page-scope .border-blue-400,
+.xotc-page-scope .border-blue-800,
+.xotc-page-scope .border-sky-200,
+.xotc-page-scope .border-amber-200,
+.xotc-page-scope .border-amber-300,
+.xotc-page-scope .border-emerald-200,
+.xotc-page-scope .border-emerald-300,
 .xotc-page-scope .border-slate-200,
 .xotc-page-scope .border-slate-300 {
   border-color: rgba(255, 255, 255, 0.16) !important;
 }
 
+.xotc-page-scope button.bg-blue-600,
+.xotc-page-scope button.bg-blue-700,
+.xotc-page-scope button.bg-blue-800,
 .xotc-page-scope button.bg-blue-900,
 .xotc-page-scope button.bg-blue-950,
 .xotc-page-scope button.bg-emerald-600,
-.xotc-page-scope button.bg-emerald-500 {
+.xotc-page-scope button.bg-emerald-500,
+.xotc-page-scope button.bg-amber-400,
+.xotc-page-scope button.bg-amber-500,
+.xotc-page-scope a.bg-blue-900,
+.xotc-page-scope a.bg-emerald-600 {
   background-color: #d0fe1d !important;
   color: #0b0c0a !important;
   border-color: #d0fe1d !important;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 800 !important;
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.xotc-page-scope button.bg-blue-600 *,
+.xotc-page-scope button.bg-blue-700 *,
+.xotc-page-scope button.bg-blue-800 *,
+.xotc-page-scope button.bg-blue-900 *,
+.xotc-page-scope button.bg-blue-950 *,
+.xotc-page-scope button.bg-emerald-600 *,
+.xotc-page-scope button.bg-emerald-500 *,
+.xotc-page-scope button.bg-amber-400 *,
+.xotc-page-scope button.bg-amber-500 * {
+  color: #0b0c0a !important;
 }
 
 .xotc-page-scope input,
@@ -280,6 +365,7 @@
   background-color: #111210 !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.22) !important;
+  border-radius: 2px !important;
 }
 
 .xotc-page-scope input:focus,
