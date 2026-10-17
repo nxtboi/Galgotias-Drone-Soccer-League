@@ -24,10 +24,8 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const navItems = [
     { id: 'home', label: 'League Overview' },
-    { id: 'practice', label: 'Practice Arena' },
     { id: 'bracket', label: 'Bracket & Fixtures' },
     { id: 'rules', label: 'Rules & Specs' },
-    { id: 'gallery', label: 'Arena Gallery' },
     { id: 'contact', label: 'Helpdesk' },
   ];
 
