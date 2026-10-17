@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { PRIZE_POOLS, TOURNAMENT_TIMELINE, GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import { motion } from 'motion/react';
+import { PRIZE_POOLS } from '../data/droneSoccerData';
 import { GcdisLogo } from './GcdisLogo';
 
 export interface TournamentOverviewSectionProps {
@@ -14,110 +15,267 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
   onRulesClick,
 }) => {
   const [selectedDivision, setSelectedDivision] = useState<'d40' | 'd20'>('d40');
+
+  const roadmapSteps = [
+    { title: 'Squad Registration', sub: 'Portal Open · 32 Slots', completed: true },
+    { title: 'Tech Scrutineering', sub: 'Dec 02 · Sphere & Weight Check', completed: true },
+    { title: 'Group Stage Heats', sub: 'Dec 02 · 5v5 Cage Clashes', completed: true },
+    { title: 'Quarter-Finals', sub: 'Dec 03 · Knockout Seeding', active: true },
+    { title: 'Semi-Final Showdown', sub: 'Dec 03 · D-40 & D-20 Cups', active: false },
+    { title: 'Grand Championship', sub: 'Dec 03 · ₹1,00,000 Purse', active: false },
+  ];
+
   return (
-    <div className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-white/70 backdrop-blur-sm border-t border-blue-100">
-      <div className="max-w-7xl mx-auto space-y-24">
-        {/* SECTION 1: WHAT IS DRONE SOCCER? */}
+    <div className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-transparent text-white">
+      <div className="max-w-7xl mx-auto space-y-28">
+        {/* SECTION 1: WHAT IS DRONE SOCCER? (XOTC Asymmetric Split + Chamfered Duel Box) */}
         <section className="space-y-12">
-          <div className="text-center max-w-3xl mx-auto">
-            <span className="font-mono text-xs font-bold text-blue-700 tracking-widest uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-              OFFICIAL LEAGUE EXPLAINER
-            </span>
-            <h2 className="mt-3 text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left max-w-5xl mx-auto">
+            <div className="lg:col-span-6">
+              <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block mb-2">
+                OFFICIAL LEAGUE EXPLAINER
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+                WHAT IS <br />
+                <span className="text-[#d0fe1d]">DRONE SOCCER?</span>
+              </h2>
+            </div>
+            <div className="lg:col-span-6 lg:pt-6">
+              <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans">
+                Drone soccer is an exhilarating FAI-sanctioned aerospace sport where two squads of 5 caged multirotors compete inside a protective netting arena to score by passing through elevated hoops at 50 km/h without relying on automated flight paths.
+              </p>
+            </div>
+          </div>
+
+          {/* XOTC Chamfered Duel Showcase Frame */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="relative max-w-5xl mx-auto bg-[#161814] border border-white/30 p-6 sm:p-10 md:p-14 overflow-hidden"
+          >
+            {/* Top-Right Ambient Lime Glow */}
+            <div className="absolute -top-12 right-12 w-64 h-64 bg-[#d0fe1d]/15 blur-3xl rounded-full pointer-events-none" />
+
+            {/* Bottom Dot Matrix Accent */}
+            <div
+              className="hidden sm:block absolute bottom-3 right-1/3 w-20 h-4 xotc-dots opacity-75 pointer-events-none"
+              aria-hidden="true"
+            />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center text-left">
+              {/* Left: STRIKER 01 <-> DEFENDER 02 Telemetry Widget (Inspired by PERSON 01 <-> PERSON 02 in XOTC) */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="flex items-center gap-6 sm:gap-10">
+                  <div>
+                    <span className="block font-orbitron text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                      STRIKER UNIT
+                    </span>
+                    <span className="font-orbitron font-black text-4xl sm:text-6xl text-white tracking-wider">
+                      01
+                    </span>
+                  </div>
+
+                  <div className="text-[#d0fe1d] font-mono text-2xl sm:text-3xl font-bold select-none">
+                    ⇄
+                  </div>
+
+                  <div>
+                    <span className="block font-orbitron text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                      GOALKEEPER
+                    </span>
+                    <span className="font-orbitron font-black text-4xl sm:text-6xl text-white tracking-wider">
+                      02
+                    </span>
+                  </div>
+
+                  {/* Crosshair Reticle */}
+                  <div className="hidden sm:flex ml-auto items-center justify-center w-7 h-7 relative">
+                    <div className="w-3.5 h-3.5 rounded-full border border-white/40" />
+                    <div className="absolute w-7 h-[1px] bg-white/40" />
+                    <div className="absolute h-7 w-[1px] bg-white/40" />
+                  </div>
+                </div>
+
+                {/* Inner Neon-Lime Bordered Match Telemetry Box */}
+                <div className="rounded-xl border border-[#d0fe1d]/60 bg-[#111210] p-4 sm:p-5 space-y-3 shadow-[0_0_25px_rgba(208,254,29,0.08)]">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="font-mono text-xs space-y-0.5">
+                      <div className="text-white font-bold">CLASS 40 : 400MM SPHERE</div>
+                      <div className="text-[#d0fe1d] text-[11px]">THRUST : 2,500G · ≤1100G</div>
+                    </div>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-300">
+                      HOOP PENETRATION
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="font-mono text-xs space-y-0.5">
+                      <div className="text-white font-bold">CLASS 20 : 200MM SPHERE</div>
+                      <div className="text-[#d0fe1d] text-[11px]">SET DURATION : 3 MIN × 3</div>
+                    </div>
+                    <button
+                      onClick={onRegisterClick}
+                      className="px-4 py-1.5 rounded-full bg-[#d0fe1d] text-black font-orbitron font-black text-[10px] uppercase tracking-wider cursor-pointer hover:bg-[#e2ff54] transition-colors"
+                    >
+                      ENTER ARENA
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Editorial Description */}
+              <div className="lg:col-span-6 space-y-4">
+                <h3 className="font-orbitron font-black text-xl sm:text-2xl text-white uppercase tracking-wider">
+                  FULL-CONTACT 5V5 AERIAL TACTICS
+                </h3>
+                <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans">
+                  Take part in sanctioned collegiate divisions. Coordinate one-to-one aerial blocks, execute screen passes for your designated Striker, and survive full-speed polycarbonate mid-air collisions inside the 16-meter Skyfence arena.
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-[#d0fe1d]">
+                  <span>· FIDA 5TH REVISION</span>
+                  <span>· TIER 2 PRO VAR</span>
+                  <span>· SUB-10MS RC LINK</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* SECTION 2: THE RULES OF 3D AERIAL SOCCER (XOTC 4-Column Glowing Lime Icon Cards) */}
+        <section className="space-y-12 relative">
+          {/* Ambient green underglow behind the 4 cards */}
+          <div className="absolute inset-x-12 bottom-8 h-48 bg-[#d0fe1d]/10 blur-[100px] rounded-full pointer-events-none" />
+
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
               THE RULES OF 3D AERIAL SOCCER
             </h2>
-            <p className="mt-4 text-slate-700 text-base sm:text-lg leading-relaxed">
-              Drone soccer is an exhilarating FAI-sanctioned aerospace sport where two squads of 5 caged multirotors compete inside a protective netting arena to score by passing through elevated hoops.
+            <div className="text-[#d0fe1d] font-mono text-2xl leading-none">↓</div>
+            <p className="text-neutral-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+              Every match is governed by strict FIDA aerodynamics, spherical impact protection, and real-time electronic hoop refereeing.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white border border-blue-200/80 rounded-3xl p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition-all text-left">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 mb-4 font-black text-lg">
-                01
-              </div>
-              <h3 className="text-lg font-sans font-black text-blue-950 uppercase">
-                THE SPHERICAL CAGE
-              </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                Multirotor avionics and carbon propellers are safely locked within a 360-degree impact-resistant polycarbonate geodesic sphere capable of absorbing 50 km/h collisions.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+            {[
+              {
+                num: '01',
+                title: 'THE SPHERICAL CAGE',
+                desc: 'Multirotor avionics and carbon propellers are safely locked within a 360-degree impact-resistant polycarbonate geodesic sphere capable of absorbing 50 km/h collisions.',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" strokeWidth={2.2} />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18" />
+                  </svg>
+                ),
+              },
+              {
+                num: '02',
+                title: 'ONE DESIGNATED STRIKER',
+                desc: 'Only 1 player per team serves as the Striker, designated by a bright tail ribbon. Only the Striker can score by penetrating the opponent’s 3-meter elevated goal hoop.',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ),
+              },
+              {
+                num: '03',
+                title: 'GOALKEEPER & SWEEPER',
+                desc: 'The remaining 4 pilots act as Goalkeepers, Sweepers, and Wing Guides to body-block incoming strikers, establish screen passes, and pin opponents against the net.',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                ),
+              },
+              {
+                num: '04',
+                title: '3-MINUTE HIGH OCTANE SETS',
+                desc: 'Matches are played over 3 sets of 3 minutes each with 5-minute tactical pit-stops for rapid LiPo battery swaps, propeller replacements, and team coach huddles.',
+                icon: (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" strokeWidth={2.2} />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 7v5l3 3" />
+                  </svg>
+                ),
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.num}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.35, delay: idx * 0.08, ease: 'easeOut' }}
+                className="xotc-card p-7 flex flex-col items-center text-center justify-between min-h-[290px]"
+              >
+                <div className="w-12 h-12 xotc-icon-box flex items-center justify-center mb-6 mt-2">
+                  {item.icon}
+                </div>
+                <div className="space-y-3">
+                  <div className="text-[11px] font-mono text-[#d0fe1d] tracking-widest uppercase">
+                    {item.num} · REGULATION
+                  </div>
+                  <h3 className="text-sm font-orbitron font-black text-white uppercase tracking-wider">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-sans">
+                    {item.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-            <div className="bg-white border border-blue-200/80 rounded-3xl p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition-all text-left">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 mb-4 font-black text-lg">
-                02
-              </div>
-              <h3 className="text-lg font-sans font-black text-blue-950 uppercase">
-                ONE DESIGNATED STRIKER
-              </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                Only 1 player per team serves as the Striker, designated by a bright tail ribbon. Only the Striker can score by penetrating the opponent&apos;s 3-meter elevated goal hoop.
-              </p>
-            </div>
+          <p className="text-center text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto pt-4">
+            University flight squads, pilot captains, and robotics engineers can now compete head-to-head under full international FIDA telemetry standards.
+          </p>
 
-            <div className="bg-white border border-blue-200/80 rounded-3xl p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition-all text-left">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 mb-4 font-black text-lg">
-                03
-              </div>
-              <h3 className="text-lg font-sans font-black text-blue-950 uppercase">
-                GOALKEEPER &amp; SWEEPER
-              </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                The remaining 4 pilots act as Goalkeepers, Sweepers, and Wing Guides to body-block incoming strikers, establish screen passes, and pin opponents against the net.
-              </p>
-            </div>
-
-            <div className="bg-white border border-blue-200/80 rounded-3xl p-6 shadow-xs hover:border-blue-400 hover:shadow-md transition-all text-left">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 mb-4 font-black text-lg">
-                04
-              </div>
-              <h3 className="text-lg font-sans font-black text-blue-950 uppercase">
-                3-MINUTE HIGH OCTANE SETS
-              </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                Matches are played over 3 sets of 3 minutes each with 5-minute tactical pit-stops for rapid LiPo battery swaps, propeller replacements, and team coach huddles.
-              </p>
+          {/* Center Crosshair Divider (from XOTC reference) */}
+          <div className="flex justify-center pt-2" aria-hidden="true">
+            <div className="relative flex items-center justify-center w-8 h-8">
+              <div className="w-3.5 h-3.5 rounded-full border border-[#d0fe1d]/80" />
+              <div className="absolute w-8 h-[1px] bg-[#d0fe1d]/80" />
+              <div className="absolute h-8 w-[1px] bg-[#d0fe1d]/80" />
             </div>
           </div>
         </section>
 
-        {/* SECTION 2: DUAL DIVISION PRIZE POOL BREAKDOWN */}
-        <section className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-950 text-white rounded-3xl p-5 sm:p-8 md:p-12 lg:p-16 shadow-xl relative overflow-hidden">
-          <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -left-20 -top-20 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 sm:mb-12">
+        {/* SECTION 3: DUAL DIVISION PRIZE POOL BREAKDOWN */}
+        <section className="relative bg-[#151713] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-14 shadow-[0_0_50px_rgba(208,254,29,0.08)] overflow-hidden">
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
             <div className="max-w-3xl text-left">
-              <span className="font-mono text-xs font-bold text-sky-400 tracking-widest uppercase bg-sky-950/60 px-3 py-1 rounded-full border border-sky-800">
+              <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
                 CHAMPIONSHIP STAKES · DUAL TOURNAMENT TIERS
               </span>
-              <h2 className="mt-3 text-2xl sm:text-4xl lg:text-5xl font-sans font-black uppercase tracking-tight text-white">
-                ₹1,00,000 TOTAL PRIZE POOL
+              <h2 className="mt-2 text-2xl sm:text-4xl lg:text-5xl font-orbitron font-black uppercase tracking-wider text-white">
+                ₹1,00,000 <span className="text-[#d0fe1d]">TOTAL PRIZE POOL</span>
               </h2>
-              <p className="mt-3 text-blue-200 text-sm sm:text-base lg:text-lg">
-                The total pool is of <span className="text-white font-bold">₹1,00,000</span> (including trophy and cash prize). Dedicated division funds for <span className="text-white font-bold">Class 40 (D-40: ₹57,000)</span> and <span className="text-white font-bold">Class 20 (D-20: ₹37,000)</span> alongside prestigious national rolling trophies and honors.
+              <p className="mt-3 text-neutral-300 text-sm sm:text-base">
+                The total pool is <span className="text-white font-bold">₹1,00,000</span> (including trophy and cash prize). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹57,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹37,000)</span> alongside national rolling trophies.
               </p>
             </div>
 
             {/* Division Switcher Filter */}
-            <div className="flex items-center gap-2 bg-white/10 p-1.5 rounded-2xl backdrop-blur-md border border-white/15 w-full sm:w-auto self-start lg:self-end">
+            <div className="flex items-center gap-2 bg-[#111210] p-1.5 border border-white/20 w-full sm:w-auto self-start lg:self-end">
               <button
                 onClick={() => setSelectedDivision('d40')}
-                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase transition-all text-center ${
+                className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-orbitron font-bold uppercase transition-all text-center cursor-pointer ${
                   selectedDivision === 'd40'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-blue-200 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#d0fe1d] text-black'
+                    : 'text-neutral-300 hover:text-white'
                 }`}
               >
                 D-40 Pool (₹57K)
               </button>
               <button
                 onClick={() => setSelectedDivision('d20')}
-                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase transition-all text-center ${
+                className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-orbitron font-bold uppercase transition-all text-center cursor-pointer ${
                   selectedDivision === 'd20'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-blue-200 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#d0fe1d] text-black'
+                    : 'text-neutral-300 hover:text-white'
                 }`}
               >
                 D-20 Pool (₹37K)
@@ -125,27 +283,26 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
             </div>
           </div>
 
-          <div className="space-y-12 relative z-10">
-            {/* D-40 DIVISION SECTION */}
-            {selectedDivision === 'd40' && (
+          <div className="space-y-10 relative z-10">
+            {selectedDivision === 'd40' ? (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
                   <div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase bg-amber-400 text-slate-950">
-                        D-40 DIVISION
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
+                        D-40 DIVISION ·
                       </span>
-                      <h3 className="text-xl sm:text-2xl font-sans font-black uppercase tracking-tight text-white">
+                      <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
                         Class 40 Heavyweight (400mm Sphere)
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-1">
                       5 vs 5 full arena clash · 16m × 8m cage · ≤1100g max drone mass · FIDA standard
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-mono text-sky-300 block font-bold uppercase">Division Purse</span>
-                    <span className="text-2xl sm:text-3xl font-mono font-black text-amber-300">₹57,000</span>
+                    <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹57,000</span>
                   </div>
                 </div>
 
@@ -153,41 +310,31 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   {PRIZE_POOLS.d40.prizes.map((prize) => (
                     <div
                       key={`d40-${prize.place}`}
-                      className={`rounded-2xl p-6 text-left flex flex-col justify-between transition-all ${
+                      className={`p-6 text-left flex flex-col justify-between transition-all ${
                         prize.highlight
-                          ? 'bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-xl border-2 border-amber-300 ring-2 ring-amber-400/30'
-                          : 'bg-white/10 backdrop-blur-md text-white border border-white/15 hover:border-white/30'
+                          ? 'xotc-card-lime'
+                          : 'xotc-card'
                       }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-mono font-bold uppercase tracking-wider opacity-80">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
                             {prize.place}
                           </span>
-                          {prize.highlight ? (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-mono">
-                              D-40 GOLD CUP
-                            </span>
-                          ) : prize.place === '2nd Place' ? (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-slate-300 text-slate-900 px-2 py-0.5 rounded-full font-mono">
-                              SILVER CUP
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-sky-400/30 text-sky-200 border border-sky-400/40 px-2 py-0.5 rounded-full font-mono">
-                              SPECIAL PRIZE
-                            </span>
-                          )}
+                          <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
+                            {prize.highlight ? 'D-40 GOLD CUP' : prize.place === '2nd Place' ? 'SILVER CUP' : 'SPECIAL PRIZE'}
+                          </span>
                         </div>
-                        <div className="text-3xl sm:text-4xl font-sans font-black tracking-tight mb-2 text-white">
+                        <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
                           {prize.amount}
                         </div>
-                        <div className="text-sm font-bold opacity-90 mb-4">{prize.title}</div>
+                        <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
                       </div>
 
-                      <ul className="space-y-2 border-t border-white/15 pt-4 text-xs opacity-85">
+                      <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
                         {prize.perks.map((p, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-amber-300 font-bold">✓</span>
+                            <span className="text-[#d0fe1d] font-bold">✓</span>
                             <span>{p}</span>
                           </li>
                         ))}
@@ -196,28 +343,25 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* D-20 DIVISION SECTION */}
-            {selectedDivision === 'd20' && (
-              <div className="space-y-6 pt-4">
+            ) : (
+              <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
                   <div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-black uppercase bg-sky-400 text-slate-950">
-                        D-20 DIVISION
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
+                        D-20 DIVISION ·
                       </span>
-                      <h3 className="text-xl sm:text-2xl font-sans font-black uppercase tracking-tight text-white">
+                      <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
                         Class 20 High-Speed (200mm Sphere)
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-1">
                       3 vs 3 high-speed agile arena · 8m × 4m cage · ≤110g max drone mass · FIDA standard
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-mono text-sky-300 block font-bold uppercase">Division Purse</span>
-                    <span className="text-2xl sm:text-3xl font-mono font-black text-sky-300">₹37,000</span>
+                    <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹37,000</span>
                   </div>
                 </div>
 
@@ -225,41 +369,31 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   {PRIZE_POOLS.d20.prizes.map((prize) => (
                     <div
                       key={`d20-${prize.place}`}
-                      className={`rounded-2xl p-6 text-left flex flex-col justify-between transition-all ${
+                      className={`p-6 text-left flex flex-col justify-between transition-all ${
                         prize.highlight
-                          ? 'bg-gradient-to-b from-sky-700 to-blue-800 text-white shadow-xl border-2 border-sky-300 ring-2 ring-sky-400/30'
-                          : 'bg-white/10 backdrop-blur-md text-white border border-white/15 hover:border-white/30'
+                          ? 'xotc-card-lime'
+                          : 'xotc-card'
                       }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-mono font-bold uppercase tracking-wider opacity-80">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
                             {prize.place}
                           </span>
-                          {prize.highlight ? (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-mono">
-                              D-20 GOLD CUP
-                            </span>
-                          ) : prize.place === '2nd Place' ? (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-slate-300 text-slate-900 px-2 py-0.5 rounded-full font-mono">
-                              SILVER CUP
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-sky-400/30 text-sky-200 border border-sky-400/40 px-2 py-0.5 rounded-full font-mono">
-                              SPECIAL PRIZE
-                            </span>
-                          )}
+                          <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
+                            {prize.highlight ? 'D-20 GOLD CUP' : prize.place === '2nd Place' ? 'SILVER CUP' : 'SPECIAL PRIZE'}
+                          </span>
                         </div>
-                        <div className="text-3xl sm:text-4xl font-sans font-black tracking-tight mb-2 text-white">
+                        <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
                           {prize.amount}
                         </div>
-                        <div className="text-sm font-bold opacity-90 mb-4">{prize.title}</div>
+                        <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
                       </div>
 
-                      <ul className="space-y-2 border-t border-white/15 pt-4 text-xs opacity-85">
+                      <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
                         {prize.perks.map((p, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-sky-300 font-bold">✓</span>
+                            <span className="text-[#d0fe1d] font-bold">✓</span>
                             <span>{p}</span>
                           </li>
                         ))}
@@ -272,108 +406,86 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
           </div>
         </section>
 
-        {/* SECTION 3: 2-DAY TOURNAMENT TIMELINE */}
-        <section className="space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="text-left max-w-2xl">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-mono text-xs font-bold text-blue-700 tracking-widest uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                  OFFICIAL ROADMAP
-                </span>
-                <span className="font-mono text-xs font-bold text-amber-700 tracking-wider uppercase bg-amber-50 px-3 py-1 rounded-full border border-amber-300 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  COMING SOON
-                </span>
-              </div>
-              <h2 className="mt-3 text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight flex flex-wrap items-center gap-3">
-                <span>2-DAY CHAMPIONSHIP SCHEDULE</span>
-                <span className="text-xs sm:text-sm font-mono font-bold text-amber-700 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full">
-                  COMING SOON
-                </span>
-              </h2>
-              <p className="mt-2 text-slate-600 text-base">
-                Official slot allocations, technical scrutineering windows, and arena flight timings will be published once team registrations are closed.
-              </p>
-            </div>
-
-            <button
-              onClick={onBracketClick}
-              className="px-6 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs tracking-wider uppercase transition-all shadow-xs shrink-0 self-start md:self-auto flex items-center gap-2"
-            >
-              <span>BRACKET &amp; FIXTURES</span>
-              <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-full font-mono">
-                SOON
-              </span>
-            </button>
+        {/* SECTION 4: XOTC-STYLE NEON LIME ROADMAP / 2-DAY CHAMPIONSHIP SCHEDULE */}
+        <section className="space-y-12">
+          <div className="text-center space-y-3">
+            <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase">
+              OFFICIAL TOURNAMENT ROADMAP
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
+              CHAMPIONSHIP ROADMAP
+            </h2>
+            <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto">
+              2-Day Championship Progression at Galgotias Indoor Arena (Dec 02–03, 2026).
+            </p>
           </div>
 
-          {/* Coming Soon Feature Card */}
-          <div className="bg-gradient-to-br from-blue-950 via-slate-900 to-blue-900 text-white rounded-3xl p-8 sm:p-12 border border-blue-800 shadow-xl relative overflow-hidden text-left">
-            <div className="absolute -right-16 -bottom-16 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-            <div className="relative z-10 max-w-3xl space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-mono font-bold uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <span>SCHEDULE IN PREPARATION</span>
-              </div>
+          {/* XOTC Neon Lime Connected Roadmap Track */}
+          <div className="relative py-6">
+            {/* Horizontal Glowing Acid-Lime Line (Desktop) */}
+            <div className="hidden lg:block absolute top-11 left-0 right-0 h-[3px] bg-gradient-to-r from-[#d0fe1d] via-[#d0fe1d] to-white/20 shadow-[0_0_16px_rgba(208,254,29,0.6)]" />
 
-              <h3 className="text-2xl sm:text-4xl font-sans font-black uppercase tracking-tight text-white">
-                Tournament Schedule Will Be Released After Registration Closes
-              </h3>
-
-              <p className="text-blue-200 text-sm sm:text-base leading-relaxed">
-                The full 2-day itinerary including pilot check-ins, technical scrutineering (exoskeleton sphere diameter, fail-safe cut-offs, weight checks), group stage heats, and knockout finals will be dispatched directly to registered team captains and published live here.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="text-xs font-mono text-sky-400 font-bold uppercase">DAY 01 (DEC 02, 2026)</div>
-                  <div className="text-sm font-bold text-white mt-1">Scrutineering &amp; Group Stage Heats</div>
-                  <div className="text-xs text-blue-300 mt-1">Detailed match timings coming soon</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 relative z-10">
+              {roadmapSteps.map((step, i) => (
+                <div key={i} className="flex flex-col items-center text-center group">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-mono text-sm font-black transition-all mb-4 ${
+                      step.completed
+                        ? 'bg-[#111210] border-2 border-[#d0fe1d] text-[#d0fe1d] shadow-[0_0_18px_rgba(208,254,29,0.5)]'
+                        : step.active
+                        ? 'bg-[#d0fe1d] text-black border-2 border-[#d0fe1d] shadow-[0_0_24px_#d0fe1d]'
+                        : 'bg-[#111210] border border-white/30 text-neutral-400'
+                    }`}
+                  >
+                    {step.completed ? '✓' : step.active ? '🚁' : '•'}
+                  </div>
+                  <h3 className="font-orbitron font-bold text-xs sm:text-sm text-white uppercase tracking-wider">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs font-mono text-neutral-400 mt-1">{step.sub}</p>
                 </div>
-
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="text-xs font-mono text-sky-400 font-bold uppercase">DAY 02 (DEC 03, 2026)</div>
-                  <div className="text-sm font-bold text-white mt-1">Knockouts, Semi-Finals &amp; Finals</div>
-                  <div className="text-xs text-blue-300 mt-1">Championship schedule coming soon</div>
-                </div>
-
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="text-xs font-mono text-amber-400 font-bold uppercase">TEAM NOTIFICATIONS</div>
-                  <div className="text-sm font-bold text-white mt-1">Direct SMS &amp; Portal Alerts</div>
-                  <div className="text-xs text-blue-300 mt-1">Dispatched to registered team leads</div>
-                </div>
-              </div>
+              ))}
             </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              onClick={onBracketClick}
+              className="xotc-btn-outline px-7 py-3.5 text-xs flex items-center gap-3 cursor-pointer"
+            >
+              <span>VIEW BRACKET &amp; FIXTURES</span>
+              <span className="text-[#d0fe1d]">→</span>
+            </button>
           </div>
         </section>
 
-        {/* SECTION 4: HOST INSTITUTION & PROVING ARENA */}
-        <section className="bg-blue-50/80 border border-blue-200/80 rounded-3xl p-5 sm:p-8 md:p-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 text-left">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <GcdisLogo size="xl" showWordmark={false} />
+        {/* SECTION 5: HOST INSTITUTION & PROVING ARENA */}
+        <section className="bg-[#161814] border border-white/20 p-6 sm:p-10 md:p-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 text-left">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <GcdisLogo size="lg" showWordmark={false} />
             <div className="max-w-xl">
-              <span className="font-mono text-xs font-bold text-blue-700 uppercase tracking-widest">
+              <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
                 HOSTED BY GCDIS AT GALGOTIAS UNIVERSITY
               </span>
-              <h3 className="mt-1 text-xl sm:text-2xl md:text-3xl font-sans font-black text-blue-950 uppercase">
+              <h3 className="mt-1 text-xl sm:text-3xl font-orbitron font-black text-white uppercase tracking-wider">
                 GALGOTIAS INDOOR DRONE SOCCER ARENA
               </h3>
-              <p className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed">
+              <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed">
                 Purpose-built with 16m × 8m × 5m protective ballistic netting, dual illuminated goal hoops, 6-camera FPV track telemetry, and 800-seat spectator gallery in Greater Noida, UP.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full lg:w-auto shrink-0">
             <button
               onClick={onRulesClick}
-              className="w-full sm:w-auto min-h-[44px] px-5 sm:px-6 py-3 rounded-full bg-white hover:bg-blue-100 text-blue-950 font-sans font-bold text-xs tracking-wider uppercase border border-blue-200 transition-all shadow-xs text-center justify-center flex items-center"
+              className="xotc-btn-outline px-6 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
             >
               FIDA 5TH REVISION RULES
             </button>
             <button
               onClick={onRegisterClick}
-              className="w-full sm:w-auto min-h-[44px] px-6 sm:px-7 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-black text-xs tracking-wider uppercase shadow-md transition-all hover:scale-105 active:scale-95 text-center justify-center flex items-center"
+              className="xotc-btn-lime px-7 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
             >
               REGISTER SQUAD NOW
             </button>

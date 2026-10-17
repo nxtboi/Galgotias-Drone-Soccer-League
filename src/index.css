@@ -2,157 +2,51 @@
 
 @theme {
   --color-white: #ffffff;
-  --color-black: #000000;
+  --color-black: #0b0c0a;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Rajdhani', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* GCDIS Aeronautics Shades of Blue Palette */
-  --color-zinc-50: #f0f7ff;
-  --color-zinc-100: #e0f0fe;
-  --color-zinc-200: #bae0fd;
-  --color-zinc-300: #90cdfc;
-  --color-zinc-400: #38a5f8;
-  --color-zinc-500: #1d77d4;
-  --color-zinc-600: #155cb0;
-  --color-zinc-700: #16498c;
-  --color-zinc-800: #153e74;
-  --color-zinc-900: #0f2b52;
-  --color-zinc-950: #081a36;
-
-  --color-gray-50: #f0f7ff;
-  --color-gray-100: #e0f0fe;
-  --color-gray-200: #bae0fd;
-  --color-gray-300: #90cdfc;
-  --color-gray-400: #38a5f8;
-  --color-gray-500: #1d77d4;
-  --color-gray-600: #155cb0;
-  --color-gray-700: #16498c;
-  --color-gray-800: #153e74;
-  --color-gray-900: #0f2b52;
-  --color-gray-950: #081a36;
-
-  --color-slate-50: #fafafa;
-  --color-slate-100: #f4f4f5;
-  --color-slate-200: #e4e4e7;
-  --color-slate-300: #d4d4d8;
-  --color-slate-400: #a1a1aa;
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-  --color-slate-950: #020617;
-
-  /* Aeronautical Shades of Blue Palette */
-  --color-sky-50: #f0f9ff;
-  --color-sky-100: #e0f2fe;
-  --color-sky-200: #bae6fd;
-  --color-sky-300: #7dd3fc;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
-  --color-sky-600: #0284c7;
-  --color-sky-700: #0369a1;
-  --color-sky-800: #075985;
-  --color-sky-900: #0c4a6e;
-  --color-sky-950: #082f49;
-
-  --color-cyan-50: #ecfeff;
-  --color-cyan-100: #cffafe;
-  --color-cyan-200: #a5f3fc;
-  --color-cyan-300: #67e8f9;
-  --color-cyan-400: #22d3ee;
-  --color-cyan-500: #06b6d4;
-  --color-cyan-600: #0891b2;
-  --color-cyan-700: #0e7490;
-  --color-cyan-800: #155e75;
-  --color-cyan-900: #164e63;
-  --color-cyan-950: #083344;
-
-  --color-blue-50: #eff6ff;
-  --color-blue-100: #dbeafe;
-  --color-blue-200: #bfdbfe;
-  --color-blue-300: #93c5fd;
-  --color-blue-400: #60a5fa;
-  --color-blue-500: #3b82f6;
-  --color-blue-600: #2563eb;
-  --color-blue-700: #1d4ed8;
-  --color-blue-800: #1e40af;
-  --color-blue-900: #1e3a8a;
-  --color-blue-950: #0b192c;
-
-  --color-indigo-50: #eef2ff;
-  --color-indigo-100: #e0e7ff;
-  --color-indigo-200: #c7d2fe;
-  --color-indigo-300: #a5b4fc;
-  --color-indigo-400: #818cf8;
-  --color-indigo-500: #6366f1;
-  --color-indigo-600: #4f46e5;
-  --color-indigo-700: #4338ca;
-  --color-indigo-800: #3730a3;
-  --color-indigo-900: #312e81;
-  --color-indigo-950: #1e1b4b;
-
-  --color-teal-50: #ffffff;
-  --color-teal-100: #f4f4f5;
-  --color-teal-200: #e4e4e7;
-  --color-teal-300: #d4d4d8;
-  --color-teal-400: #a1a1aa;
-  --color-teal-500: #71717a;
-  --color-teal-600: #52525b;
-  --color-teal-700: #3f3f46;
-  --color-teal-800: #27272a;
-  --color-teal-900: #18181b;
-  --color-teal-950: #09090b;
+  /* XOTC Obsidian & Electric Acid Lime Theme Tokens */
+  --color-lime-300: #e2ff66;
+  --color-lime-400: #d0fe1d;
+  --color-lime-500: #b8e600;
 }
 
 @layer base {
   :root {
-    --font-orbitron: 'Orbitron', monospace;
+    --font-orbitron: 'Orbitron', sans-serif;
     --font-rajdhani: 'Rajdhani', sans-serif;
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    
-    /* GCDIS Aerospace Blue Theme Tokens */
-    --color-text-hero: #0b192c;
-    --color-text-primary: #0f172a;
-    --color-text-secondary: #1e3a8a;
-    --color-text-muted: #2563eb;
-    --color-text-dim: #60a5fa;
-    --color-bg-base: #ffffff;
+
+    --xotc-bg: #111210;
+    --xotc-surface: #171915;
+    --xotc-surface-elevated: #1e201b;
+    --xotc-lime: #d0fe1d;
+    --xotc-lime-glow: rgba(208, 254, 29, 0.35);
+    --xotc-border: rgba(255, 255, 255, 0.16);
+    --xotc-border-lime: rgba(208, 254, 29, 0.45);
   }
 
   body {
-    color: #0c2340;
-    background-color: transparent;
+    color: #e5e7eb;
+    background-color: #111210;
     font-family: var(--font-sans);
   }
 
-  *, ::before, ::after {
-    text-shadow: none !important;
-  }
-
   h1, h2, h3, h4, h5, h6 {
-    color: #0a192f;
-    letter-spacing: -0.03em;
-  }
-
-  p {
-    color: #173b6c;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.03em;
   }
 
   ::selection {
-    background-color: rgba(37, 99, 235, 0.25);
-    color: #0a192f;
+    background-color: #d0fe1d;
+    color: #0b0c0a;
   }
 }
 
 .font-orbitron {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Orbitron', sans-serif;
 }
 
 .font-rajdhani {
@@ -163,166 +57,252 @@
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
-/* Aerospace Sapphire & Deep Navy Gradients */
-.text-gradient-white {
-  background: linear-gradient(180deg, #0b192c 0%, #1e3a8a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* XOTC Signature Chamfered Button & Card Shapes */
+.xotc-btn-lime {
+  background-color: #d0fe1d;
+  color: #0b0c0a;
+  font-family: 'Orbitron', monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 24px rgba(208, 254, 29, 0.25);
 }
 
-.text-gradient-blue {
-  background: linear-gradient(180deg, #0b192c 0%, #1e40af 50%, #2563eb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.xotc-btn-lime:hover {
+  background-color: #e2ff54;
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(208, 254, 29, 0.5);
 }
 
-.text-gradient-cyan {
-  background: linear-gradient(180deg, #1e3a8a 0%, #0284c7 60%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.xotc-btn-outline {
+  background-color: rgba(23, 25, 21, 0.85);
+  color: #ffffff;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.text-glow-blue,
-.text-glow-cyan,
-.text-shadow-hero-title,
-.text-shadow-hero-body,
-.text-shadow-hero-kicker,
-.text-shadow-hero-quote,
-.text-shadow-hud {
-  text-shadow: none;
+.xotc-btn-outline:hover {
+  border-color: #d0fe1d;
+  color: #d0fe1d;
+  background-color: rgba(208, 254, 29, 0.08);
+  transform: translateY(-2px);
 }
 
-/* Minimalist text strokes */
-.text-stroke-subtle {
-  -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.3);
-  color: transparent;
+.xotc-card {
+  background: linear-gradient(180deg, rgba(26, 28, 24, 0.92) 0%, rgba(17, 18, 16, 0.96) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  clip-path: polygon(
+    16px 0,
+    100% 0,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    0 100%,
+    0 16px
+  );
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Ignizia Tech Clean White Glassmorphism & High-Contrast Surfaces */
+.xotc-card:hover {
+  border-color: rgba(208, 254, 29, 0.55);
+  box-shadow: 0 16px 40px -12px rgba(208, 254, 29, 0.14);
+  transform: translateY(-3px);
+}
+
+.xotc-card-lime {
+  background: linear-gradient(180deg, rgba(28, 32, 22, 0.94) 0%, rgba(17, 18, 16, 0.98) 100%);
+  border: 1px solid rgba(208, 254, 29, 0.45);
+  box-shadow: 0 0 40px -10px rgba(208, 254, 29, 0.15);
+}
+
+.xotc-icon-box {
+  background-color: #d0fe1d;
+  color: #0b0c0a;
+  border-radius: 10px;
+  box-shadow: 0 0 28px rgba(208, 254, 29, 0.45);
+}
+
+/* Dot matrix pattern from XOTC frame */
+.xotc-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.65) 1.5px, transparent 1.5px);
+  background-size: 6px 6px;
+}
+
+.xotc-dots-lime {
+  background-image: radial-gradient(#d0fe1d 1.5px, transparent 1.5px);
+  background-size: 6px 6px;
+}
+
+/* Reusable Legacy Surface Classes Adapted to XOTC Obsidian Theme */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 
-    0 10px 30px 0 rgba(0, 0, 0, 0.05),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(20, 22, 18, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(23, 25, 21, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.16);
-  box-shadow: 
-    0 12px 30px -5px rgba(0, 0, 0, 0.08),
-    0 0 12px rgba(0, 0, 0, 0.02);
+  background: rgba(28, 31, 26, 0.96);
+  border-color: rgba(208, 254, 29, 0.5);
+  box-shadow: 0 14px 32px -6px rgba(208, 254, 29, 0.15);
 }
 
 .glass-nav {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  background: rgba(17, 18, 16, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .glass-pill {
-  background: rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(208, 254, 29, 0.1);
+  border: 1px solid rgba(208, 254, 29, 0.3);
+  color: #d0fe1d;
 }
 
 .glass-button {
-  background: rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #09090b;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   transition: all 0.2s ease;
 }
 
 .glass-button:hover {
-  background: rgba(0, 0, 0, 0.08);
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  background: rgba(208, 254, 29, 0.12);
+  border-color: #d0fe1d;
+  color: #d0fe1d;
 }
 
 .glass-button-primary {
-  background: #000000;
-  color: #ffffff;
-  backdrop-filter: blur(14px);
-  border: 1px solid #000000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  font-weight: 700;
+  background: #d0fe1d;
+  color: #0b0c0a;
+  border: 1px solid #d0fe1d;
+  box-shadow: 0 0 20px rgba(208, 254, 29, 0.3);
+  font-weight: 800;
   transition: all 0.2s ease;
 }
 
 .glass-button-primary:hover {
-  background: #27272a;
-  border-color: #27272a;
-  color: #ffffff;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  background: #e2ff54;
+  border-color: #e2ff54;
+  color: #0b0c0a;
+  box-shadow: 0 0 28px rgba(208, 254, 29, 0.5);
 }
 
-.glass-modal {
-  background: #ffffff;
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 
-    0 25px 60px -15px rgba(0, 0, 0, 0.18),
-    0 0 35px rgba(0, 0, 0, 0.04);
-}
-
-.glass-input {
-  background: #f4f4f5;
-  border: 1px solid #e4e4e7;
-  color: #09090b;
-}
-
-.glass-input:focus {
-  background: #ffffff;
-  border-color: #09090b;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Matte Finish Utility Panels in Crisp White Aerospace */
 .matte-card {
-  background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.05);
+  background-color: #171915;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.45);
 }
 
-.matte-border {
-  border-color: rgba(0, 0, 0, 0.1);
+/* XOTC Dark Obsidian & Acid Lime Theme Scope for Inner Pages */
+.xotc-page-scope > div {
+  background-color: transparent !important;
+  color: #f3f4f6;
 }
 
-/* Minimalist technical monochrome scrollbar */
+.xotc-page-scope .bg-white,
+.xotc-page-scope .bg-white\/80,
+.xotc-page-scope .bg-white\/90,
+.xotc-page-scope .bg-white\/95 {
+  background-color: #161814 !important;
+  color: #f3f4f6;
+}
+
+.xotc-page-scope .bg-blue-50,
+.xotc-page-scope .bg-blue-50\/80,
+.xotc-page-scope .bg-blue-50\/70,
+.xotc-page-scope .bg-blue-100,
+.xotc-page-scope .bg-slate-50,
+.xotc-page-scope .bg-slate-100 {
+  background-color: #1c1f19 !important;
+  color: #e5e7eb;
+}
+
+.xotc-page-scope .text-blue-950,
+.xotc-page-scope .text-slate-900,
+.xotc-page-scope .text-slate-950,
+.xotc-page-scope .text-blue-900 {
+  color: #ffffff !important;
+}
+
+.xotc-page-scope .text-slate-700,
+.xotc-page-scope .text-slate-600,
+.xotc-page-scope .text-slate-500 {
+  color: #a3a8a0 !important;
+}
+
+.xotc-page-scope .text-blue-700,
+.xotc-page-scope .text-blue-600,
+.xotc-page-scope .text-blue-800 {
+  color: #d0fe1d !important;
+}
+
+.xotc-page-scope .border-blue-200,
+.xotc-page-scope .border-blue-200\/80,
+.xotc-page-scope .border-blue-100,
+.xotc-page-scope .border-blue-300,
+.xotc-page-scope .border-slate-200,
+.xotc-page-scope .border-slate-300 {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.xotc-page-scope button.bg-blue-900,
+.xotc-page-scope button.bg-blue-950,
+.xotc-page-scope button.bg-emerald-600,
+.xotc-page-scope button.bg-emerald-500 {
+  background-color: #d0fe1d !important;
+  color: #0b0c0a !important;
+  border-color: #d0fe1d !important;
+  font-family: 'Orbitron', sans-serif;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.xotc-page-scope input,
+.xotc-page-scope select,
+.xotc-page-scope textarea {
+  background-color: #111210 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.xotc-page-scope input:focus,
+.xotc-page-scope select:focus,
+.xotc-page-scope textarea:focus {
+  border-color: #d0fe1d !important;
+  outline: none;
+}
+
+/* Custom Dark Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f4f4f5;
+  background: #111210;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background: rgba(208, 254, 29, 0.35);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.35);
+  background: #d0fe1d;
 }
 
 /* Clean Print Output for Official Tournament Invoices & OD Letters */

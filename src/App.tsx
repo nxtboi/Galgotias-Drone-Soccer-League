@@ -96,8 +96,8 @@ export function App() {
   const isHomePage = activeTab === 'home';
 
   return (
-    <main className="relative w-full min-h-screen bg-transparent text-blue-950 selection:bg-blue-100 selection:text-blue-950 overflow-x-hidden font-sans">
-      {/* 1. Daylight Atmosphere Background */}
+    <main className="relative w-full min-h-screen bg-[#111210] text-white selection:bg-[#d0fe1d] selection:text-black overflow-x-hidden font-sans">
+      {/* 1. XOTC Dark Obsidian Atmosphere Background */}
       <StormSkyBackground />
 
       {/* 2. Fixed Event Navigation Bar */}
@@ -147,68 +147,86 @@ export function App() {
 
       {/* Dedicated Page: 3D Practice Arena & Transmitter Flight Simulator */}
       {activeTab === 'practice' && (
-        <PracticeArenaPage onNavigate={handleSelectTab} />
+        <div className="xotc-page-scope">
+          <PracticeArenaPage onNavigate={handleSelectTab} />
+        </div>
       )}
 
       {/* Dedicated Page: Tournament Bracket, Fixtures & Simulator */}
       {activeTab === 'bracket' && (
-        <TournamentBracketPage
-          onNavigate={handleSelectTab}
-          onOpenRegister={() => handleSelectTab('register')}
-        />
+        <div className="xotc-page-scope">
+          <TournamentBracketPage
+            onNavigate={handleSelectTab}
+            onOpenRegister={() => handleSelectTab('register')}
+          />
+        </div>
       )}
 
       {/* Dedicated Page: Team Registration & Digital Pass */}
       {activeTab === 'register' && (
-        <TeamRegistrationPage onNavigate={handleSelectTab} />
+        <div className="xotc-page-scope">
+          <TeamRegistrationPage onNavigate={handleSelectTab} />
+        </div>
       )}
 
       {/* Dedicated Page: Rules, Drone Specs & FAI/FIDA Handbook */}
       {activeTab === 'rules' && (
-        <RulesAndSpecsPage
-          onNavigate={handleSelectTab}
-          onOpenRegister={() => handleSelectTab('register')}
-        />
+        <div className="xotc-page-scope">
+          <RulesAndSpecsPage
+            onNavigate={handleSelectTab}
+            onOpenRegister={() => handleSelectTab('register')}
+          />
+        </div>
       )}
 
       {/* Dedicated Page: Real Arena Action Gallery */}
       {activeTab === 'gallery' && (
-        <GalleryPage onNavigate={handleSelectTab} />
+        <div className="xotc-page-scope">
+          <GalleryPage onNavigate={handleSelectTab} />
+        </div>
       )}
 
       {/* Dedicated Page: Contact & Secretariat Helpline */}
       {activeTab === 'contact' && (
-        <ContactPage onNavigate={handleSelectTab} />
+        <div className="xotc-page-scope">
+          <ContactPage onNavigate={handleSelectTab} />
+        </div>
       )}
 
       {/* Dedicated Page: Team Login Portal */}
       {activeTab === 'login' && (
-        <TeamLoginPage
-          onLoginSuccess={handleLoginSuccess}
-          onAdminLoginSuccess={handleAdminLoginSuccess}
-          onNavigate={handleSelectTab}
-          loggedInTeam={currentTeam}
-          isAdminLoggedIn={isAdminLoggedIn}
-          onLogout={handleLogout}
-        />
+        <div className="xotc-page-scope">
+          <TeamLoginPage
+            onLoginSuccess={handleLoginSuccess}
+            onAdminLoginSuccess={handleAdminLoginSuccess}
+            onNavigate={handleSelectTab}
+            loggedInTeam={currentTeam}
+            isAdminLoggedIn={isAdminLoggedIn}
+            onLogout={handleLogout}
+          />
+        </div>
       )}
 
       {/* Dedicated Page: Registered Squad Dashboard */}
       {activeTab === 'dashboard' && (
-        <TeamDashboardPage
-          team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
-          onLogout={handleLogout}
-          onNavigate={handleSelectTab}
-          onUpdateTeam={handleUpdateTeam}
-        />
+        <div className="xotc-page-scope">
+          <TeamDashboardPage
+            team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
+            onLogout={handleLogout}
+            onNavigate={handleSelectTab}
+            onUpdateTeam={handleUpdateTeam}
+          />
+        </div>
       )}
 
       {/* Dedicated Page: Tournament Admin Control Panel (Google Sheets Data) */}
       {activeTab === 'admin' && (
-        <AdminDashboardPage
-          onLogout={handleLogout}
-          onNavigate={handleSelectTab}
-        />
+        <div className="xotc-page-scope">
+          <AdminDashboardPage
+            onLogout={handleLogout}
+            onNavigate={handleSelectTab}
+          />
+        </div>
       )}
 
       {/* Global Comprehensive Tournament Footer */}

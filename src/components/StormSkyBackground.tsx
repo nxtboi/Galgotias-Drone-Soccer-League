@@ -12,14 +12,6 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
       return null;
     }
   });
-  const [transparency, setTransparency] = useState<number>(() => {
-    try {
-      localStorage.setItem('gcdis_bg_transparency', '0');
-      return 0;
-    } catch {
-      return 0;
-    }
-  });
   const [isDragOver, setIsDragOver] = useState(false);
 
   // Global drag-and-drop handler for user-provided image files
@@ -77,14 +69,14 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
 
   return (
     <div
-      className={`fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 bg-slate-900/5 ${className}`}
+      className={`fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 bg-[#111210] ${className}`}
       aria-hidden="true"
     >
-      {/* 1. Real Drone Laboratory Photograph Background (Prominently Visible) */}
+      {/* 1. Real Drone Laboratory Photograph with XOTC Dark Obsidian + Acid Lime Grading */}
       <img
         src={bgSource}
         alt="Galgotias Centre for Drone Intelligence & Simulation Laboratory"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none transition-opacity duration-700 opacity-80 contrast-[1.08] saturate-[1.1]"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none transition-opacity duration-700 opacity-30 contrast-[1.2] saturate-[0.85] mix-blend-luminosity"
         onError={(e) => {
           const target = e.currentTarget;
           if (!target.src.includes('drone-lab.jpg') && !target.src.includes('drone%20lab.jpg')) {
@@ -93,27 +85,40 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
         }}
       />
 
-      {/* 2. Soft Aerospace Blue Atmospheric Frosted Overlay (Keeps lab clearly visible while enhancing blue text contrast) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-sky-50/40 to-white/65 pointer-events-none backdrop-blur-[0.5px]" />
-
-      {/* 3. Subtle Technical Coordinate Grid in Light Sky/Slate */}
-      <div 
-        className="absolute inset-0 w-full h-full opacity-20 pointer-events-none"
+      {/* 2. XOTC Deep Obsidian & Neon Volt Radial Glow Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'radial-gradient(#3b82f6 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
+          background:
+            'radial-gradient(circle at 50% 0%, rgba(208, 254, 29, 0.14) 0%, rgba(17, 18, 16, 0.78) 45%, #111210 85%)',
         }}
       />
 
-      {/* 4. Drag-and-Drop Overlay */}
+      {/* 3. XOTC Architectural Blueprint Grid & Crosshair Lines */}
+      <div
+        className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)
+          `,
+          backgroundSize: '96px 96px',
+        }}
+      />
+
+      {/* 4. Subtle Ambient Lime Core Glows */}
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[640px] h-[300px] bg-[#d0fe1d]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-[500px] h-[260px] bg-[#d0fe1d]/5 blur-[140px] rounded-full pointer-events-none" />
+
+      {/* 5. Drag-and-Drop Overlay */}
       {isDragOver && (
-        <div className="absolute inset-0 bg-zinc-900/10 backdrop-blur-md border-4 border-dashed border-zinc-900 flex flex-col items-center justify-center pointer-events-auto z-50">
-          <div className="p-6 rounded-3xl bg-white border border-zinc-300 shadow-2xl flex flex-col items-center gap-3 text-center">
+        <div className="absolute inset-0 bg-[#111210]/90 backdrop-blur-md border-2 border-dashed border-[#d0fe1d] flex flex-col items-center justify-center pointer-events-auto z-50">
+          <div className="p-8 bg-[#171915] border border-[#d0fe1d] shadow-2xl flex flex-col items-center gap-3 text-center">
             <span className="text-4xl animate-bounce">🛬</span>
-            <h3 className="font-sans text-xl font-bold text-zinc-900">
-              DROP LAB IMAGE HERE
+            <h3 className="font-orbitron text-xl font-bold text-white uppercase tracking-wider">
+              DROP ARENA IMAGE HERE
             </h3>
-            <p className="text-xs font-mono text-zinc-600 max-w-xs">
+            <p className="text-xs font-mono text-[#d0fe1d] max-w-xs">
               Release to update the background image.
             </p>
           </div>
@@ -122,3 +127,4 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
     </div>
   );
 };
+export default StormSkyBackground;

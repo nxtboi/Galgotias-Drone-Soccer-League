@@ -172,17 +172,17 @@ export const GcdisLogo: React.FC<GcdisLogoProps> = ({
       {/* Event Wordmark & Host Affiliation */}
       {showWordmark && !badgeOnly && (
         <div className="flex flex-col text-left">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`font-sans font-black tracking-tight uppercase text-blue-950 group-hover:text-blue-700 transition-colors ${wordmarkSizes.title}`}
+              className={`font-orbitron font-black tracking-wider uppercase text-white group-hover:text-[#d0fe1d] transition-colors ${wordmarkSizes.title}`}
             >
               GALGOTIAS DRONE SOCCER LEAGUE
             </span>
-            <span className="hidden md:inline-flex items-center text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
-              GDSL 2026
+            <span className="hidden md:inline-flex items-center text-[10px] font-mono font-bold text-[#d0fe1d] tracking-widest uppercase">
+              · GDSL 2026
             </span>
           </div>
-          <span className="font-sans uppercase text-blue-700/90 font-semibold leading-tight mt-0.5 hidden sm:block text-[10px] tracking-wider">
+          <span className="font-rajdhani uppercase text-neutral-400 font-semibold leading-tight mt-0.5 hidden sm:block text-xs tracking-widest">
             GCDIS · Galgotias Centre for Drone Intelligence &amp; Simulation
           </span>
         </div>

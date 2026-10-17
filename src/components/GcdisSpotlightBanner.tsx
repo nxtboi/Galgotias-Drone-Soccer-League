@@ -1,6 +1,4 @@
 import React from 'react';
-import { GcdisLogo } from './GcdisLogo';
-import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
 export interface GcdisSpotlightBannerProps {
   onNavigate: (page: string) => void;
@@ -13,42 +11,58 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
   };
 
   return (
-    <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-16 space-y-12 pointer-events-auto text-slate-900">
-      {/* Banner 1: Call for Teams */}
-      <div className="max-w-6xl mx-auto rounded-3xl bg-gradient-to-r from-blue-900 via-blue-950 to-slate-950 text-white p-5 sm:p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 border border-blue-400/30">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-left">
-          <GcdisLogo size="lg" showWordmark={false} />
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-blue-800/80 border border-blue-600 text-sky-300 text-xs font-mono font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>OFFICIAL INVITATION · INTERCOLLEGIATE CUP</span>
-            </div>
-            <h3 className="text-xl sm:text-3xl md:text-4xl font-sans font-black tracking-tight uppercase text-white">
-              REGISTER YOUR DRONE SOCCER SQUAD
+    <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-20 space-y-20 pointer-events-auto text-white">
+      {/* Banner 1: XOTC "GET EARLY ACCESS" Style Chamfered Neon-Lime Frame */}
+      <div className="relative max-w-6xl mx-auto bg-[#151713] border border-[#d0fe1d]/70 p-8 sm:p-12 md:p-16 shadow-[0_0_60px_rgba(208,254,29,0.12)] overflow-hidden">
+        {/* Ambient Acid-Lime City/Arena Glow */}
+        <div
+          className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#d0fe1d]/15 blur-[100px] rounded-full pointer-events-none"
+          aria-hidden="true"
+        />
+
+        {/* Dot Matrix Bottom Accent (from XOTC reference) */}
+        <div
+          className="hidden sm:block absolute bottom-3 left-1/3 w-20 h-4 xotc-dots-lime opacity-85 pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="space-y-4 text-left max-w-xl">
+            <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
+              OFFICIAL INVITATION · INTERCOLLEGIATE CUP
+            </span>
+            <h3 className="text-3xl sm:text-5xl font-orbitron font-black tracking-wider uppercase text-white leading-[1.08]">
+              REGISTER <br />
+              YOUR <br />
+              <span className="text-[#d0fe1d]">SQUAD</span>
             </h3>
-            <p className="text-xs sm:text-sm text-blue-200 max-w-xl font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-neutral-300 font-sans leading-relaxed max-w-md">
               32 team slots. Total pool of ₹1,00,000 (including trophy and cash prize). Class 20 (₹37,000 pool) &amp; Class 40 (₹57,000 pool) divisions, FIDA rules, and live arena stream at Galgotias University.
             </p>
           </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
-          <button
-            onClick={() => handleJump('register')}
-            className="w-full sm:w-auto min-h-[44px] px-6 sm:px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95 text-center justify-center flex items-center"
-          >
-            Register Squad (Free Entry) →
-          </button>
+          <div className="hidden lg:block text-[#d0fe1d] font-mono text-4xl font-bold select-none">
+            →
+          </div>
+
+          <div className="w-full lg:w-auto shrink-0">
+            <button
+              onClick={() => handleJump('register')}
+              className="xotc-btn-lime w-full sm:w-auto min-h-[56px] px-10 py-4 text-xs sm:text-sm text-center justify-center flex items-center cursor-pointer"
+            >
+              REGISTER SQUAD NOW
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Grid: 4 Tournament Pillars */}
-      <div className="max-w-6xl mx-auto space-y-6 text-left">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-mono font-bold text-blue-700 uppercase tracking-widest">
+      <div className="max-w-6xl mx-auto space-y-8 text-left">
+        <div className="text-center space-y-2">
+          <span className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
             TOURNAMENT DIRECTORY
           </span>
-          <h2 className="text-2xl sm:text-3xl font-sans font-black text-blue-950 uppercase">
+          <h2 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
             EXPLORE THE LEAGUE HUBS
           </h2>
         </div>
@@ -57,25 +71,25 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
           {/* Card 1: Bracket */}
           <div
             onClick={() => handleJump('bracket')}
-            className="group cursor-pointer p-6 rounded-2xl bg-white border border-blue-200 hover:border-blue-400 transition-all hover:shadow-md space-y-3 flex flex-col justify-between"
+            className="group cursor-pointer p-6 xotc-card space-y-4 flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors font-mono font-black text-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center font-orbitron font-black text-xs">
                   01
                 </div>
-                <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-850 px-2 py-0.5 rounded-full border border-amber-300">
-                  COMING SOON
+                <span className="text-[10px] font-mono font-bold text-[#d0fe1d] uppercase tracking-wider">
+                  · SOON
                 </span>
               </div>
-              <h4 className="font-sans font-black text-base text-blue-950 uppercase">
+              <h4 className="font-orbitron font-black text-sm text-white uppercase tracking-wider">
                 Knockout Bracket
               </h4>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                 Official draw, group seeding, and knockout tree will unlock once team registrations close.
               </p>
             </div>
-            <div className="text-xs text-blue-700 font-bold flex items-center gap-1 uppercase tracking-wider pt-2">
+            <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">
               <span>View Bracket Status</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
@@ -84,20 +98,20 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
           {/* Card 2: Rules */}
           <div
             onClick={() => handleJump('rules')}
-            className="group cursor-pointer p-6 rounded-2xl bg-white border border-blue-200 hover:border-blue-400 transition-all hover:shadow-md space-y-3 flex flex-col justify-between"
+            className="group cursor-pointer p-6 xotc-card space-y-4 flex flex-col justify-between"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors mb-3 font-mono font-black text-sm">
+              <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4 font-orbitron font-black text-xs">
                 02
               </div>
-              <h4 className="font-sans font-black text-base text-blue-950 uppercase">
+              <h4 className="font-orbitron font-black text-sm text-white uppercase tracking-wider">
                 Rules &amp; Drone Specs
               </h4>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                 FAI Class F9A regulations, 400mm sphere cage tolerances, weight limits, and scoring hoops.
               </p>
             </div>
-            <div className="text-xs text-blue-700 font-bold flex items-center gap-1 uppercase tracking-wider pt-2">
+            <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">
               <span>Read Rulebook</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
@@ -106,20 +120,20 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
           {/* Card 3: Action Gallery */}
           <div
             onClick={() => handleJump('gallery')}
-            className="group cursor-pointer p-6 rounded-2xl bg-white border border-blue-200 hover:border-blue-400 transition-all hover:shadow-md space-y-3 flex flex-col justify-between"
+            className="group cursor-pointer p-6 xotc-card space-y-4 flex flex-col justify-between"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors mb-3 font-mono font-black text-sm">
+              <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4 font-orbitron font-black text-xs">
                 03
               </div>
-              <h4 className="font-sans font-black text-base text-blue-950 uppercase">
+              <h4 className="font-orbitron font-black text-sm text-white uppercase tracking-wider">
                 Action Gallery &amp; Reels
               </h4>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                 Official FIDA tournament match video streams, 50 km/h cage collision captures, and podium ceremonies.
               </p>
             </div>
-            <div className="text-xs text-blue-700 font-bold flex items-center gap-1 uppercase tracking-wider pt-2">
+            <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">
               <span>View Match Action</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
@@ -128,20 +142,20 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
           {/* Card 4: Contact */}
           <div
             onClick={() => handleJump('contact')}
-            className="group cursor-pointer p-6 rounded-2xl bg-white border border-blue-200 hover:border-blue-400 transition-all hover:shadow-md space-y-3 flex flex-col justify-between"
+            className="group cursor-pointer p-6 xotc-card space-y-4 flex flex-col justify-between"
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors mb-3 font-mono font-black text-sm">
+              <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4 font-orbitron font-black text-xs">
                 04
               </div>
-              <h4 className="font-sans font-black text-base text-blue-950 uppercase">
+              <h4 className="font-orbitron font-black text-sm text-white uppercase tracking-wider">
                 Pilot Helpline
               </h4>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                 24/7 tournament coordinators, outstation hostel booking, and technical scrutineering desk.
               </p>
             </div>
-            <div className="text-xs text-blue-700 font-bold flex items-center gap-1 uppercase tracking-wider pt-2">
+            <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">
               <span>Connect Desk</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
