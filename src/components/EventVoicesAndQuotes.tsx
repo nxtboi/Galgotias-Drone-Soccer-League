@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Quote, Award, ChevronLeft, ChevronRight, ShieldCheck, Ticket } from 'lucide-react';
+import { Parallax3DSection, Tilt3DCard } from './Parallax3DSection';
 
 export interface EventVoicesAndQuotesProps {
   onRegisterClick?: () => void;
@@ -51,10 +52,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
   }
 ];
 
-export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = ({
-  onRegisterClick,
-  onShareClick,
-}) => {
+export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(0);
 
   const handleNext = () => {
@@ -68,140 +66,156 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = ({
   const currentQuote = EVENT_QUOTES[activeQuoteIndex];
 
   return (
-    <section className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-[#141612] text-white overflow-hidden border-y border-white/15">
-      <div className="max-w-7xl mx-auto space-y-14 relative z-10">
-        {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
-            CHAMPIONSHIP VOICES &amp; ENDORSEMENTS
-          </span>
+    <section
+      className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-[#141612] text-white overflow-hidden border-y border-white/15"
+      style={{ perspective: '1300px', transformStyle: 'preserve-3d' }}
+    >
+      <Parallax3DSection
+        offsetY={60}
+        rotateXRange={[8, 0, -7]}
+        scaleRange={[0.95, 1, 0.96]}
+        className="max-w-7xl mx-auto space-y-14 relative z-10"
+      >
+        <div className="space-y-14">
+          {/* Section Title */}
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
+              CHAMPIONSHIP VOICES &amp; ENDORSEMENTS
+            </span>
 
-          <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
-            VOICES OF THE <span className="text-[#d0fe1d]">LEAGUE</span>
-          </h2>
+            <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
+              VOICES OF THE <span className="text-[#d0fe1d]">LEAGUE</span>
+            </h2>
 
-          <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-            Statements from tournament organizers, FIDA technical scrutineers, team captains, and press correspondents.
-          </p>
-        </div>
+            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
+              Statements from tournament organizers, FIDA technical scrutineers, team captains, and press correspondents.
+            </p>
+          </div>
 
-        {/* Featured Interactive Quote Card (XOTC Chamfered Frame) */}
-        <div className="max-w-4xl mx-auto">
-          <div className="relative bg-[#111210] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-12 shadow-[0_0_40px_rgba(208,254,29,0.08)] text-left overflow-hidden">
-            <Quote className="absolute top-6 right-6 w-20 h-20 text-[#d0fe1d]/10 pointer-events-none" />
+          {/* Featured Interactive Quote Card (XOTC Chamfered Frame + 3D Tilt) */}
+          <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="max-w-4xl mx-auto">
+            <div className="relative bg-[#111210] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-12 shadow-[0_24px_60px_rgba(0,0,0,0.65)] text-left overflow-hidden">
+              <Quote className="absolute top-6 right-6 w-20 h-20 text-[#d0fe1d]/10 pointer-events-none" />
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentQuote.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.28 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#d0fe1d]">
-                    {currentQuote.category}
-                  </span>
-                  <span className="text-xs font-mono text-neutral-400">
-                    0{activeQuoteIndex + 1} / 0{EVENT_QUOTES.length}
-                  </span>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentQuote.id}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.28 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#d0fe1d]">
+                      {currentQuote.category}
+                    </span>
+                    <span className="text-xs font-mono text-neutral-400">
+                      0{activeQuoteIndex + 1} / 0{EVENT_QUOTES.length}
+                    </span>
+                  </div>
+
+                  <blockquote className="text-lg sm:text-2xl md:text-3xl font-sans font-bold leading-relaxed text-white">
+                    &ldquo;{currentQuote.quote}&rdquo;
+                  </blockquote>
+
+                  <div className="flex items-center gap-4 pt-4 border-t border-white/15">
+                    <div className="w-11 h-11 xotc-icon-box flex items-center justify-center font-orbitron font-black text-sm shrink-0">
+                      0{activeQuoteIndex + 1}
+                    </div>
+                    <div>
+                      <div className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                        {currentQuote.author}
+                      </div>
+                      <div className="text-xs font-mono text-[#d0fe1d]">
+                        {currentQuote.role} · <span className="text-neutral-400">{currentQuote.organization}</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation Controls */}
+              <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  {EVENT_QUOTES.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveQuoteIndex(idx)}
+                      className={`h-1.5 transition-all cursor-pointer ${
+                        activeQuoteIndex === idx ? 'w-8 bg-[#d0fe1d]' : 'w-2 bg-white/25 hover:bg-white/50'
+                      }`}
+                      aria-label={`Jump to quote ${idx + 1}`}
+                    />
+                  ))}
                 </div>
 
-                <blockquote className="text-lg sm:text-2xl md:text-3xl font-sans font-bold leading-relaxed text-white">
-                  &ldquo;{currentQuote.quote}&rdquo;
-                </blockquote>
-
-                <div className="flex items-center gap-4 pt-4 border-t border-white/15">
-                  <div className="w-11 h-11 xotc-icon-box flex items-center justify-center font-orbitron font-black text-sm shrink-0">
-                    0{activeQuoteIndex + 1}
-                  </div>
-                  <div>
-                    <div className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
-                      {currentQuote.author}
-                    </div>
-                    <div className="text-xs font-mono text-[#d0fe1d]">
-                      {currentQuote.role} · <span className="text-neutral-400">{currentQuote.organization}</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Navigation Controls */}
-            <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
-              <div className="flex items-center gap-2">
-                {EVENT_QUOTES.map((_, idx) => (
+                <div className="flex items-center gap-2">
                   <button
-                    key={idx}
-                    onClick={() => setActiveQuoteIndex(idx)}
-                    className={`h-1.5 transition-all cursor-pointer ${
-                      activeQuoteIndex === idx ? 'w-8 bg-[#d0fe1d]' : 'w-2 bg-white/25 hover:bg-white/50'
-                    }`}
-                    aria-label={`Jump to quote ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handlePrev}
-                  className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
-                  aria-label="Previous quote"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
-                  aria-label="Next quote"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                    onClick={handlePrev}
+                    className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                    aria-label="Previous quote"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                    aria-label="Next quote"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
+          </Tilt3DCard>
+
+          {/* 3-Pillar Event Value Cards with Staggered 3D Parallax */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left">
+            <Tilt3DCard maxTilt={7} scrollOffsetY={20}>
+              <div className="xotc-card p-6 h-full">
+                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
+                  FAI/FIDA Class Regulations
+                </h3>
+                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
+                  Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.
+                </p>
+              </div>
+            </Tilt3DCard>
+
+            <Tilt3DCard maxTilt={7} scrollOffsetY={38}>
+              <div className="xotc-card p-6 h-full">
+                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                  <Award className="w-5 h-5" />
+                </div>
+                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
+                  ₹1,00,000 Total Purse
+                </h3>
+                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
+                  Dedicated cash prizes, custom gold &amp; silver trophies, official flight certificates, and national ranking points for all top-performing squads.
+                </p>
+              </div>
+            </Tilt3DCard>
+
+            <Tilt3DCard maxTilt={7} scrollOffsetY={24}>
+              <div className="xotc-card p-6 h-full">
+                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                  <Ticket className="w-5 h-5" />
+                </div>
+                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
+                  Free Spectator Access
+                </h3>
+                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
+                  Open to all university students, school robotics clubs, faculty, and tech enthusiasts. Experience live arena matches and pit-stop technical action.
+                </p>
+              </div>
+            </Tilt3DCard>
           </div>
         </div>
-
-        {/* 3-Pillar Event Value Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left">
-          <div className="xotc-card p-6">
-            <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-              FAI/FIDA Class Regulations
-            </h3>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-              Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.
-            </p>
-          </div>
-
-          <div className="xotc-card p-6">
-            <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-              <Award className="w-5 h-5" />
-            </div>
-            <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-              ₹1,00,000 Total Purse
-            </h3>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-              Dedicated cash prizes, custom gold &amp; silver trophies, official flight certificates, and national ranking points for all top-performing squads.
-            </p>
-          </div>
-
-          <div className="xotc-card p-6">
-            <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-              <Ticket className="w-5 h-5" />
-            </div>
-            <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-              Free Spectator Access
-            </h3>
-            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-              Open to all university students, school robotics clubs, faculty, and tech enthusiasts. Experience live arena matches and pit-stop technical action.
-            </p>
-          </div>
-        </div>
-      </div>
+      </Parallax3DSection>
     </section>
   );
 };

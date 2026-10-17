@@ -207,14 +207,12 @@ export function App() {
 
       {/* Dedicated Page: Registered Squad Dashboard */}
       {activeTab === 'dashboard' && (
-        <div className="xotc-page-scope">
-          <TeamDashboardPage
-            team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
-            onLogout={handleLogout}
-            onNavigate={handleSelectTab}
-            onUpdateTeam={handleUpdateTeam}
-          />
-        </div>
+        <TeamDashboardPage
+          team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
+          onLogout={handleLogout}
+          onNavigate={handleSelectTab}
+          onUpdateTeam={handleUpdateTeam}
+        />
       )}
 
       {/* Dedicated Page: Tournament Admin Control Panel (Google Sheets Data) */}
