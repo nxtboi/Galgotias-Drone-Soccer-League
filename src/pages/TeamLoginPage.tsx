@@ -1,11 +1,4 @@
-import React, { useState, useRef } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-} from 'motion/react';
+import React, { useState } from 'react';
 import {
   Lock,
   Mail,
@@ -52,50 +45,6 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   const [rememberSession, setRememberSession] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  });
-  const smoothScroll = useSpring(scrollYProgress, {
-    stiffness: 110,
-    damping: 26,
-    restDelta: 0.001,
-  });
-
-  // Scroll-linked 3D transforms
-  const cardScrollY = useTransform(smoothScroll, [0, 0.5, 1], [45, 0, -45]);
-  const cardScrollRotateX = useTransform(smoothScroll, [0, 0.5, 1], [7, 0, -6]);
-  const imageParallaxY = useTransform(smoothScroll, [0, 1], [-28, 28]);
-
-  // Interactive pointer 3D tilt
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const pointerRotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), {
-    stiffness: 150,
-    damping: 24,
-  });
-  const pointerRotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4, 4]), {
-    stiffness: 150,
-    damping: 24,
-  });
-  const imageShiftX = useSpring(useTransform(mouseX, [-0.5, 0.5], [12, -12]), {
-    stiffness: 150,
-    damping: 24,
-  });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
 
   const handleModeSwitch = (mode: 'squad' | 'admin') => {
     setLoginMode(mode);
@@ -170,44 +119,17 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   };
 
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-10 flex items-center justify-center"
-      style={{ perspective: '1400px', transformStyle: 'preserve-3d' }}
-    >
-      {/* Main Split-Format Login Container with 3D Parallax */}
-      <motion.div
-        style={{
-          y: cardScrollY,
-          rotateX: cardScrollRotateX,
-          rotateY: pointerRotateY,
-          transformStyle: 'preserve-3d',
-          willChange: 'transform',
-        }}
-        className="w-full max-w-5xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden"
-      >
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-10 flex items-center justify-center">
+      {/* Main Split-Format Login Container */}
+      <div className="w-full max-w-5xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden">
         {/* Left Visual Showcase Card (Follows Split-Panel Showcase Format) */}
-        <motion.div
-          style={{
-            rotateX: pointerRotateX,
-            transformStyle: 'preserve-3d',
-          }}
-          className="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[360px] lg:min-h-[620px] flex flex-col justify-between p-6 sm:p-7 border border-white/10 bg-[#0d0e0b]"
-        >
-          {/* Background Cyberspace Imagery with Inner 3D Parallax */}
-          <motion.img
+        <div className="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[360px] lg:min-h-[620px] flex flex-col justify-between p-6 sm:p-7 border border-white/10 bg-[#0d0e0b]">
+          {/* Background Cyberspace Imagery */}
+          <img
             src="/login-cyber-bg.svg"
             alt="Futuristic Green Neon Cyberspace Data Transfer Background"
             referrerPolicy="no-referrer"
-            style={{
-              y: imageParallaxY,
-              x: imageShiftX,
-              scale: 1.12,
-              willChange: 'transform',
-            }}
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-85"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-85 scale-105 transition-transform duration-700"
             onError={(e) => {
               const target = e.currentTarget;
               if (!target.src.includes('drone-lab.jpg')) {
@@ -284,7 +206,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Right Form Panel */}
         <div className="lg:col-span-7 flex flex-col justify-center px-4 sm:px-8 lg:px-10 py-6 sm:py-8 text-left">
@@ -555,7 +477,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

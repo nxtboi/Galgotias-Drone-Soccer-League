@@ -1,11 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-} from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 import { RealDroneSoccerArena } from './RealDroneSoccerArena';
@@ -28,56 +22,6 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   // Live Tournament Countdown to Dec 02, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 54, hours: 6, minutes: 15, seconds: 30 });
 
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  // Scroll-driven 3D Parallax for Hero Section
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const smoothScroll = useSpring(scrollYProgress, {
-    stiffness: 110,
-    damping: 26,
-    restDelta: 0.001,
-  });
-
-  // Outer Frame 3D Perspective Pitch & Depth on Scroll
-  const frameRotateX = useTransform(smoothScroll, [0, 1], [0, -10]);
-  const frameScale = useTransform(smoothScroll, [0, 1], [1, 0.93]);
-  const frameY = useTransform(smoothScroll, [0, 1], [0, -75]);
-
-  // Multi-plane internal depth parallax layers
-  const topBarY = useTransform(smoothScroll, [0, 1], [0, -35]);
-  const headlineY = useTransform(smoothScroll, [0, 1], [0, -65]);
-  const arenaY = useTransform(smoothScroll, [0, 1], [0, -25]);
-  const metricsY = useTransform(smoothScroll, [0, 1], [0, -45]);
-  const beamY = useTransform(smoothScroll, [0, 1], [0, 110]);
-
-  // Subtle interactive 3D pointer tilt
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const pointerRotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [3.5, -3.5]), {
-    stiffness: 150,
-    damping: 24,
-  });
-  const pointerRotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-3.5, 3.5]), {
-    stiffness: 150,
-    damping: 24,
-  });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!heroRef.current) return;
-    const rect = heroRef.current.getBoundingClientRect();
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   useEffect(() => {
     const targetDate = new Date('2026-12-02T09:00:00+05:30').getTime();
 
@@ -99,45 +43,23 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   }, []);
 
   return (
-    <div
-      ref={heroRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative w-full pt-4 sm:pt-6 pb-16 px-4 sm:px-6 lg:px-12 text-white"
-      style={{ perspective: '1400px', transformStyle: 'preserve-3d' }}
-    >
-      <motion.div
-        style={{
-          y: frameY,
-          scale: frameScale,
-          rotateX: frameRotateX,
-          rotateY: pointerRotateY,
-          transformStyle: 'preserve-3d',
-          willChange: 'transform',
-        }}
-        className="max-w-7xl mx-auto space-y-8"
-      >
-        {/* XOTC Chamfered Technical Hero Frame with 3D Depth Layers */}
-        <motion.div
-          style={{
-            rotateX: pointerRotateX,
-            transformStyle: 'preserve-3d',
-          }}
-          className="relative border border-white/25 bg-[#141612]/85 backdrop-blur-md p-5 sm:p-8 lg:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.65)]"
-        >
+    <div className="relative w-full pt-4 sm:pt-6 pb-16 px-4 sm:px-6 lg:px-12 text-white">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* XOTC Chamfered Technical Hero Frame */}
+        <div className="relative border border-white/25 bg-[#141612]/80 backdrop-blur-md p-5 sm:p-8 lg:p-12 overflow-hidden">
           {/* Top-Left & Top-Right Corner Accent Lines */}
           <div className="absolute top-0 left-0 w-16 h-[2px] bg-[#d0fe1d]" />
           <div className="absolute top-0 left-0 w-[2px] h-16 bg-[#d0fe1d]" />
           <div className="absolute top-0 right-0 w-16 h-[2px] bg-[#d0fe1d]" />
           <div className="absolute top-0 right-0 w-[2px] h-16 bg-[#d0fe1d]" />
 
-          {/* Bottom-Left Vertical Dot Matrix Pattern */}
+          {/* Bottom-Left Vertical Dot Matrix Pattern (from XOTC reference) */}
           <div
             className="hidden sm:block absolute bottom-6 left-3 w-4 h-24 xotc-dots opacity-75 pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* Bottom-Right Glowing Acid-Lime Crosshair Reticle */}
+          {/* Bottom-Right Glowing Acid-Lime Crosshair Reticle (from XOTC reference) */}
           <div
             className="hidden sm:flex absolute bottom-5 right-5 items-center justify-center w-8 h-8 pointer-events-none"
             aria-hidden="true"
@@ -147,22 +69,14 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             <div className="absolute h-8 w-[1px] bg-[#d0fe1d]/80" />
           </div>
 
-          {/* Ambient Acid-Lime Vertical Light Pillar (Counter-Scrolling Parallax) */}
-          <motion.div
-            style={{ y: beamY }}
+          {/* Ambient Acid-Lime Vertical Light Pillar (inspired by XOTC hero beam) */}
+          <div
             className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-96 bg-gradient-to-b from-[#d0fe1d]/25 via-[#d0fe1d]/5 to-transparent blur-3xl pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* Plane 1 (Z +25px): Top Bar Accreditation & Live Countdown */}
-          <motion.div
-            style={{
-              y: topBarY,
-              z: 25,
-              transformStyle: 'preserve-3d',
-            }}
-            className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-8 border-b border-white/15"
-          >
+          {/* Top Bar: Accreditation & Live Countdown */}
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-8 border-b border-white/15">
             <div className="flex items-center gap-3.5">
               <GcdisLogo size="md" showWordmark={false} />
               <div className="text-left">
@@ -220,17 +134,10 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Plane 2 (Z +50px): Hero Main Title & Mission Statement */}
-          <motion.div
-            style={{
-              y: headlineY,
-              z: 50,
-              transformStyle: 'preserve-3d',
-            }}
-            className="relative z-10 py-8 sm:py-12 max-w-5xl text-left space-y-6"
-          >
+          {/* Hero Main Title & Mission Statement (XOTC Left-Aligned Wide Display Aesthetic) */}
+          <div className="relative z-10 py-8 sm:py-12 max-w-5xl text-left space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -306,17 +213,10 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 </button>
               )}
             </motion.div>
-          </motion.div>
+          </div>
 
-          {/* Plane 3 (Z +65px): REAL DRONE SOCCER LIVE ARENA BROADCASTER */}
-          <motion.div
-            style={{
-              y: arenaY,
-              z: 65,
-              transformStyle: 'preserve-3d',
-            }}
-            className="relative z-10 pt-4"
-          >
+          {/* REAL DRONE SOCCER LIVE ARENA BROADCASTER */}
+          <div className="relative z-10 pt-4">
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#d0fe1d] animate-ping" />
@@ -334,17 +234,10 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               onBracketClick={onBracketClick}
               onRulesClick={onRulesClick}
             />
-          </motion.div>
+          </div>
 
-          {/* Plane 4 (Z +35px): Bottom Bar Key Tournament Metric Counters */}
-          <motion.div
-            style={{
-              y: metricsY,
-              z: 35,
-              transformStyle: 'preserve-3d',
-            }}
-            className="relative z-10 mt-8 pt-6 border-t border-white/15 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4"
-          >
+          {/* Bottom Bar: Key Tournament Metric Counters */}
+          <div className="relative z-10 mt-8 pt-6 border-t border-white/15 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3 text-left">
               <span className="text-xs font-rajdhani font-bold text-neutral-400 uppercase tracking-widest">
                 SANCTIONING BODY:
@@ -376,9 +269,9 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 <span className="block text-[10px] font-mono text-neutral-400 uppercase">Dual Tiers</span>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

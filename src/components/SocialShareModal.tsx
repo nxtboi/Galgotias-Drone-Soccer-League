@@ -11,7 +11,6 @@ import {
   Linkedin, 
   Twitter, 
   Facebook,
-  Instagram,
   Award,
   Globe,
   Radio,
@@ -49,8 +48,7 @@ export const OFFICIAL_HASHTAGS = [
 export const OFFICIAL_GCDIS_TAGS = {
   twitter: '@GCDIS_GU @GalgotiasUni',
   linkedin: 'Galgotias Centre for Drone Intelligence & Simulation (GCDIS)',
-  instagram: '@gcdis_official',
-  instagramUrl: 'https://www.instagram.com/gcdis_official',
+  instagram: '@gcdis.official @galgotiasuniversity',
   facebook: '@GCDISGalgotias'
 };
 
@@ -111,9 +109,7 @@ Sanctioned under FIDA 5th Revision International Rules.`
   const activeTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
 
   const hashtagsString = includeHashtags ? `\n\n${OFFICIAL_HASHTAGS.join(' ')}` : '';
-  const tagsString = includeTags
-    ? `\n\nTagged: ${OFFICIAL_GCDIS_TAGS.instagram} ${OFFICIAL_GCDIS_TAGS.twitter}\n📸 GCDIS Instagram: ${OFFICIAL_GCDIS_TAGS.instagramUrl}`
-    : '';
+  const tagsString = includeTags ? `\n\nTagged: ${OFFICIAL_GCDIS_TAGS.twitter}` : '';
   const fullPostText = `${activeTemplate.text}${tagsString}${hashtagsString}\n\n🌐 Details & Registration: ${shareUrl}`;
 
   const handleCopyText = async () => {
@@ -277,7 +273,7 @@ Sanctioned under FIDA 5th Revision International Rules.`
                     onChange={(e) => setIncludeTags(e.target.checked)}
                     className="w-4 h-4 accent-[#d0fe1d]"
                   />
-                  <span>Tag @gcdis_official &amp; GCDIS Pages</span>
+                  <span>Tag @GCDIS_GU Pages</span>
                 </label>
               </div>
 
@@ -359,19 +355,6 @@ Sanctioned under FIDA 5th Revision International Rules.`
                 </a>
 
                 <a
-                  href={OFFICIAL_GCDIS_TAGS.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleCopyText}
-                  className="p-3 bg-[#111210] hover:border-[#d0fe1d] text-white font-orbitron font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/20"
-                  title="Copies post text and opens @gcdis_official on Instagram"
-                >
-                  <Instagram className="w-4 h-4 text-[#d0fe1d]" />
-                  <span>Instagram</span>
-                  <ExternalLink className="w-3 h-3 opacity-60 ml-auto" />
-                </a>
-
-                <a
                   href={telegramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -393,21 +376,13 @@ Sanctioned under FIDA 5th Revision International Rules.`
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] text-neutral-300 mt-2">
-                <a
-                  href={OFFICIAL_GCDIS_TAGS.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between gap-2 bg-[#171915] hover:border-[#d0fe1d] px-3 py-1.5 border border-white/10 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#d0fe1d] font-bold">Instagram:</span>
-                    <span className="text-white font-semibold">@gcdis_official</span>
-                  </div>
-                  <ExternalLink className="w-3 h-3 text-[#d0fe1d]" />
-                </a>
                 <div className="flex items-center gap-2 bg-[#171915] px-3 py-1.5 border border-white/10">
                   <span className="text-[#d0fe1d] font-bold">X (Twitter):</span>
                   <span className="text-white">@GCDIS_GU</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#171915] px-3 py-1.5 border border-white/10">
+                  <span className="text-[#d0fe1d] font-bold">Instagram:</span>
+                  <span className="text-white">@gcdis.official</span>
                 </div>
                 <div className="flex items-center gap-2 bg-[#171915] px-3 py-1.5 border border-white/10">
                   <span className="text-[#d0fe1d] font-bold">LinkedIn:</span>
