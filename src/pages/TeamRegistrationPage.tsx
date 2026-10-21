@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { GcdisLogo } from '../components/GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
@@ -6,16 +6,19 @@ import {
   saveRegisteredTeam,
   setCurrentSession,
   RegisteredTeamProfile,
+  getDivisionFee,
 } from '../data/teamAuthData';
 import { syncTeamToSheet, getStoredSheetInfo } from '../services/googleSheetsService';
 import { DEFAULT_LINKED_ACCOUNT } from '../services/googleAuth';
 
 export interface TeamRegistrationPageProps {
   onNavigate: (tab: string) => void;
+  onRegisterSuccess?: (team: RegisteredTeamProfile) => void;
 }
 
 export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
   onNavigate,
+  onRegisterSuccess,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [formData, setFormData] = useState({
@@ -46,13 +49,15 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
   } | null>(null);
 
   const [createdProfile, setCreatedProfile] = useState<RegisteredTeamProfile | null>(null);
-  const [sheetSyncStatus, setSheetSyncStatus] = useState<{
+  const [, setSheetSyncStatus] = useState<{
     synced: boolean;
     url?: string;
     loading: boolean;
     message?: string;
     error?: string;
   }>({ synced: false, loading: false });
+
+  const selectedFee = getDivisionFee(formData.division);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -65,7 +70,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
       setStep((prev) => (prev + 1) as 2 | 3);
       window.scrollTo({ top: 100, behavior: 'smooth' });
     } else {
-      // Generate Official Pass
       const randomId = `GDSL-26-T${Math.floor(100 + Math.random() * 900)}`;
       const regDateStr = new Date().toLocaleDateString('en-IN', {
         year: 'numeric',
@@ -79,10 +83,10 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
         slot: 'Arena Cage 1 · Scrutineering Bay 04',
       });
 
-      // Persist newly registered team into profile store & session
       const divisionFormatted = formData.division.includes('20')
         ? 'Class 20 (200mm)'
         : 'Class 40 (400mm)';
+      const feeInfo = getDivisionFee(divisionFormatted);
 
       const newProfile: RegisteredTeamProfile = {
         teamId: randomId,
@@ -106,14 +110,14 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
         failsafeAgreed: formData.failsafeAgreed,
         registeredAt: regDateStr,
         allocatedPit: 'Arena Cage 1 · Scrutineering Bay 04',
-        scrutineeringStatus: 'PRE_APPROVED',
+        scrutineeringStatus: 'PENDING_ON_SITE',
         paymentInfo: {
-          receiptNo: `GDSL-REC-2026-${Math.floor(100 + Math.random() * 900)}`,
-          amount: '₹2,500',
-          status: 'VERIFIED',
-          transactionId: `TXN-UPI-${Math.floor(10000000 + Math.random() * 90000000)}`,
-          paymentMode: 'UPI / Institutional Transfer',
-          paidAt: `${regDateStr} · Instant Verification`,
+          receiptNo: 'PENDING',
+          amount: feeInfo.formatted,
+          status: 'PENDING',
+          transactionId: 'PENDING',
+          paymentMode: 'Pending Dashboard Checkout',
+          paidAt: 'Awaiting Fee Payment',
           currency: 'INR',
         },
       };
@@ -121,16 +125,18 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
       saveRegisteredTeam(newProfile);
       setCurrentSession(newProfile);
       setCreatedProfile(newProfile);
+      if (onRegisterSuccess) {
+        onRegisterSuccess(newProfile);
+      }
 
       setStep(4);
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 70,
+        spread: 60,
         origin: { y: 0.6 },
       });
       window.scrollTo({ top: 100, behavior: 'smooth' });
 
-      // Automatically update new team data in Google Sheets (default linked to vk16122001@gmail.com)
       (async () => {
         try {
           setSheetSyncStatus({ synced: false, loading: true });
@@ -160,14 +166,13 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
         {/* Header Title */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 px-4 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>REGISTRATIONS CLOSING SOON: {GDSL_TOURNAMENT_INFO.regDeadline}</span>
+            <span>REGISTRATIONS OPEN · D-20: ₹1,400 · D-40: ₹4,000</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
             OFFICIAL TEAM REGISTRATION
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
-            Submit your university squad roster, designated striker pilot, and drone cage specifications to secure an official tournament entry pass.
+            Submit your university squad roster and drone specifications. After registration, complete your division entry fee payment (₹1,400 for D-20 or ₹4,000 for D-40) in your Squad Dashboard to unlock your Official Event Pass.
           </p>
         </div>
 
@@ -221,9 +226,14 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             onSubmit={handleNextStep}
             className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-10 shadow-xs text-left space-y-6"
           >
-            <h2 className="text-xl font-sans font-black text-blue-950 uppercase border-b border-blue-100 pb-3">
-              STEP 1: SQUAD &amp; INSTITUTION DETAILS
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-100 pb-3">
+              <h2 className="text-xl font-sans font-black text-blue-950 uppercase">
+                STEP 1: SQUAD &amp; INSTITUTION DETAILS
+              </h2>
+              <span className="text-xs font-mono font-bold text-emerald-400">
+                Selected Fee: {selectedFee.formatted} ({selectedFee.code})
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
@@ -273,7 +283,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div>
                 <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
-                  Drone Soccer Division *
+                  Drone Soccer Division &amp; Entry Fee *
                 </label>
                 <select
                   name="division"
@@ -282,10 +292,10 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 bg-white font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Class 40 (400mm Heavy Sphere)">
-                    Class 40 / D-40 (400mm Sphere · 5v5 Arena · ₹57,000 Prize Pool)
+                    Class 40 / D-40 (400mm Sphere · ₹4,000 Registration Fee · ₹57,000 Pool)
                   </option>
                   <option value="Class 20 (200mm Varsity Sphere)">
-                    Class 20 / D-20 (200mm Sphere · 3v3 Arena · ₹37,000 Prize Pool)
+                    Class 20 / D-20 (200mm Sphere · ₹1,400 Registration Fee · ₹37,000 Pool)
                   </option>
                 </select>
               </div>
@@ -319,12 +329,27 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Captain Mobile / WhatsApp Number *
+                </label>
+                <input
+                  required
+                  type="tel"
+                  name="captainPhone"
+                  placeholder="+91 98123 45678"
+                  value={formData.captainPhone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             <div className="pt-4 flex justify-end">
               <button
                 type="submit"
-                className="px-8 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs"
+                className="px-8 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer"
               >
                 Continue to Pilot Roster →
               </button>
@@ -345,7 +370,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200">
                 <label className="block text-xs font-mono font-black text-emerald-950 uppercase mb-1">
-                  🎯 No.1 Striker Pilot (Green LED + Tag) *
+                  No.1 Striker Pilot (Green LED + Tag) *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   The primary attacking pilot authorized to score through the goal hoop.
@@ -363,7 +388,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div className="bg-pink-50/60 p-4 rounded-2xl border border-pink-200">
                 <label className="block text-xs font-mono font-black text-pink-950 uppercase mb-1">
-                  🛡️ No.2 Guide Pilot (Pink LED + Tag) *
+                  No.2 Guide Pilot (Pink LED + Tag) *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   Protects Striker and authorized for in-game Striker substitution.
@@ -381,7 +406,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div className="bg-sky-50/60 p-4 rounded-2xl border border-sky-200">
                 <label className="block text-xs font-mono font-bold text-sky-950 uppercase mb-1">
-                  ⚡ No.3 Libero (SkyBlue LED · Front Defender) *
+                  No.3 Libero (SkyBlue LED · Front Defender) *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   Hits opponent Guide and Striker in front of the goal.
@@ -399,7 +424,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200">
                 <label className="block text-xs font-mono font-bold text-amber-950 uppercase mb-1">
-                  🚧 No.4 Sweeper (Yellow LED · Rear Defender) *
+                  No.4 Sweeper (Yellow LED · Rear Defender) *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   Blocks opponent Striker goal approach in mid-court.
@@ -417,7 +442,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-300">
                 <label className="block text-xs font-mono font-black text-slate-950 uppercase mb-1">
-                  🥅 No.5 Keeper (White LED · Goal Defender) *
+                  No.5 Keeper (White LED · Goal Defender) *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   Guards the circular hoop and defends 1-on-1 penalty kicks.
@@ -435,7 +460,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <div className="bg-blue-50/40 p-4 rounded-2xl border border-blue-200">
                 <label className="block text-xs font-mono font-bold text-blue-950 uppercase mb-1">
-                  🔧 Pit Mechanic / Battery Technician *
+                  Pit Mechanic / Battery Technician *
                 </label>
                 <span className="text-[10px] text-slate-500 block mb-2">
                   Performs 5-minute inter-set battery swaps and cage repairs.
@@ -456,13 +481,13 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="px-6 py-2.5 rounded-full border border-slate-300 text-slate-700 font-sans font-bold text-xs uppercase"
+                className="px-6 py-2.5 rounded-full border border-slate-300 text-slate-700 font-sans font-bold text-xs uppercase cursor-pointer"
               >
                 ← Back
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs"
+                className="px-8 py-3 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer"
               >
                 Continue to Drone Specs →
               </button>
@@ -545,117 +570,93 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
               </div>
             </div>
 
+            {/* Fee Notice Box */}
+            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="font-bold text-blue-950 block uppercase">
+                  Next Step: Complete Registration Payment in Squad Dashboard
+                </span>
+                <span className="text-slate-600">
+                  Your squad account will be created now. Official Event Passes unlock in your Squad Dashboard once the {selectedFee.formatted} ({selectedFee.code}) fee is paid.
+                </span>
+              </div>
+              <div className="font-mono font-bold text-base text-blue-950 shrink-0">
+                Fee: {selectedFee.formatted}
+              </div>
+            </div>
+
             <div className="pt-4 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="px-6 py-2.5 rounded-full border border-slate-300 text-slate-700 font-sans font-bold text-xs uppercase"
+                className="px-6 py-2.5 rounded-full border border-slate-300 text-slate-700 font-sans font-bold text-xs uppercase cursor-pointer"
               >
                 ← Back
               </button>
               <button
                 type="submit"
-                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95"
+                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
               >
-                GENERATE OFFICIAL TOURNAMENT PASS 🎟️
+                SUBMIT REGISTRATION &amp; PROCEED TO DASHBOARD →
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 4: INSTANT DIGITAL OFFICIAL GDSL TOURNAMENT PASS */}
-        {step === 4 && generatedPass && (
+        {/* STEP 4: REGISTRATION RECORDED — PROCEED TO DASHBOARD FOR PAYMENT & EVENT PASS */}
+        {step === 4 && generatedPass && createdProfile && (
           <div className="space-y-6">
-            <div className="max-w-2xl mx-auto bg-gradient-to-br from-blue-950 via-blue-900 to-slate-950 text-white rounded-3xl p-8 sm:p-10 shadow-2xl border-2 border-blue-400 relative overflow-hidden text-left">
-              {/* Watermark Logo */}
-              <div className="absolute right-4 top-4 opacity-15 pointer-events-none">
-                <GcdisLogo size="xl" showWordmark={false} />
-              </div>
-
-              {/* Pass Header */}
-              <div className="flex items-center justify-between border-b border-white/20 pb-4">
+            <div className="max-w-2xl mx-auto bg-white border border-blue-200 rounded-3xl p-8 sm:p-10 shadow-xl text-left space-y-6">
+              <div className="flex items-center justify-between border-b border-blue-100 pb-4">
                 <div className="flex items-center gap-3">
                   <GcdisLogo size="md" showWordmark={false} />
                   <div>
-                    <h3 className="font-sans font-black text-base uppercase tracking-tight text-white">
-                      GALGOTIAS DRONE SOCCER LEAGUE
+                    <span className="text-xs font-mono font-bold text-amber-400 uppercase block">
+                      STEP 4 OF 4 · PAYMENT PENDING IN DASHBOARD
+                    </span>
+                    <h3 className="font-sans font-black text-lg uppercase text-blue-950">
+                      SQUAD ACCOUNT CREATED
                     </h3>
-                    <p className="text-[10px] text-sky-300 font-mono">
-                      OFFICIAL SQUAD ENTRY BADGE · GDSL 2026
-                    </p>
                   </div>
                 </div>
+                <span className="font-mono text-sm font-black text-blue-950 bg-blue-50 px-3 py-1 rounded border border-blue-200">
+                  {generatedPass.teamId}
+                </span>
+              </div>
 
-                <div className="text-right">
-                  <span className="font-mono text-sm font-black text-amber-400 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-600">
-                    {generatedPass.teamId}
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Your squad <strong>{createdProfile.teamName}</strong> has been registered for{' '}
+                <strong>{createdProfile.division}</strong>. To unlock and download your{' '}
+                <strong>Official GDSL 2026 Event Pass</strong> and tax invoice, please complete the{' '}
+                <strong>{createdProfile.paymentInfo.amount}</strong> entry fee payment inside your Squad Dashboard.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                <div>
+                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Assigned Team ID</span>
+                  <span className="font-mono font-bold text-blue-950 text-sm">{createdProfile.teamId}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Default Access PIN</span>
+                  <span className="font-mono font-bold text-blue-950 text-sm">{createdProfile.accessCode}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Registration Fee Due</span>
+                  <span className="font-mono font-bold text-amber-400 text-sm">
+                    {createdProfile.paymentInfo.amount} ({createdProfile.division.includes('20') ? 'D-20' : 'D-40'})
                   </span>
                 </div>
               </div>
 
-              {/* Pass Main Details */}
-              <div className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-slate-400">TEAM NAME</div>
-                  <div className="text-lg font-black text-white uppercase">{formData.teamName || 'Galgotias Aero Hawks'}</div>
-                </div>
-
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-slate-400">INSTITUTION</div>
-                  <div className="text-sm font-bold text-sky-200">{formData.institution || 'Galgotias University'}</div>
-                </div>
-
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-slate-400">DIVISION</div>
-                  <div className="text-sm font-bold text-amber-300">{formData.division}</div>
-                </div>
-
-                <div>
-                  <div className="text-[10px] font-mono uppercase text-slate-400">CAPTAIN / STRIKER</div>
-                  <div className="text-sm font-bold text-white">
-                    {formData.captainName} · {formData.strikerPilot}
-                  </div>
-                </div>
-
-                <div className="sm:col-span-2 pt-2 border-t border-white/10">
-                  <div className="text-[10px] font-mono uppercase text-slate-400">ALLOCATED ARENA PIT</div>
-                  <div className="text-xs font-mono font-bold text-emerald-400">{generatedPass.slot}</div>
-                </div>
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('dashboard')}
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>OPEN SQUAD DASHBOARD TO PAY {createdProfile.paymentInfo.amount} &amp; UNLOCK PASS →</span>
+                </button>
               </div>
-
-              {/* Pass Footer with Barcode mockup */}
-              <div className="pt-4 border-t border-white/20 flex items-center justify-between">
-                <div className="text-[10px] font-mono text-slate-400">
-                  VERIFIED BY GCDIS · DATES: {GDSL_TOURNAMENT_INFO.dates}
-                </div>
-                <div className="font-mono text-[9px] text-sky-300">
-                  STATUS: ENTRY GRANTED
-                </div>
-              </div>
-            </div>
-
-            {/* Post-Registration Actions */}
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
-              >
-                <span>OPEN SQUAD DASHBOARD</span>
-                <span>(RECEIPT &amp; OD LETTER) →</span>
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="px-6 py-3.5 rounded-full bg-blue-900 hover:bg-blue-950 text-white font-sans font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
-              >
-                <span>🖨️</span>
-                <span>Print Official Badge</span>
-              </button>
-              <button
-                onClick={() => onNavigate('bracket')}
-                className="px-6 py-3.5 rounded-full bg-white hover:bg-blue-50 text-blue-950 font-sans font-bold text-xs uppercase tracking-wider border border-blue-200 transition-all shadow-xs cursor-pointer"
-              >
-                View Tournament Fixtures →
-              </button>
             </div>
           </div>
         )}

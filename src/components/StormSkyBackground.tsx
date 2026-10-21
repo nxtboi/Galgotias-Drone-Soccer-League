@@ -28,7 +28,12 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
     };
 
     const handleDragLeave = (e: DragEvent) => {
-      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+      if (
+        e.clientX <= 0 ||
+        e.clientY <= 0 ||
+        e.clientX >= window.innerWidth ||
+        e.clientY >= window.innerHeight
+      ) {
         setIsDragOver(false);
       }
     };
@@ -72,11 +77,11 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
       className={`fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0 bg-[#111210] ${className}`}
       aria-hidden="true"
     >
-      {/* 1. Real Drone Laboratory Photograph with XOTC Dark Obsidian + Acid Lime Grading */}
+      {/* 1. Static Background: Real Drone Laboratory Photograph */}
       <img
         src={bgSource}
         alt="Galgotias Centre for Drone Intelligence & Simulation Laboratory"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none transition-opacity duration-700 opacity-30 contrast-[1.2] saturate-[0.85] mix-blend-luminosity"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none opacity-30 contrast-[1.2] saturate-[0.85] mix-blend-luminosity"
         onError={(e) => {
           const target = e.currentTarget;
           if (!target.src.includes('drone-lab.jpg') && !target.src.includes('drone%20lab.jpg')) {
@@ -90,25 +95,26 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(circle at 50% 0%, rgba(208, 254, 29, 0.14) 0%, rgba(17, 18, 16, 0.78) 45%, #111210 85%)',
+            'radial-gradient(circle at 50% 0%, rgba(208, 254, 29, 0.15) 0%, rgba(17, 18, 16, 0.78) 45%, #111210 85%)',
         }}
       />
 
-      {/* 3. XOTC Architectural Blueprint Grid & Crosshair Lines */}
-      <div
-        className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)
-          `,
-          backgroundSize: '96px 96px',
-        }}
-      />
+      {/* 3. Subtle Static Architectural Grid */}
+      <div className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.65) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.65) 1px, transparent 1px)
+            `,
+            backgroundSize: '96px 96px',
+          }}
+        />
+      </div>
 
-      {/* 4. Subtle Ambient Lime Core Glows */}
+      {/* 4. Ambient Static Lime Core Glow */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[640px] h-[300px] bg-[#d0fe1d]/10 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/3 w-[500px] h-[260px] bg-[#d0fe1d]/5 blur-[140px] rounded-full pointer-events-none" />
 
       {/* 5. Drag-and-Drop Overlay */}
       {isDragOver && (
@@ -127,4 +133,5 @@ export const StormSkyBackground: React.FC<StormSkyBackgroundProps> = ({ classNam
     </div>
   );
 };
+
 export default StormSkyBackground;

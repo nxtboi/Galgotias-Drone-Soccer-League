@@ -64,6 +64,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
                   Arena Action Gallery
                 </button>
               </li>
+              <li>
+                <button 
+                  onClick={() => {
+                    handleNav('home');
+                    setTimeout(() => {
+                      document.getElementById('sponsors')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }} 
+                  className="hover:text-[#d0fe1d] transition-colors cursor-pointer"
+                >
+                  Sponsors &amp; Partners
+                </button>
+              </li>
             </ul>
           </div>
 

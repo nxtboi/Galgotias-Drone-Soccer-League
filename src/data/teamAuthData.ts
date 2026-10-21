@@ -31,7 +31,7 @@ export interface RegisteredTeamProfile {
   paymentInfo: {
     receiptNo: string;
     amount: string;
-    status: 'PAID' | 'VERIFIED';
+    status: 'PENDING' | 'PAID' | 'VERIFIED';
     transactionId: string;
     paymentMode: string;
     paidAt: string;
@@ -45,6 +45,31 @@ export interface RegisteredTeamProfile {
     travelDatesIncluded: boolean;
     students: TeamMember[];
   };
+}
+
+export function getDivisionFee(division: string): {
+  numeric: number;
+  formatted: string;
+  code: 'D-20' | 'D-40';
+} {
+  const isD20 = division.includes('20');
+  return isD20
+    ? { numeric: 1400, formatted: '₹1,400', code: 'D-20' }
+    : { numeric: 4000, formatted: '₹4,000', code: 'D-40' };
+}
+
+function normalizeTeamFee(team: RegisteredTeamProfile): RegisteredTeamProfile {
+  const expectedFee = getDivisionFee(team.division).formatted;
+  if (team.paymentInfo.amount === '₹2,500' || !team.paymentInfo.amount) {
+    return {
+      ...team,
+      paymentInfo: {
+        ...team.paymentInfo,
+        amount: expectedFee,
+      },
+    };
+  }
+  return team;
 }
 
 export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
@@ -73,7 +98,7 @@ export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
     scrutineeringStatus: 'PRE_APPROVED',
     paymentInfo: {
       receiptNo: 'GDSL-REC-2026-901',
-      amount: '₹2,500',
+      amount: '₹4,000',
       status: 'VERIFIED',
       transactionId: 'UPI-HDFC-938210948',
       paymentMode: 'UPI / Net Banking',
@@ -121,7 +146,7 @@ export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
     scrutineeringStatus: 'PRE_APPROVED',
     paymentInfo: {
       receiptNo: 'GDSL-REC-2026-902',
-      amount: '₹2,500',
+      amount: '₹4,000',
       status: 'VERIFIED',
       transactionId: 'SBI-NEFT-88492019',
       paymentMode: 'NEFT / Institutional Transfer',
@@ -169,7 +194,7 @@ export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
     scrutineeringStatus: 'PRE_APPROVED',
     paymentInfo: {
       receiptNo: 'GDSL-REC-2026-903',
-      amount: '₹2,500',
+      amount: '₹4,000',
       status: 'VERIFIED',
       transactionId: 'UPI-ICICI-449102831',
       paymentMode: 'UPI',
@@ -202,7 +227,7 @@ export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
     scrutineeringStatus: 'PRE_APPROVED',
     paymentInfo: {
       receiptNo: 'GDSL-REC-2026-904',
-      amount: '₹2,500',
+      amount: '₹1,400',
       status: 'VERIFIED',
       transactionId: 'UPI-PAYTM-671029384',
       paymentMode: 'UPI',
@@ -224,7 +249,9 @@ export function getRegisteredTeams(): RegisteredTeamProfile[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+      const normalized = parsed.map(normalizeTeamFee);
+      localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(normalized));
+      return normalized;
     }
   } catch {
     // fallback
@@ -276,7 +303,6 @@ export function authenticateTeam(
     };
   }
 
-  // Check access code (if user provided passcode, check match, or allow default demo code)
   if (
     cleanPass &&
     matched.accessCode &&
@@ -290,7 +316,6 @@ export function authenticateTeam(
     };
   }
 
-  // Set session
   setCurrentSession(matched);
   return { success: true, team: matched };
 }
@@ -299,7 +324,8 @@ export function getCurrentSession(): RegisteredTeamProfile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SESSION);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return normalizeTeamFee(parsed);
   } catch {
     return null;
   }

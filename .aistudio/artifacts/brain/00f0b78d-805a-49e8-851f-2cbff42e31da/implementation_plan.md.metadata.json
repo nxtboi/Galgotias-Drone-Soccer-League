@@ -1,6 +1,6 @@
 {
-  "summary": "Implementation plan to redesign the Registered Squad User Dashboard into a clean, utilitarian dark neutral slate interface without sci-fi/hi-fi elements, neon glows, or chamfered borders, organized with standard horizontal tabs.",
-  "updatedAt": "2026-10-17T07:57:29.128031616Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Implementation plan for integrating a complete Razorpay-style payment gateway (UPI, Cards, Net Banking) into the Squad Dashboard with division-based fees (D-20 = ₹1,400, D-40 = ₹4,000) and gating official event passes until payment is verified.",
+  "updatedAt":  "2026-10-21T08:42:31.339767197Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

@@ -4,6 +4,7 @@ import { DroneSoccerHero } from './components/DroneSoccerHero';
 import { TournamentOverviewSection } from './components/TournamentOverviewSection';
 import { GcdisSpotlightBanner } from './components/GcdisSpotlightBanner';
 import { EventVoicesAndQuotes } from './components/EventVoicesAndQuotes';
+import { SponsorsDivisionSection } from './components/SponsorsDivisionSection';
 import { Footer } from './components/Footer';
 import { StormSkyBackground } from './components/StormSkyBackground';
 import { SocialShareModal } from './components/SocialShareModal';
@@ -140,6 +141,9 @@ export function App() {
             onShareClick={() => setIsShareModalOpen(true)}
           />
 
+          {/* Official Sponsors & Industry Partners Division */}
+          <SponsorsDivisionSection onNavigate={handleSelectTab} />
+
           {/* Quick Hub Spotlight Banner */}
           <GcdisSpotlightBanner onNavigate={handleSelectTab} />
         </div>
@@ -165,7 +169,14 @@ export function App() {
       {/* Dedicated Page: Team Registration & Digital Pass */}
       {activeTab === 'register' && (
         <div className="xotc-page-scope">
-          <TeamRegistrationPage onNavigate={handleSelectTab} />
+          <TeamRegistrationPage
+            onNavigate={handleSelectTab}
+            onRegisterSuccess={(team) => {
+              setIsAdminLoggedIn(false);
+              localStorage.removeItem('gdsl_admin_session_v1');
+              setCurrentTeam(team);
+            }}
+          />
         </div>
       )}
 

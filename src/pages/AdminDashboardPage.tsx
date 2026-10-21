@@ -3,6 +3,7 @@ import { GcdisLogo } from '../components/GcdisLogo';
 import {
   RegisteredTeamProfile,
   getRegisteredTeams,
+  getDivisionFee,
 } from '../data/teamAuthData';
 import {
   fetchLiveSheetData,
@@ -168,7 +169,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   });
 
   const totalRevenue = teams.reduce((acc, t) => {
-    const num = parseInt((t.paymentInfo?.amount || '0').replace(/[^0-9]/g, ''), 10);
+    if (t.paymentInfo?.status === 'PENDING') return acc;
+    const rawAmount = t.paymentInfo?.amount || getDivisionFee(t.division).formatted;
+    const num = parseInt(rawAmount.replace(/[^0-9]/g, ''), 10);
     return acc + (isNaN(num) ? 0 : num);
   }, 0);
 
@@ -497,13 +500,19 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         <td className="py-3 px-4 text-slate-600">{t.droneModel}</td>
                         <td className="py-3 px-4 font-mono text-slate-600">{t.vtxBand}</td>
                         <td className="py-3 px-4 font-mono font-bold text-emerald-800">
-                          {t.paymentInfo?.amount || '₹2,500'}
+                          {t.paymentInfo?.amount || getDivisionFee(t.division).formatted}
                         </td>
                         <td className="py-3 px-4 font-mono text-slate-600">
-                          {t.paymentInfo?.receiptNo || 'GDSL-REC-2026'}
+                          {t.paymentInfo?.receiptNo || 'PENDING'}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                              t.paymentInfo?.status === 'PENDING'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
                             {t.paymentInfo?.status || 'VERIFIED'}
                           </span>
                         </td>
@@ -567,8 +576,12 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Entry Fee:</span>
-                      <span className="font-mono font-bold text-emerald-800">
-                        {t.paymentInfo?.amount || '₹2,500'} (VERIFIED)
+                      <span
+                        className={`font-mono font-bold ${
+                          t.paymentInfo?.status === 'PENDING' ? 'text-amber-700' : 'text-emerald-800'
+                        }`}
+                      >
+                        {t.paymentInfo?.amount || getDivisionFee(t.division).formatted} ({t.paymentInfo?.status || 'VERIFIED'})
                       </span>
                     </div>
                   </div>
@@ -647,7 +660,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
                   <span className="text-[10px] font-mono font-bold text-emerald-800 block">PAYMENT RECEIPT</span>
-                  <span className="font-bold text-emerald-950 block">{selectedTeam.paymentInfo?.amount || '₹2,500'}</span>
+                  <span className="font-bold text-emerald-950 block">
+                    {selectedTeam.paymentInfo?.amount || getDivisionFee(selectedTeam.division).formatted} ({selectedTeam.paymentInfo?.status || 'VERIFIED'})
+                  </span>
                   <span className="text-emerald-700 font-mono text-[11px] block">
                     {selectedTeam.paymentInfo?.receiptNo}
                   </span>

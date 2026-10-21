@@ -1,57 +1,59 @@
-# Basic Utilitarian Squad User Dashboard Redesign
+# Paid Registration & Dashboard Payment Gateway Setup (D-20: ₹1,400 · D-40: ₹4,000)
 
-This plan strips away the futuristic sci-fi ("hi-fi") visual overrides—such as neon acid-lime glows, chamfered polygon buttons, and display sci-fi typography—from the Registered Squad User Dashboard, replacing them with a straightforward, clean dark neutral slate dashboard organized into five horizontal tabs.
+This plan implements division-based paid registration (**₹1,400** for Class 20 / D-20 and **₹4,000** for Class 40 / D-40), a complete interactive Razorpay-style multi-method payment gateway inside the Squad Dashboard, and strict gating so official Event Passes and receipts are unlocked only after payment completion.
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The following design and layout decisions incorporate your confirmed preferences from our clarification step:
+> The following architectural and workflow decisions directly reflect your answers from the clarification step:
 
-- **Confirmed Decision 1 — Simple Dark Neutral Slate Aesthetic**: The user dashboard will use flat, understated dark slate surfaces (`#0f172a` canvas, `#1e293b` cards, `#334155` 1px borders) with standard system sans-serif typography and clean rectangular/slightly-rounded controls—completely free of neon acid-lime (`#d0fe1d`) glows, chamfered `clip-path` corners, or `Orbitron` sci-fi headings.
-- **Confirmed Decision 2 — Standard Horizontal Tabs**: All squad management tools remain organized under five clean horizontal tabs: **Overview**, **Payment Receipt**, **Attendance (OD Letter)**, **Team Profile & Roster**, and **Match Schedule**.
-- **Document Print & PDF Integrity (Default Choice)**: While the interactive dashboard shell uses the simple dark neutral slate theme, the printable A4 **Payment Receipt Invoice** and **College On-Duty (OD) Letter** paper sheets will retain clean, print-ready document contrast so downloaded PDFs and physical prints remain legible for university authorities.
+- **Confirmed Decision 1 — Post-Registration Payment in Squad Dashboard**: Completing the 3-step registration form creates the squad account with a `PENDING` payment status (`₹1,400` for D-20 or `₹4,000` for D-40) and routes the captain to their Squad Dashboard to complete payment.
+- **Confirmed Decision 2 — Event Passes Locked Until Payment**: The Official Event Pass (along with the verified Payment Receipt invoice) remains locked while payment status is `PENDING`. Only after completing payment through the dashboard gateway does the participant unlock and download their Official Event Pass.
+- **Confirmed Decision 3 — Razorpay-Style Multi-Method Checkout Modal**: The payment gateway supports **UPI QR & UPI ID Instant Pay**, **Credit & Debit Cards** (with OTP verification step), and **Net Banking / Institutional Transfer**.
+- **Division Fee Alignment**: All division selectors, invoices, and pre-seeded squad records are aligned to **₹1,400** for Class 20 (D-20) and **₹4,000** for Class 40 (D-40).
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Does**: Provides authenticated collegiate drone soccer teams with a straightforward, distraction-free portal to view their registration summary, download their official payment receipt PDF, customize and print their college On-Duty (OD) attendance letter, update squad contact/hardware specs, and check fixture schedules.
-- **Target Audience / Persona**: University team captains, student pilots, and faculty coordinators who need a practical, easy-to-read administrative portal rather than a promotional esports interface.
-- **Key Value**: Eliminates visual clutter and sci-fi styling interference so captains can quickly read tabular data, edit student roll numbers, and export official university paperwork without dark/neon CSS overrides corrupting print or PDF outputs.
+- **What It Does**: Establishes a complete end-to-end registration-to-payment-to-pass lifecycle. Newly registered squads submit their roster and hardware specs first, land in their Squad Dashboard with a pending fee balance (`₹1,400` for D-20 or `₹4,000` for D-40), pay via an interactive checkout gateway, and immediately unlock their printable Official Event Pass and tax receipt.
+- **Target Audience / Persona**: Collegiate drone soccer team captains and university coordinators registering squads in Class 20 or Class 40 divisions.
+- **Key Value**: Ensures no event pass or pit bay credential is issued before fee settlement while providing a realistic, multi-method Indian payment checkout experience (UPI, Card, Net Banking) with automatic Google Sheets synchronization.
 
 ---
 
 ## 2. User Experience & Visual Design
 
 - **Key User Flows**:
-  1. **Header & Summary Bar**: Displays the squad name, institution, registration status, and a 4-column key-value strip (Team ID, Division, Captain, Event Dates) with simple **Main Site** and **Logout** buttons.
-  2. **Horizontal Tab Navigation**: A clean bottom-bordered tab bar switching immediately between:
-     - **Overview**: A simple 4-column summary grid (Payment Receipt, Attendance Request, Team Profile, Match Schedule) above a two-column Registration Summary table.
-     - **Payment Receipt**: Action bar with **Download Receipt (PDF)**, **Print**, and **Copy Receipt #**, above the clean A4 tax invoice.
-     - **Attendance (OD Letter)**: Simple recipient form (Authority Title, Department, College Name) + **Save Changes** and **Print / Save OD Letter**, above the formal university letter with editable student roll numbers.
-     - **Team Profile & Roster**: Inline contact/hardware editor (**Captain Phone**, **Drone Model**, **VTX Band**), a clean 6-row squad roster table, and a 4-column hardware specification strip.
-     - **Match Schedule**: Clean status table listing event dates, fixture release time, allocated pit, and a one-click notification toggle.
+  1. **3-Step Squad Registration (`TeamRegistrationPage`)**:
+     - Step 1 displays the exact entry fee alongside each division (**Class 40 / D-40: ₹4,000** and **Class 20 / D-20: ₹1,400**).
+     - Upon submitting Step 3, the squad profile is saved with `paymentInfo.status = 'PENDING'` and payable amount set to `₹1,400` (D-20) or `₹4,000` (D-40).
+     - Step 4 displays a clear **"Registration Recorded — Payment Required in Dashboard"** notice with the assigned Team ID and a primary action button that takes the user directly into their **Squad Dashboard** to complete payment and unlock their Event Pass.
+  2. **Dashboard Payment Prompt & Pass Gating (`TeamDashboardPage`)**:
+     - When `paymentInfo.status === 'PENDING'`, a top alert banner and the Overview tab display the pending fee (`₹1,400` or `₹4,000`) with a primary **Pay Registration Fee Now** button.
+     - Adds a dedicated **Event Pass** tab to the dashboard horizontal tab bar (`Overview`, `Event Pass`, `Payment Receipt`, `OD Letter`, `Profile & Roster`, `Schedule`).
+     - If payment is `PENDING`, the **Event Pass** and **Payment Receipt** tabs display a locked state explaining that payment of `₹1,400` (D-20) or `₹4,000` (D-40) is required to generate the official pass and receipt, accompanied by a one-click **Proceed to Payment Gateway** button.
+  3. **Interactive Razorpay-Style Payment Gateway (`PaymentGatewayModal`)**:
+     - Displays merchant header (**GCDIS · Galgotias Drone Soccer League**), Squad Name, Team ID, Division, and exact fee (`₹1,400.00` or `₹4,000.00`).
+     - **Method 1 — UPI (QR & VPA)**: Interactive scannable UPI QR code and VPA input (`captain@okaxis`, `@ybl`, `@paytm`) with format validation.
+     - **Method 2 — Credit / Debit Cards**: 16-digit card number formatting, expiry (`MM/YY`), CVV, cardholder name, and a 6-digit OTP verification step.
+     - **Method 3 — Net Banking & Institutional NEFT**: Quick-select bank buttons (SBI, HDFC, ICICI, Axis, PNB, Kotak) plus an option for institutional NEFT/UTR reference submission.
+     - Upon payment confirmation, generates an official receipt number (`GDSL-REC-2026-XXX`) and transaction ID, updates status to `VERIFIED`, persists to `localStorage` and Google Sheets, and automatically opens the newly unlocked **Event Pass** tab.
+  4. **Unlocked Official Event Pass (`TeamDashboardPage`)**:
+     - Once paid, displays the printable/downloadable **Official GDSL 2026 Squad Event Pass** containing the Team ID, Division (`D-20` or `D-40`), Allocated Pit Bay, 6-member accredited squad list, verification QR code, and verified payment reference (`₹1,400` or `₹4,000` Paid), with **Download Pass (PDF)** and **Print Pass** actions.
 - **Visual Identity & Theme**:
-  - *Aesthetic Direction*: Utilitarian, flat SaaS administrative dashboard.
-  - *Color Palette & Mood*:
-    - Dominant Canvas (60%): Deep neutral slate (`#0f172a` / `bg-slate-900`)
-    - Structural Surfaces (30%): Flat slate cards (`#1e293b` / `bg-slate-800/90`) with crisp 1px borders (`#334155` / `border-slate-700`) and readable slate typography (`#f8fafc` primary, `#94a3b8` secondary)
-    - Accent Budget (10%): Standard semantic blue (`#2563eb` / `bg-blue-600`) for primary actions and active tabs, with semantic green (`#16a34a`) for verified status and muted red (`#dc2626`) for logout
-  - *Typography & Hierarchy*: Standard readable sans-serif (`Inter` / system UI sans) across all headings and body text on the dashboard (explicitly overriding the global `Orbitron` heading rule within the dashboard container), paired with `font-mono tabular-nums` for IDs, amounts, and roll numbers.
-  - *Component Styling & Layout*: Single-elevation flat cards (`rounded-lg border border-slate-700 bg-slate-800`), standard rectangular buttons (`rounded-md px-4 py-2`), and unboxed inline text metadata with `·` separators instead of decorative emoji or neon pills.
-- **Interactive Feedback & Motion**: Instantaneous tab switching, clear inline confirmation banners when saving profile or attendance updates, and spinner state during `html2pdf` invoice generation.
+  - Preserves the clean, utilitarian dark neutral slate theme (`bg-slate-900`, `bg-slate-800`, `border-slate-700`) on the Squad Dashboard and a crisp, trustworthy payment gateway modal with standard sans-serif typography and tabular numerals (`tabular-nums`).
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-- **Decision 1 — Decoupling User Dashboard from Global `.xotc-page-scope` Overrides**:
-  - *Chosen Approach*: Remove the `.xotc-page-scope` wrapper around the User Dashboard route and apply a dedicated `.basic-dashboard-scope` container that resets headings (`h1–h6`) to standard sans-serif and uses standard Tailwind slate classes.
-  - *Why*: `.xotc-page-scope` uses `!important` rules to force `Orbitron` fonts, `#161814` backgrounds, and chamfered `#d0fe1d` buttons across all child elements, which made the dashboard look overly futuristic and interfered with clean invoice/letter rendering.
-  - *Alternatives Considered*: Overriding individual classes inside `.xotc-page-scope` was rejected because cascading `!important` selectors are brittle and harder to maintain.
-- **Decision 2 — Replacing Card Sandwiches & Emoji Clutter with Clean Tables**:
-  - *Chosen Approach*: Replace decorative emojis (`🧾`, `🎓`, `👤`, `⏱️`) and colored pill badges with clean text labels, subtle hairline borders, and structured data tables.
-  - *Why*: Aligns with enterprise dashboard design standards for high scannability and a calm, basic administrative look.
+- **Decision 1 — Post-Registration Dashboard Checkout vs. Inline Form Checkout**:
+  - *Chosen Approach*: Save the registration profile on Step 3 with `status: 'PENDING'`, log the squad into their dashboard session, and require payment completion inside the dashboard to unlock the Event Pass.
+  - *Why*: Matches your exact workflow requirement so teams never lose their entered roster data if payment is completed later from their dashboard, while strictly gating the Event Pass behind verified payment.
+- **Decision 2 — Division-Driven Fee Calculation (`D-20 = ₹1,400`, `D-40 = ₹4,000`)**:
+  - *Chosen Approach*: Centralize division fee lookup (`getDivisionFee(division)`) returning `₹1,400` for Class 20 and `₹4,000` for Class 40 across registration, payment gateway, invoices, and admin tables.
+  - *Why*: Guarantees single-source-of-truth pricing across all views and prevents mismatched invoice totals.
 
 ---
 
@@ -61,38 +63,36 @@ This plan strips away the futuristic sci-fi ("hi-fi") visual overrides—such as
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         Application Router (App)                        │
-│     Unwraps User Dashboard from `.xotc-page-scope` sci-fi overrides     │
+│                    3-Step Team Registration Flow                        │
+│   Selects D-20 (₹1,400) or D-40 (₹4,000) -> Saves Profile as PENDING    │
 └────────────────────────────────────┬────────────────────────────────────┘
                                      │
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│               Basic Squad User Dashboard (TeamDashboardPage)            │
-│       Neutral Dark Slate (#0f172a / #1e293b) · Standard Sans Font       │
-├─────────────────────────────────────────────────────────────────────────┤
-│  1. Top Header Bar                                                      │
-│     ├─ Squad Title, Institution, Registration Status                    │
-│     ├─ 4-Column Key Info Strip (Team ID, Division, Captain, Dates)      │
-│     └─ Navigation Actions (Main Site, Logout)                           │
-├─────────────────────────────────────────────────────────────────────────┤
-│  2. Horizontal Tab Controller                                           │
-│     [Overview]  [Payment Receipt]  [OD Letter]  [Profile]  [Schedule]   │
-└──┬─────────────────┬───────────────────┬──────────────┬──────────────┬──┘
-   │                 │                   │              │              │
-   ▼                 ▼                   ▼              ▼              ▼
-┌──────────┐  ┌──────────────┐  ┌────────────────┐ ┌──────────┐ ┌──────────┐
-│ Overview │  │   Receipt    │  │   OD Letter    │ │ Profile  │ │ Schedule │
-│ 4-Card   │  │ html2pdf A4  │  │ Recipient Form │ │ Inline   │ │ Fixture  │
-│ Grid +   │  │ Invoice +    │  │ + Editable     │ │ Editor + │ │ Status + │
-│ Summary  │  │ Print/Copy   │  │ Roll No Table  │ │ Roster   │ │ Alert    │
-│ Table    │  │ Handlers     │  │ + Sheets Sync  │ │ Table    │ │ Toggle   │
-└──────────┘  └──────────────┘  └────────────────┘ └──────────┘ └──────────┘
+│                   Squad User Dashboard (TeamDashboardPage)              │
+│  Checks `team.paymentInfo.status` ('PENDING' vs 'VERIFIED' / 'PAID')    │
+├────────────────────────────────────┬────────────────────────────────────┤
+│       IF STATUS === 'PENDING'      │      IF STATUS === 'VERIFIED'      │
+│  ┌──────────────────────────────┐  │  ┌──────────────────────────────┐  │
+│  │ • Pending Fee Alert Banner   │  │  │ • Event Pass Tab UNLOCKED    │  │
+│  │ • Event Pass Tab LOCKED      │  │  │   (Printable + PDF Download) │  │
+│  │ • Receipt Invoice LOCKED     │  │  │ • Official Tax Invoice PDF   │  │
+│  │ • [Pay ₹1,400 / ₹4,000 Now]  │  │  │ • College OD Letter Active   │  │
+│  └──────────────┬───────────────┘  │  └──────────────────────────────┘  │
+└─────────────────┼──────────────────┴───────────────────▲────────────────┘
+                  │ Opens Modal                          │ Updates State
+                  ▼                                      │ & Syncs Sheets
+┌────────────────────────────────────────────────────────┴────────────────┐
+│            Interactive Checkout Gateway (PaymentGatewayModal)           │
+│  ├─ Tab 1: UPI Instant Pay (Dynamic QR Code + UPI ID VPA Verification)  │
+│  ├─ Tab 2: Credit / Debit Card (Card Input + Simulated 6-Digit OTP)     │
+│  └─ Tab 3: Net Banking & Institutional NEFT (Bank Grid + UTR Entry)     │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Data Model & State**:
-  - Preserves `RegisteredTeamProfile` session state (`localStorage` + `saveRegisteredTeam` + automatic background Google Sheets synchronization via `syncTeamToSheet`).
+  - Extends `RegisteredTeamProfile['paymentInfo']['status']` to support `'PENDING' | 'PAID' | 'VERIFIED'`.
+  - Adds helper `getDivisionFee(division: string): { numeric: number; formatted: string }` returning `{ numeric: 1400, formatted: '₹1,400' }` for Class 20 and `{ numeric: 4000, formatted: '₹4,000' }` for Class 40.
 - **Interactive Component & State Mapping**:
-  - **Tab Switcher (`activeTab`)**: Switches cleanly between `overview`, `receipt`, `attendance`, `profile`, and `schedule`.
-  - **Receipt Actions (`handleDownloadReceiptPdf`, `handlePrint`, `handleCopyReceiptNo`)**: Generates A4 PDF via `html2pdf.js`, triggers browser print, or copies receipt reference to clipboard.
-  - **Attendance Form (`handleSaveAttendance`, `handleUpdateRoll`)**: Updates authority/department/college fields and per-student roll numbers in state, persists to `localStorage`, and syncs to Google Sheets.
-  - **Profile Editor (`handleSaveProfile`)**: Toggles inline form to edit captain phone, drone model, and VTX channel, saving changes to session state and Google Sheets.
+  - **Registration Submission (`handleNextStep`)**: Creates profile with `status: 'PENDING'`, `amount: '₹1,400'` or `'₹4,000'`, `transactionId: 'PENDING'`, and `receiptNo: 'PENDING'`, logs the team in, and offers direct navigation to the Squad Dashboard.
+  - **Payment Gateway Completion (`handlePaymentSuccess`)**: Updates `team.paymentInfo` with `status: 'VERIFIED'`, generated `receiptNo`, `transactionId`, selected `paymentMode` (`UPI`, `Card`, or `Net Banking`), and timestamp; saves to `localStorage`, syncs with Google Sheets, and switches the dashboard to the unlocked `pass` tab.

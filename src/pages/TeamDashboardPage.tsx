@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
+import { Lock, CheckCircle2, CreditCard, QrCode, Printer, Download } from 'lucide-react';
 import {
   RegisteredTeamProfile,
   saveRegisteredTeam,
   setCurrentSession,
+  getDivisionFee,
 } from '../data/teamAuthData';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 import {
@@ -11,6 +13,7 @@ import {
   updateAllTournamentDataOnSheets,
   getStoredSheetInfo,
 } from '../services/googleSheetsService';
+import { PaymentGatewayModal } from '../components/PaymentGatewayModal';
 
 export interface TeamDashboardPageProps {
   team: RegisteredTeamProfile;
@@ -25,11 +28,20 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   onNavigate,
   onUpdateTeam,
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'receipt' | 'attendance' | 'profile' | 'schedule'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'pass' | 'receipt' | 'attendance' | 'profile' | 'schedule'
+  >('overview');
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  // Receipt HTML2PDF Ref & Generation State
+  const fee = getDivisionFee(team.division);
+  const isPaymentCompleted =
+    team.paymentInfo.status === 'VERIFIED' || team.paymentInfo.status === 'PAID';
+
+  // Refs for PDF Generation
   const receiptRef = useRef<HTMLDivElement>(null);
+  const passRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingPassPdf, setIsGeneratingPassPdf] = useState(false);
   const [pdfDownloadSuccess, setPdfDownloadSuccess] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
@@ -70,7 +82,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [scheduleAlert, setScheduleAlert] = useState(false);
   const [copiedReceipt, setCopiedReceipt] = useState(false);
 
-  // Automatically update team and tournament data in Google Sheets on mount
   useEffect(() => {
     let isCancelled = false;
     const autoUpdateDataOnSheets = async () => {
@@ -102,6 +113,67 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
       isCancelled = true;
     };
   }, [team.teamId]);
+
+  const handlePaymentSuccess = async (paymentDetails: {
+    receiptNo: string;
+    amount: string;
+    transactionId: string;
+    paymentMode: string;
+    paidAt: string;
+  }) => {
+    const updatedTeam: RegisteredTeamProfile = {
+      ...team,
+      scrutineeringStatus: 'PRE_APPROVED',
+      paymentInfo: {
+        receiptNo: paymentDetails.receiptNo,
+        amount: paymentDetails.amount,
+        status: 'VERIFIED',
+        transactionId: paymentDetails.transactionId,
+        paymentMode: paymentDetails.paymentMode,
+        paidAt: paymentDetails.paidAt,
+        currency: 'INR',
+      },
+    };
+
+    saveRegisteredTeam(updatedTeam);
+    setCurrentSession(updatedTeam);
+    if (onUpdateTeam) onUpdateTeam(updatedTeam);
+    setIsPaymentModalOpen(false);
+    setActiveTab('pass');
+    setSheetSyncSuccess(
+      `Payment of ${paymentDetails.amount} verified (${paymentDetails.transactionId}). Official Event Pass unlocked!`
+    );
+    setTimeout(() => setSheetSyncSuccess(null), 6000);
+
+    try {
+      await syncTeamToSheet(updatedTeam);
+    } catch (err) {
+      console.warn('Payment sheet sync notice:', err);
+    }
+  };
+
+  const handleResetToPendingDemo = () => {
+    const updatedTeam: RegisteredTeamProfile = {
+      ...team,
+      scrutineeringStatus: 'PENDING_ON_SITE',
+      paymentInfo: {
+        ...team.paymentInfo,
+        amount: fee.formatted,
+        status: 'PENDING',
+        receiptNo: 'PENDING',
+        transactionId: 'PENDING',
+        paymentMode: 'Pending Dashboard Checkout',
+        paidAt: 'Awaiting Fee Payment',
+      },
+    };
+    saveRegisteredTeam(updatedTeam);
+    setCurrentSession(updatedTeam);
+    if (onUpdateTeam) onUpdateTeam(updatedTeam);
+    setSheetSyncSuccess(
+      `Payment status set to PENDING (${fee.formatted} for ${fee.code}). Event Pass is now locked until payment.`
+    );
+    setTimeout(() => setSheetSyncSuccess(null), 5000);
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +239,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   };
 
   const handleDownloadReceiptPdf = async () => {
+    if (!isPaymentCompleted) {
+      setIsPaymentModalOpen(true);
+      return;
+    }
     if (activeTab !== 'receipt') {
       setActiveTab('receipt');
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -212,6 +288,50 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     }
   };
 
+  const handleDownloadPassPdf = async () => {
+    if (!isPaymentCompleted) {
+      setIsPaymentModalOpen(true);
+      return;
+    }
+    if (activeTab !== 'pass') {
+      setActiveTab('pass');
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    if (!passRef.current) return;
+    setIsGeneratingPassPdf(true);
+
+    try {
+      const element = passRef.current;
+      const cleanTeamId = team.teamId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `GDSL_Official_Event_Pass_${cleanTeamId}.pdf`;
+
+      const opt = {
+        margin: [8, 8, 8, 8] as [number, number, number, number],
+        filename,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          windowWidth: 850,
+        },
+        jsPDF: {
+          unit: 'mm' as const,
+          format: 'a4' as const,
+          orientation: 'portrait' as const,
+        },
+      };
+
+      await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('Failed to generate Pass PDF:', err);
+      window.print();
+    } finally {
+      setIsGeneratingPassPdf(false);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -222,8 +342,13 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setTimeout(() => setCopiedReceipt(false), 2000);
   };
 
-  const tabs: { id: typeof activeTab; label: string }[] = [
+  const tabs: { id: typeof activeTab; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Overview' },
+    {
+      id: 'pass',
+      label: 'Event Pass',
+      badge: isPaymentCompleted ? 'Unlocked' : 'Locked',
+    },
     { id: 'receipt', label: 'Payment Receipt' },
     { id: 'attendance', label: 'OD Letter' },
     { id: 'profile', label: 'Profile & Roster' },
@@ -235,7 +360,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Status Notifications */}
         {sheetSyncSuccess && (
-          <div className="p-3 rounded-md bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs flex items-center justify-between">
+          <div className="p-3.5 rounded-md bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs flex items-center justify-between">
             <span>{sheetSyncSuccess}</span>
             <button
               onClick={() => setSheetSyncSuccess(null)}
@@ -247,13 +372,38 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         )}
 
         {sheetSyncError && (
-          <div className="p-3 rounded-md bg-slate-800 border border-red-700/60 text-red-300 text-xs flex items-center justify-between">
+          <div className="p-3.5 rounded-md bg-slate-800 border border-red-700/60 text-red-300 text-xs flex items-center justify-between">
             <span>{sheetSyncError}</span>
             <button
               onClick={() => setSheetSyncError(null)}
               className="text-slate-400 hover:text-white font-medium ml-3 cursor-pointer"
             >
               Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Prominent Pending Payment Banner (When Payment is Not Yet Completed) */}
+        {!isPaymentCompleted && (
+          <div className="bg-amber-950/40 border border-amber-600/60 rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
+                Action Required · Registration Fee Pending ({fee.code}: {fee.formatted})
+              </div>
+              <h2 className="text-base font-semibold text-white">
+                Complete Your {fee.formatted} Entry Fee Payment to Unlock Your Official Event Pass
+              </h2>
+              <p className="text-xs text-slate-300 max-w-2xl">
+                Event passes and verified tax receipts are issued only after completing the registration payment ({team.division} — {fee.formatted}).
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPaymentModalOpen(true)}
+              className="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>Pay {fee.formatted} Now</span>
             </button>
           </div>
         )}
@@ -265,7 +415,15 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mb-1">
                 <span>Squad Dashboard</span>
                 <span aria-hidden="true">·</span>
-                <span className="text-emerald-400 font-medium">Registered</span>
+                {isPaymentCompleted ? (
+                  <span className="text-emerald-400 font-medium">
+                    Fee Paid ({fee.formatted}) · Event Pass Unlocked
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-medium">
+                    Payment Pending ({fee.formatted}) · Pass Locked
+                  </span>
+                )}
                 <span aria-hidden="true">·</span>
                 <span className="font-mono tabular-nums">{team.teamId}</span>
               </div>
@@ -277,7 +435,25 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {!isPaymentCompleted ? (
+                <button
+                  type="button"
+                  onClick={() => setIsPaymentModalOpen(true)}
+                  className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  Pay Fee ({fee.formatted})
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResetToPendingDemo}
+                  className="px-3 py-2 text-xs font-medium rounded-md border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                  title="Reset payment status to PENDING to test the payment gateway checkout"
+                >
+                  Test Payment Gateway
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
@@ -304,21 +480,29 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block">Division</span>
+              <span className="text-xs text-slate-400 block">Division &amp; Registration Fee</span>
               <span className="font-medium text-slate-100 mt-0.5 block">
-                {team.division}
+                {team.division} ({fee.formatted})
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block">Captain</span>
-              <span className="font-medium text-slate-100 mt-0.5 block">
-                {team.captainName}
+              <span className="text-xs text-slate-400 block">Payment Status</span>
+              <span
+                className={`font-medium mt-0.5 block ${
+                  isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                }`}
+              >
+                {isPaymentCompleted ? `Verified (${fee.formatted})` : `Pending (${fee.formatted} Due)`}
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block">Event Dates</span>
-              <span className="font-medium text-slate-100 mt-0.5 block tabular-nums">
-                {GDSL_TOURNAMENT_INFO.dates}
+              <span className="text-xs text-slate-400 block">Event Pass</span>
+              <span
+                className={`font-medium mt-0.5 block ${
+                  isPaymentCompleted ? 'text-emerald-400' : 'text-slate-400'
+                }`}
+              >
+                {isPaymentCompleted ? 'Ready to Download' : 'Locked Until Payment'}
               </span>
             </div>
           </div>
@@ -333,13 +517,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors cursor-pointer ${
+                className={`px-4 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
                   isActive
                     ? 'border-blue-500 text-white bg-slate-800/60'
                     : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
                 }`}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                      isPaymentCompleted
+                        ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50'
+                        : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
+                    }`}
+                  >
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -352,40 +547,115 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           <div className="space-y-6 text-left">
             {/* Simple 4-Card Summary Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Card 1: Payment Receipt */}
+              {/* Card 1: Registration Payment & Receipt */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
                 <div>
-                  <div className="text-xs text-emerald-400 font-medium mb-1">
-                    Paid · {team.paymentInfo.amount}
+                  <div
+                    className={`text-xs font-medium mb-1 ${
+                      isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                    }`}
+                  >
+                    {isPaymentCompleted
+                      ? `Paid · ${fee.formatted}`
+                      : `Payment Due · ${fee.formatted}`}
                   </div>
-                  <h2 className="font-semibold text-white text-sm">Payment Receipt</h2>
+                  <h2 className="font-semibold text-white text-sm">
+                    {isPaymentCompleted ? 'Payment Receipt' : 'Registration Fee Payment'}
+                  </h2>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Official registration fee receipt and tax invoice.
+                    {isPaymentCompleted
+                      ? 'Official registration fee receipt and tax invoice.'
+                      : `Pay ${fee.formatted} (${fee.code} Division) via UPI, Card, or Net Banking.`}
                   </p>
                   <div className="mt-3 text-xs font-mono tabular-nums text-slate-300">
-                    Ref: {team.paymentInfo.receiptNo}
+                    {isPaymentCompleted
+                      ? `Ref: ${team.paymentInfo.receiptNo}`
+                      : `Amount Due: ${fee.formatted}.00`}
                   </div>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-700 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleDownloadReceiptPdf}
-                    disabled={isGeneratingPdf}
-                    className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-md transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
-                  >
-                    {isGeneratingPdf ? 'Generating...' : 'Download PDF'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('receipt')}
-                    className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    View
-                  </button>
+                  {isPaymentCompleted ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleDownloadReceiptPdf}
+                        disabled={isGeneratingPdf}
+                        className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-md transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                      >
+                        {isGeneratingPdf ? 'Generating...' : 'Download PDF'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('receipt')}
+                        className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap"
+                      >
+                        View
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                      className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md transition-colors cursor-pointer"
+                    >
+                      Pay {fee.formatted} Now
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Card 2: Attendance Request */}
+              {/* Card 2: Official Event Pass (Gated by Payment) */}
+              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
+                <div>
+                  <div
+                    className={`text-xs font-medium mb-1 flex items-center gap-1.5 ${
+                      isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                    }`}
+                  >
+                    {isPaymentCompleted ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Unlocked &amp; Active</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Locked Until Payment</span>
+                      </>
+                    )}
+                  </div>
+                  <h2 className="font-semibold text-white text-sm">Official Event Pass</h2>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    {isPaymentCompleted
+                      ? 'Official squad entry badge & pit bay pass ready for download.'
+                      : 'Complete your registration payment to unlock the event pass.'}
+                  </p>
+                  <div className="mt-3 text-xs font-mono tabular-nums text-slate-300">
+                    {isPaymentCompleted ? team.allocatedPit : 'Requires Fee Verification'}
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-700">
+                  {isPaymentCompleted ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('pass')}
+                      className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-md transition-colors cursor-pointer"
+                    >
+                      View &amp; Download Pass
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                      className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                    >
+                      Pay {fee.formatted} to Unlock
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 3: Attendance Request */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
                 <div>
                   <div className="text-xs text-slate-400 font-medium mb-1">
@@ -410,7 +680,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
               </div>
 
-              {/* Card 3: Team Profile */}
+              {/* Card 4: Team Profile */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
                 <div>
                   <div className="text-xs text-slate-400 font-medium mb-1">
@@ -434,37 +704,12 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   </button>
                 </div>
               </div>
-
-              {/* Card 4: Match Schedule */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
-                <div>
-                  <div className="text-xs text-amber-400 font-medium mb-1">
-                    Pending Draw
-                  </div>
-                  <h2 className="font-semibold text-white text-sm">Match Schedule</h2>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Group stage fixtures and court timings for {GDSL_TOURNAMENT_INFO.dates}.
-                  </p>
-                  <div className="mt-3 text-xs text-slate-300">
-                    Pit: {team.allocatedPit}
-                  </div>
-                </div>
-                <div className="mt-4 pt-3 border-t border-slate-700">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('schedule')}
-                    className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-100 text-xs font-medium rounded-md transition-colors cursor-pointer"
-                  >
-                    Check Status
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* Registration Summary Table */}
             <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
               <h2 className="text-sm font-semibold text-white mb-4 pb-2.5 border-b border-slate-700">
-                Registration Summary
+                Registration &amp; Fee Summary
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs">
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
@@ -472,16 +717,28 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   <span className="font-medium text-slate-200 text-right">{team.institution}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Registration Date</span>
-                  <span className="font-medium text-slate-200 tabular-nums">{team.paymentInfo.paidAt}</span>
+                  <span className="text-slate-400">Division &amp; Entry Fee</span>
+                  <span className="font-medium text-slate-200 tabular-nums">
+                    {team.division} · {fee.formatted}
+                  </span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Captain Phone</span>
-                  <span className="font-mono tabular-nums font-medium text-slate-200">{team.captainPhone}</span>
+                  <span className="text-slate-400">Payment Status</span>
+                  <span
+                    className={`font-medium ${
+                      isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                    }`}
+                  >
+                    {isPaymentCompleted
+                      ? `PAID (${team.paymentInfo.transactionId})`
+                      : `PENDING (${fee.formatted} Due)`}
+                  </span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Captain Email</span>
-                  <span className="font-medium text-slate-200">{team.captainEmail}</span>
+                  <span className="text-slate-400">Captain Contact</span>
+                  <span className="font-mono tabular-nums font-medium text-slate-200">
+                    {team.captainPhone}
+                  </span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
                   <span className="text-slate-400">Drone Hardware</span>
@@ -489,7 +746,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-700/70">
                   <span className="text-slate-400">Allocated Pit</span>
-                  <span className="font-medium text-slate-200">{team.allocatedPit}</span>
+                  <span className="font-medium text-slate-200">
+                    {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -497,182 +756,420 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         )}
 
         {/* ========================================================= */}
-        {/* TAB 2: PAYMENT RECEIPT                                    */}
+        {/* TAB 2: OFFICIAL EVENT PASS (STRICTLY GATED BY PAYMENT)    */}
+        {/* ========================================================= */}
+        {activeTab === 'pass' && (
+          <div className="space-y-5 text-left">
+            {!isPaymentCompleted ? (
+              <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center max-w-2xl mx-auto space-y-4">
+                <div className="w-12 h-12 rounded-full bg-amber-950/60 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">
+                    Event Pass Locked · Payment Required
+                  </span>
+                  <h2 className="text-lg sm:text-xl font-semibold text-white">
+                    Complete Your {fee.formatted} Registration Payment to Unlock Event Pass
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+                    Participants receive their Official GDSL 2026 Event Pass, QR entry credential, and Pit Bay assignment only after the {fee.formatted} registration fee for {team.division} is verified.
+                  </p>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 max-w-md mx-auto text-xs space-y-2 text-left">
+                  <div className="flex justify-between py-1 border-b border-slate-800">
+                    <span className="text-slate-400">Squad Name</span>
+                    <span className="font-medium text-white">{team.teamName}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-slate-800">
+                    <span className="text-slate-400">Division Classification</span>
+                    <span className="font-medium text-white">{team.division}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-slate-400">Entry Fee Payable</span>
+                    <span className="font-mono font-bold text-amber-400">{fee.formatted}.00</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPaymentModalOpen(true)}
+                    className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>Pay {fee.formatted} &amp; Unlock Event Pass</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Action Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">
+                      Official GDSL 2026 Event Pass &amp; Squad Entry Badge
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Payment verified ({fee.formatted}). Present this pass at the Arena Security &amp; Scrutineering Desk.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDownloadPassPdf}
+                      disabled={isGeneratingPassPdf}
+                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1.5 transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{isGeneratingPassPdf ? 'Generating PDF...' : 'Download Pass (PDF)'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePrint}
+                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100 flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>Print Pass</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Printable Official Event Pass Sheet */}
+                <div
+                  ref={passRef}
+                  id="printable-receipt"
+                  className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-5">
+                    <div>
+                      <div className="text-[11px] font-mono font-bold uppercase text-blue-700">
+                        OFFICIAL PARTICIPANT ENTRY PASS · GDSL 2026
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900 mt-0.5">
+                        Galgotias Drone Soccer League
+                      </h3>
+                      <p className="text-xs text-slate-600">
+                        Galgotias University Indoor Arena, Greater Noida · {GDSL_TOURNAMENT_INFO.dates}
+                      </p>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <span className="inline-block bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded">
+                        ENTRY AUTHORIZED · FEE PAID ({fee.formatted})
+                      </span>
+                      <div className="font-mono text-sm font-bold text-slate-900 mt-1.5">
+                        Pass ID: {team.teamId}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Squad & Pit Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <div className="sm:col-span-2 grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded border border-slate-200">
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Registered Squad</span>
+                        <span className="font-bold text-slate-900 text-sm">{team.teamName}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Institution</span>
+                        <span className="font-semibold text-slate-800">{team.institution}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Division</span>
+                        <span className="font-semibold text-blue-800">{team.division} ({fee.code})</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Allocated Pit Bay</span>
+                        <span className="font-semibold text-emerald-700">{team.allocatedPit}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Payment Receipt</span>
+                        <span className="font-mono font-semibold text-slate-800">
+                          {team.paymentInfo.receiptNo} ({fee.formatted})
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block text-[11px]">Transaction ID</span>
+                        <span className="font-mono text-slate-700">{team.paymentInfo.transactionId}</span>
+                      </div>
+                    </div>
+
+                    {/* Verification QR Box */}
+                    <div className="bg-slate-50 p-4 rounded border border-slate-200 flex flex-col items-center justify-center text-center">
+                      <QrCode className="w-24 h-24 text-slate-900" strokeWidth={1.5} />
+                      <span className="font-mono text-[10px] text-slate-600 mt-2">
+                        GATE SCAN · {team.teamId}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Accredited 6-Member Squad Roster on Event Pass */}
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 uppercase mb-2">
+                      Accredited Squad Personnel (Admit 6):
+                    </h4>
+                    <table className="w-full text-xs border border-slate-200">
+                      <thead>
+                        <tr className="bg-slate-100 text-slate-700">
+                          <th className="py-2 px-3 border border-slate-200 text-left">Role</th>
+                          <th className="py-2 px-3 border border-slate-200 text-left">Participant Name</th>
+                          <th className="py-2 px-3 border border-slate-200 text-left">Arena Access</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Team Captain</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.captainName}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Striker Pilot</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.strikerPilot}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Goalkeeper Pilot</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.goalkeeper}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Defender 1 (Guide)</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.defender1}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Defender 2 (Libero)</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.defender2}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 px-3 border border-slate-200 font-medium">Pit Mechanic</td>
+                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.pitMechanic}</td>
+                          <td className="py-2 px-3 border border-slate-200 text-slate-700 font-medium">Pit Repair Bay</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+                    <span>Issued by GCDIS Tournament Secretariat · Galgotias University</span>
+                    <span className="font-mono">Verified: {team.paymentInfo.paidAt}</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 3: PAYMENT RECEIPT                                    */}
         {/* ========================================================= */}
         {activeTab === 'receipt' && (
           <div className="space-y-5 text-left">
-            {/* Action Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
-              <div>
-                <h2 className="text-sm font-semibold text-white">Payment Receipt &amp; Tax Invoice</h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Proof of entry fee payment and verified tournament registration.
+            {!isPaymentCompleted ? (
+              <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center max-w-2xl mx-auto space-y-4">
+                <div className="w-12 h-12 rounded-full bg-amber-950/60 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <h2 className="text-lg font-semibold text-white">
+                  Registration Fee Payment Pending ({fee.formatted})
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+                  Your official tax invoice and payment receipt will be generated automatically once you complete the {fee.formatted} fee payment for {team.division}.
                 </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={handleDownloadReceiptPdf}
-                  disabled={isGeneratingPdf}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                  onClick={() => setIsPaymentModalOpen(true)}
+                  className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 transition-colors cursor-pointer"
                 >
-                  {isGeneratingPdf ? 'Generating PDF...' : 'Download PDF'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100 transition-colors cursor-pointer whitespace-nowrap"
-                >
-                  Print
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCopyReceiptNo}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
-                >
-                  {copiedReceipt ? 'Copied' : 'Copy Receipt #'}
+                  <span>Pay {fee.formatted} Now</span>
                 </button>
               </div>
-            </div>
-
-            {pdfDownloadSuccess && (
-              <div className="p-3 bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs rounded-md flex items-center justify-between">
-                <span>Invoice PDF for {team.teamName} downloaded.</span>
-                <button
-                  type="button"
-                  onClick={() => setPdfDownloadSuccess(false)}
-                  className="text-slate-400 hover:text-white ml-2 cursor-pointer"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-
-            {pdfError && (
-              <div className="p-3 bg-slate-800 border border-red-700/60 text-red-300 text-xs rounded-md flex items-center justify-between">
-                <span>{pdfError}</span>
-                <button
-                  type="button"
-                  onClick={() => setPdfError(null)}
-                  className="text-slate-400 hover:text-white ml-2 cursor-pointer"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-
-            {/* Printable A4 Receipt Paper (Retains Clean White Document Contrast for PDF/Print) */}
-            <div
-              ref={receiptRef}
-              id="printable-receipt"
-              className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 print:border-none print:shadow-none"
-            >
-              <div className="flex items-start justify-between border-b border-slate-200 pb-5">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">Galgotias University</h3>
-                  <p className="text-xs text-slate-600">
-                    Galgotias Centre for Drone &amp; Innovative Systems (GCDIS)
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                    Plot No. 2, Sector 17-A, Yamuna Expressway, Greater Noida, UP - 203201
-                    <br />
-                    <span className="font-mono text-slate-500">
-                      GSTIN: 09AAAAU0000A1Z5 · Tournament Registration Receipt
-                    </span>
-                  </p>
-                </div>
-
-                <div className="text-right shrink-0 text-xs">
-                  <div className="font-semibold text-emerald-700">PAID RECEIPT</div>
-                  <div className="text-slate-500 mt-1 tabular-nums">
-                    Date: <span className="font-medium text-slate-800">{team.paymentInfo.paidAt}</span>
+            ) : (
+              <>
+                {/* Action Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Payment Receipt &amp; Tax Invoice</h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Proof of entry fee payment ({fee.formatted}) and verified tournament registration.
+                    </p>
                   </div>
-                  <div className="text-slate-500 tabular-nums">
-                    Receipt No: <span className="font-mono font-semibold text-slate-900">{team.paymentInfo.receiptNo}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDownloadReceiptPdf}
+                      disabled={isGeneratingPdf}
+                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                    >
+                      {isGeneratingPdf ? 'Generating PDF...' : 'Download PDF'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePrint}
+                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100 transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      Print
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyReceiptNo}
+                      className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      {copiedReceipt ? 'Copied' : 'Copy Receipt #'}
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="bg-slate-50 p-3.5 rounded border border-slate-200">
-                  <span className="text-slate-500 block text-[11px] font-medium">Billed To</span>
-                  <span className="font-bold text-slate-900 text-sm block mt-0.5">{team.teamName}</span>
-                  <span className="text-slate-700 block">{team.institution}</span>
-                  <span className="text-slate-600 block">{team.city}, {team.state}</span>
-                  <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
-                    Captain: {team.captainName} ({team.captainPhone})
-                    <br />
-                    Email: {team.captainEmail}
-                  </span>
-                </div>
+                {pdfDownloadSuccess && (
+                  <div className="p-3 bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs rounded-md flex items-center justify-between">
+                    <span>Invoice PDF for {team.teamName} downloaded.</span>
+                    <button
+                      type="button"
+                      onClick={() => setPdfDownloadSuccess(false)}
+                      className="text-slate-400 hover:text-white ml-2 cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
 
-                <div className="bg-slate-50 p-3.5 rounded border border-slate-200 sm:text-right">
-                  <span className="text-slate-500 block text-[11px] font-medium">Event Details</span>
-                  <span className="font-bold text-slate-900 block mt-0.5">Galgotias Drone Soccer League 2026</span>
-                  <span className="text-slate-700 font-medium block">{team.division}</span>
-                  <span className="font-mono text-slate-600 block">Team ID: {team.teamId}</span>
-                  <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
-                    Payment Mode: {team.paymentInfo.paymentMode}
-                    <br />
-                    Event Dates: {GDSL_TOURNAMENT_INFO.dates}
-                  </span>
-                </div>
-              </div>
+                {pdfError && (
+                  <div className="p-3 bg-slate-800 border border-red-700/60 text-red-300 text-xs rounded-md flex items-center justify-between">
+                    <span>{pdfError}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPdfError(null)}
+                      className="text-slate-400 hover:text-white ml-2 cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
 
-              <table className="w-full text-xs text-left border-t border-b border-slate-200">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-600 bg-slate-50">
-                    <th className="py-2.5 px-3 font-semibold">Description</th>
-                    <th className="py-2.5 px-2 font-semibold text-center">Division</th>
-                    <th className="py-2.5 px-2 font-semibold text-center">Qty</th>
-                    <th className="py-2.5 px-3 font-semibold text-right">Amount (INR)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  <tr>
-                    <td className="py-3 px-3">
-                      <span className="font-semibold text-slate-900 block">
-                        Squad Registration &amp; Pilot Accreditation
+                {/* Printable A4 Receipt Paper */}
+                <div
+                  ref={receiptRef}
+                  id="printable-receipt"
+                  className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 print:border-none print:shadow-none"
+                >
+                  <div className="flex items-start justify-between border-b border-slate-200 pb-5">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base">Galgotias University</h3>
+                      <p className="text-xs text-slate-600">
+                        Galgotias Centre for Drone &amp; Innovative Systems (GCDIS)
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                        Plot No. 2, Sector 17-A, Yamuna Expressway, Greater Noida, UP - 203201
+                        <br />
+                        <span className="font-mono text-slate-500">
+                          GSTIN: 09AAAAU0000A1Z5 · Tournament Registration Receipt
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0 text-xs">
+                      <div className="font-semibold text-emerald-700">PAID RECEIPT</div>
+                      <div className="text-slate-500 mt-1 tabular-nums">
+                        Date: <span className="font-medium text-slate-800">{team.paymentInfo.paidAt}</span>
+                      </div>
+                      <div className="text-slate-500 tabular-nums">
+                        Receipt No:{' '}
+                        <span className="font-mono font-semibold text-slate-900">
+                          {team.paymentInfo.receiptNo}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div className="bg-slate-50 p-3.5 rounded border border-slate-200">
+                      <span className="text-slate-500 block text-[11px] font-medium">Billed To</span>
+                      <span className="font-bold text-slate-900 text-sm block mt-0.5">{team.teamName}</span>
+                      <span className="text-slate-700 block">{team.institution}</span>
+                      <span className="text-slate-600 block">
+                        {team.city}, {team.state}
                       </span>
-                      <span className="text-slate-500 text-[11px] block mt-0.5">
-                        Entry for 5 pilots + 1 pit mechanic, arena access &amp; pit bay ({team.allocatedPit}).
+                      <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
+                        Captain: {team.captainName} ({team.captainPhone})
+                        <br />
+                        Email: {team.captainEmail}
                       </span>
-                    </td>
-                    <td className="py-3 px-2 text-center font-mono">{team.division}</td>
-                    <td className="py-3 px-2 text-center font-mono tabular-nums">1</td>
-                    <td className="py-3 px-3 text-right font-mono tabular-nums font-semibold text-slate-900">
-                      {team.paymentInfo.amount}.00
-                    </td>
-                  </tr>
-                  <tr className="bg-slate-50 font-semibold text-slate-900">
-                    <td className="py-2.5 px-3">Total Paid</td>
-                    <td></td>
-                    <td></td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sm font-bold">
-                      {team.paymentInfo.amount}.00
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    </div>
 
-              <div className="flex flex-col sm:flex-row justify-between gap-2 text-xs text-slate-600 pt-2 border-t border-slate-200">
-                <div className="font-mono tabular-nums">
-                  Transaction Ref: {team.paymentInfo.transactionId}
+                    <div className="bg-slate-50 p-3.5 rounded border border-slate-200 sm:text-right">
+                      <span className="text-slate-500 block text-[11px] font-medium">Event Details</span>
+                      <span className="font-bold text-slate-900 block mt-0.5">
+                        Galgotias Drone Soccer League 2026
+                      </span>
+                      <span className="text-slate-700 font-medium block">
+                        {team.division} ({fee.code})
+                      </span>
+                      <span className="font-mono text-slate-600 block">Team ID: {team.teamId}</span>
+                      <span className="text-slate-600 block mt-1.5 pt-1.5 border-t border-slate-200">
+                        Payment Mode: {team.paymentInfo.paymentMode}
+                        <br />
+                        Event Dates: {GDSL_TOURNAMENT_INFO.dates}
+                      </span>
+                    </div>
+                  </div>
+
+                  <table className="w-full text-xs text-left border-t border-b border-slate-200">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-600 bg-slate-50">
+                        <th className="py-2.5 px-3 font-semibold">Description</th>
+                        <th className="py-2.5 px-2 font-semibold text-center">Division</th>
+                        <th className="py-2.5 px-2 font-semibold text-center">Qty</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Amount (INR)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      <tr>
+                        <td className="py-3 px-3">
+                          <span className="font-semibold text-slate-900 block">
+                            Squad Registration &amp; Event Pass ({fee.code})
+                          </span>
+                          <span className="text-slate-500 text-[11px] block mt-0.5">
+                            Entry for 5 pilots + 1 pit mechanic, arena access &amp; pit bay ({team.allocatedPit}).
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-center font-mono">{team.division}</td>
+                        <td className="py-3 px-2 text-center font-mono tabular-nums">1</td>
+                        <td className="py-3 px-3 text-right font-mono tabular-nums font-semibold text-slate-900">
+                          {fee.formatted}.00
+                        </td>
+                      </tr>
+                      <tr className="bg-slate-50 font-semibold text-slate-900">
+                        <td className="py-2.5 px-3">Total Paid</td>
+                        <td></td>
+                        <td></td>
+                        <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sm font-bold">
+                          {fee.formatted}.00
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div className="flex flex-col sm:flex-row justify-between gap-2 text-xs text-slate-600 pt-2 border-t border-slate-200">
+                    <div className="font-mono tabular-nums">
+                      Transaction Ref: {team.paymentInfo.transactionId}
+                    </div>
+                    <div>
+                      Status: Verified · {team.allocatedPit}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  Status: Verified · {team.allocatedPit}
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         )}
 
         {/* ========================================================= */}
-        {/* TAB 3: ATTENDANCE APPLICATION (OD LETTER)                 */}
+        {/* TAB 4: ATTENDANCE APPLICATION (OD LETTER)                 */}
         {/* ========================================================= */}
         {activeTab === 'attendance' && (
           <div className="space-y-5 text-left">
-            {/* Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
               <div>
                 <h2 className="text-sm font-semibold text-white">Attendance Application (On-Duty Letter)</h2>
@@ -704,7 +1201,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
             )}
 
-            {/* Recipient Configuration Form */}
             <div className="bg-slate-800 border border-slate-700 rounded-lg p-5 space-y-4 text-xs">
               <h3 className="font-semibold text-white text-sm">Recipient Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -738,7 +1234,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
             </div>
 
-            {/* Printable Official OD Letter Paper */}
             <div
               id="printable-od-letter"
               className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-5 text-slate-800 leading-relaxed"
@@ -842,7 +1337,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         )}
 
         {/* ========================================================= */}
-        {/* TAB 4: TEAM PROFILE & ROSTER                              */}
+        {/* TAB 5: TEAM PROFILE & ROSTER                              */}
         {/* ========================================================= */}
         {activeTab === 'profile' && (
           <div className="space-y-5 text-left">
@@ -921,7 +1416,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </form>
             )}
 
-            {/* Clean Roster Table */}
             <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
               <div className="px-5 py-3.5 border-b border-slate-700">
                 <h3 className="font-semibold text-white text-sm">Squad Roster (6 Members)</h3>
@@ -971,7 +1465,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
             </div>
 
-            {/* Hardware Specifications */}
             <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
               <h3 className="font-semibold text-white text-sm border-b border-slate-700 pb-3 mb-4">
                 Hardware &amp; Pit Specifications
@@ -991,7 +1484,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
                 <div>
                   <span className="text-slate-400 block">Pit Bay</span>
-                  <span className="font-medium text-slate-100 mt-0.5 block">{team.allocatedPit}</span>
+                  <span className="font-medium text-slate-100 mt-0.5 block">
+                    {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -999,7 +1494,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         )}
 
         {/* ========================================================= */}
-        {/* TAB 5: MATCH SCHEDULE                                     */}
+        {/* TAB 6: MATCH SCHEDULE                                     */}
         {/* ========================================================= */}
         {activeTab === 'schedule' && (
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 text-left space-y-5">
@@ -1028,7 +1523,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
               <div className="flex justify-between py-2 border-b border-slate-700/70">
                 <span className="text-slate-400">Allocated Pit Bay</span>
-                <span className="font-medium text-slate-200">{team.allocatedPit}</span>
+                <span className="font-medium text-slate-200">
+                  {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
+                </span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-700/70">
                 <span className="text-slate-400">Division</span>
@@ -1054,6 +1551,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         )}
       </div>
+
+      {/* Interactive Razorpay-Style Payment Gateway Modal */}
+      <PaymentGatewayModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        team={team}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 };
