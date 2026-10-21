@@ -12,10 +12,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
   };
 
   return (
-    <div
-      className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-20 space-y-20 pointer-events-auto text-white"
-      style={{ perspective: '1300px', transformStyle: 'preserve-3d' }}
-    >
+    <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-20 space-y-20 pointer-events-auto text-white">
       {/* Banner 1: XOTC "GET EARLY ACCESS" Style Chamfered Neon-Lime Frame with 3D Parallax */}
       <Parallax3DSection offsetY={60} rotateXRange={[9, 0, -7]} scaleRange={[0.94, 1, 0.95]}>
         <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="max-w-6xl mx-auto">
