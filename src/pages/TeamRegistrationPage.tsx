@@ -21,6 +21,8 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
   onRegisterSuccess,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [formData, setFormData] = useState({
     teamName: '',
     institution: '',
@@ -30,6 +32,8 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     captainName: '',
     captainEmail: '',
     captainPhone: '',
+    password: '',
+    confirmPassword: '',
     strikerPilot: '',
     goalkeeper: '',
     defender1: '',
@@ -61,11 +65,25 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'password' || name === 'confirmPassword') {
+      setPasswordError('');
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
+    if (step === 1) {
+      if (formData.password.trim().length < 6) {
+        setPasswordError('Password must be at least 6 characters long.');
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setPasswordError('Passwords do not match. Please re-enter your confirmation password.');
+        return;
+      }
+      setPasswordError('');
+    }
     if (step < 3) {
       setStep((prev) => (prev + 1) as 2 | 3);
       window.scrollTo({ top: 100, behavior: 'smooth' });
@@ -90,7 +108,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
       const newProfile: RegisteredTeamProfile = {
         teamId: randomId,
-        accessCode: 'gdsl2026',
+        accessCode: formData.password.trim() || 'gdsl2026',
         teamName: formData.teamName || 'Galgotias Aerial Squad',
         institution: formData.institution || 'Galgotias University',
         city: formData.city || 'Greater Noida',
@@ -344,7 +362,56 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase">
+                    Create Squad Password *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="text-[11px] font-mono font-bold text-blue-700 hover:text-blue-900 uppercase cursor-pointer"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <input
+                  required
+                  minLength={6}
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Min. 6 characters for Squad Login"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Confirm Squad Password *
+                </label>
+                <input
+                  required
+                  minLength={6}
+                  type={showPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  placeholder="Re-enter your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                  className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
+
+            {passwordError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-mono font-bold text-red-700">
+                {passwordError}
+              </div>
+            )}
 
             <div className="pt-4 flex justify-end">
               <button
@@ -637,7 +704,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   <span className="font-mono font-bold text-blue-950 text-sm">{createdProfile.teamId}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Default Access PIN</span>
+                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Squad Account Password</span>
                   <span className="font-mono font-bold text-blue-950 text-sm">{createdProfile.accessCode}</span>
                 </div>
                 <div>

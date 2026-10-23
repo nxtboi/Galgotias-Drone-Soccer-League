@@ -303,16 +303,21 @@ export function authenticateTeam(
     };
   }
 
+  if (!cleanPass) {
+    return {
+      success: false,
+      error: 'Please enter your squad password to sign in.',
+    };
+  }
+
   if (
-    cleanPass &&
     matched.accessCode &&
     matched.accessCode.toLowerCase() !== cleanPass &&
-    cleanPass !== 'admin2026' &&
-    cleanPass !== 'gdsl2026'
+    matched.accessCode !== passcode.trim()
   ) {
     return {
       success: false,
-      error: `Incorrect access passcode for ${matched.teamName}. Please try again or use the demo password.`,
+      error: `Incorrect password for ${matched.teamName}. Please verify your password and try again.`,
     };
   }
 
