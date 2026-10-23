@@ -6,7 +6,6 @@ import {
   EyeOff,
   ArrowRight,
   ShieldCheck,
-  Sparkles,
   UserCheck,
   Terminal,
   HelpCircle,
@@ -16,7 +15,6 @@ import {
 import { GcdisLogo } from '../components/GcdisLogo';
 import {
   authenticateTeam,
-  INITIAL_REGISTERED_TEAMS,
   RegisteredTeamProfile,
 } from '../data/teamAuthData';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
@@ -49,13 +47,8 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   const handleModeSwitch = (mode: 'squad' | 'admin') => {
     setLoginMode(mode);
     setErrorMessage(null);
-    if (mode === 'admin') {
-      setIdentifier('admin');
-      setAccessCode('gdsl@147896');
-    } else {
-      setIdentifier('');
-      setAccessCode('');
-    }
+    setIdentifier('');
+    setAccessCode('');
   };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
@@ -89,42 +82,13 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     }, 300);
   };
 
-  const handleAdminQuickLogin = () => {
-    setLoginMode('admin');
-    setIdentifier('admin');
-    setAccessCode('gdsl@147896');
-    setErrorMessage(null);
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (onAdminLoginSuccess) {
-        onAdminLoginSuccess();
-      }
-    }, 200);
-  };
-
-  const handleQuickDemoLogin = (team: RegisteredTeamProfile) => {
-    setLoginMode('squad');
-    setIdentifier(team.teamId);
-    setAccessCode(team.accessCode);
-    setErrorMessage(null);
-    setIsLoading(true);
-    setTimeout(() => {
-      const result = authenticateTeam(team.teamId, team.accessCode);
-      setIsLoading(false);
-      if (result.success && result.team) {
-        onLoginSuccess(result.team);
-      }
-    }, 200);
-  };
-
   return (
     <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-10 flex items-center justify-center">
-      {/* Main Split-Format Login Container */}
+      {/* Main Split-Format Login Container (Static, No Parallax) */}
       <div className="w-full max-w-5xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden">
         {/* Left Visual Showcase Card */}
         <div className="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[360px] lg:min-h-[620px] flex flex-col justify-between p-6 sm:p-7 border border-white/10 bg-[#0d0e0b]">
-          {/* Background Cyberspace Imagery */}
+          {/* Background Cyberspace Imagery (Static) */}
           <img
             src="/login-cyber-bg.svg"
             alt="Futuristic Green Neon Cyberspace Data Transfer Background"
@@ -350,7 +314,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                     }}
                     placeholder={
                       loginMode === 'admin'
-                        ? 'admin'
+                        ? 'Enter administrator username'
                         : 'e.g. GDSL-26-T101 or captain@university.edu'
                     }
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#0d0e0b] border border-white/15 focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/40 outline-none text-sm text-white placeholder:text-neutral-500 transition-all"
@@ -426,55 +390,6 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                 )}
               </button>
             </form>
-
-            {/* Divider for Instant Demo Logins */}
-            <div className="relative flex items-center py-1">
-              <div className="flex-grow border-t border-white/10" />
-              <span className="flex-shrink mx-3 text-[10px] font-mono uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-[#d0fe1d]" />
-                <span>Or 1-Click Instant Demo Access</span>
-              </span>
-              <div className="flex-grow border-t border-white/10" />
-            </div>
-
-            {/* Compact 2-Column Grid of Quick Demo Accounts (Like Social Auth Buttons in Split Login Format) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {INITIAL_REGISTERED_TEAMS.map((team) => (
-                <button
-                  key={team.teamId}
-                  type="button"
-                  onClick={() => handleQuickDemoLogin(team)}
-                  className="p-2.5 rounded-xl bg-[#0d0e0b] hover:bg-white/5 border border-white/15 hover:border-[#d0fe1d]/60 transition-all text-left flex items-center justify-between group cursor-pointer"
-                >
-                  <div className="min-w-0 pr-2">
-                    <div className="text-xs font-bold text-white group-hover:text-[#d0fe1d] transition-colors truncate">
-                      {team.teamName}
-                    </div>
-                    <div className="text-[10px] text-neutral-400 font-mono truncate">
-                      {team.teamId} · {team.accessCode}
-                    </div>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-neutral-500 group-hover:text-[#d0fe1d] shrink-0 transition-colors" />
-                </button>
-              ))}
-
-              {/* 1-Click Admin Access Button */}
-              <button
-                type="button"
-                onClick={handleAdminQuickLogin}
-                className="p-2.5 rounded-xl bg-[#1a1f14] hover:bg-[#d0fe1d]/15 border border-[#d0fe1d]/40 hover:border-[#d0fe1d] transition-all text-left flex items-center justify-between group cursor-pointer"
-              >
-                <div className="min-w-0 pr-2">
-                  <div className="text-xs font-bold text-[#d0fe1d] truncate">
-                    Admin Control Hub
-                  </div>
-                  <div className="text-[10px] text-neutral-300 font-mono truncate">
-                    admin · gdsl@147896
-                  </div>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
-              </button>
-            </div>
           </div>
         </div>
       </div>

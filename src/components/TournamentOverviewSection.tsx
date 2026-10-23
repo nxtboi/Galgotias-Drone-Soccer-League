@@ -209,15 +209,9 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
               ].map((item, idx) => (
                 <Tilt3DCard
                   key={item.num}
-                  maxTilt={8}
-                  scrollOffsetY={25 + (idx % 2) * 20}
                   className="h-full"
                 >
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.35, delay: idx * 0.08, ease: 'easeOut' }}
+                  <div
                     className="xotc-card p-7 flex flex-col items-center text-center justify-between min-h-[290px] h-full"
                   >
                     <div className="w-12 h-12 xotc-icon-box flex items-center justify-center mb-6 mt-2">
@@ -234,7 +228,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                         {item.desc}
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                 </Tilt3DCard>
               ))}
             </div>
