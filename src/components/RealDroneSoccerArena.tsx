@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GcdisLogo } from './GcdisLogo';
 
 export interface RealDroneSoccerArenaProps {
@@ -10,6 +10,7 @@ export interface RealDroneSoccerArenaProps {
 interface VideoChannel {
   id: string;
   videoId: string;
+  videoSrc?: string;
   title: string;
   category: string;
   source: string;
@@ -21,11 +22,12 @@ const CHANNELS: VideoChannel[] = [
   {
     id: 'ch-1',
     videoId: 'vfyZZAgXipA',
-    title: 'FIDA International Cup: 5v5 Live Arena Clash',
+    videoSrc: '/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4',
+    title: 'Galgotias Drone Soccer League: Official Arena Feed',
     category: 'Main Arena Feed',
-    source: 'FIDA Official Championship',
+    source: 'Galgotias Drone Soccer Arena',
     badge: 'LIVE MATCH',
-    description: 'High-octane 5v5 aerial soccer clash inside the full-size regulation netted Skyfence.',
+    description: 'High-octane 5v5 aerial soccer clash inside the Galgotias Drone Soccer Arena.',
   },
   {
     id: 'ch-2',
@@ -63,21 +65,44 @@ export const RealDroneSoccerArena: React.FC<RealDroneSoccerArenaProps> = ({
   const [isMuted, setIsMuted] = useState(true);
   const [isCinemaMode, setIsCinemaMode] = useState(false);
   const [activeInfoTab, setActiveInfoTab] = useState<'match' | 'ball' | 'var'>('match');
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const activeChannel = CHANNELS[activeChannelIndex];
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [isMuted, activeChannelIndex]);
 
   return (
     <div className="relative w-full overflow-hidden bg-[#111210] border border-white/20 shadow-2xl text-white">
       {/* Real Broadcast Video Layer */}
       <div className={`relative w-full ${isCinemaMode ? 'aspect-[16/9] min-h-[260px] sm:min-h-[580px]' : 'aspect-[16/9] sm:aspect-[21/9] min-h-[220px] sm:min-h-[460px] max-h-[680px]'} bg-black overflow-hidden`}>
-        <iframe
-          key={`${activeChannel.videoId}-${isMuted}`}
-          className="absolute inset-0 w-full h-full pointer-events-auto border-0"
-          src={`https://www.youtube-nocookie.com/embed/${activeChannel.videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${activeChannel.videoId}&controls=1&modestbranding=1&rel=0&playsinline=1`}
-          title={activeChannel.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
+        {activeChannel.videoSrc ? (
+          <video
+            ref={videoRef}
+            key={activeChannel.videoSrc}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-auto border-0"
+            src={activeChannel.videoSrc}
+            title={activeChannel.title}
+            autoPlay
+            loop
+            muted={isMuted}
+            playsInline
+            controls
+          />
+        ) : (
+          <iframe
+            key={`${activeChannel.videoId}-${isMuted}`}
+            className="absolute inset-0 w-full h-full pointer-events-auto border-0"
+            src={`https://www.youtube-nocookie.com/embed/${activeChannel.videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${activeChannel.videoId}&controls=1&modestbranding=1&rel=0&playsinline=1`}
+            title={activeChannel.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        )}
 
         {/* Live Broadcast Telemetry HUD Overlay (Top) */}
         <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
