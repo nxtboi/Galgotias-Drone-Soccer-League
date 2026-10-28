@@ -104,7 +104,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         title: 'Trophy + Medals & Cash Prize',
         perks: [
           'Cash Prize: ₹31,000',
-          'Trophy and Gold Medals',
+          'Trophy and Medals',
         ],
         highlight: true,
       },
@@ -114,7 +114,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         title: 'Trophy + Medals & Cash Prize',
         perks: [
           'Cash Prize: ₹21,000',
-          'Trophy and Silver Medals',
+          'Trophy and Medals',
         ],
       },
       {
@@ -141,7 +141,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         title: 'Trophy + Medals & Cash Prize',
         perks: [
           'Cash Prize: ₹21,000',
-          'Trophy and Gold Medals',
+          'Trophy and Medals',
         ],
         highlight: true,
       },
@@ -151,7 +151,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         title: 'Trophy + Medals & Cash Prize',
         perks: [
           'Cash Prize: ₹11,000',
-          'Trophy and Silver Medals',
+          'Trophy and Medals',
         ],
       },
       {
