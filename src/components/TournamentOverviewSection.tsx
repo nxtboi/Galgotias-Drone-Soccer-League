@@ -57,7 +57,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
               </ParallaxDepthLayer>
               <ParallaxDepthLayer speed={-0.12} translateZ={16} className="lg:col-span-6 lg:pt-6">
                 <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans">
-                  Drone soccer is an exhilarating FAI-sanctioned aerospace sport where two squads of 5 caged multirotors compete inside a protective netting arena to score by passing through elevated hoops at 50 km/h without relying on automated flight paths.
+                  Drone Soccer is a game in which 3-5 players from each team control the drone in the shape of a soccer ball to score in a round goal of the opponent team inside a Netted play Zone called the Arena. Two teams of five players compete in a netted arena. Roles include a designated Striker (the only drone allowed to score points by flying through the opponent's suspended hoop) alongside blockers, midfielders, and defenders
                 </p>
               </ParallaxDepthLayer>
             </div>
