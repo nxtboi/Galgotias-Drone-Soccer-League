@@ -39,7 +39,7 @@ export const OFFICIAL_HASHTAGS = [
   '#GCDIS',
   '#GalgotiasUniversity',
   '#DroneRacing',
-  '#FIDA',
+  '#GCDISDroneSoccer',
   '#Robotics',
   '#AerialEsports',
   '#TechFest2026',
@@ -79,7 +79,7 @@ export const SocialShareModal: React.FC<SocialShareModalProps> = ({
 The Galgotias Drone Soccer League (GDSL 2026) brings 32 top university squads to compete in supersonic 3D netted cage arenas at 50 km/h!
 
 📅 Dec 02-03, 2026 | Galgotias University, Greater Noida
-💰 ₹1,00,000 Prize Pool | FIDA Class 40 & Class 20
+💰 ₹1,00,000 Prize Pool | GCDIS Class 40 & Class 20
 
 Organized by GCDIS (Galgotias Centre for Drone Intelligence & Simulation).`
     },
@@ -104,7 +104,7 @@ Registrations are LIVE for Galgotias Drone Soccer League 2026! Assemble your 5-p
 
 Exploring telemetry, crash resilience, carbon-polycarbonate protective spheres, and sub-10ms RC telemetry at Galgotias Drone Soccer League 2026.
 
-Sanctioned under FIDA 5th Revision International Rules.`
+Sanctioned under GCDIS 5th Revision International Rules.`
     }
   ];
 

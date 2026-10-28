@@ -181,7 +181,7 @@ export function App() {
         </div>
       )}
 
-      {/* Dedicated Page: Rules, Drone Specs & FAI/FIDA Handbook */}
+      {/* Dedicated Page: Rules, Drone Specs & FAI/GCDIS Handbook */}
       {activeTab === 'rules' && (
         <div className="xotc-page-scope">
           <RulesAndSpecsPage

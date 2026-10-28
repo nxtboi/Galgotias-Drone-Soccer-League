@@ -139,7 +139,7 @@ export const PracticeArenaCanvas: React.FC<PracticeArenaCanvasProps> = ({
   // Drone ball radius
   const droneRadius = arenaClass === 'class40' ? 0.20 : 0.11;
 
-  // Color lookup for FIDA 7 colors
+  // Color lookup for GCDIS 7 colors
   const colorMap: Record<string, number> = {
     red: 0xff2222,
     blue: 0x0088ff,

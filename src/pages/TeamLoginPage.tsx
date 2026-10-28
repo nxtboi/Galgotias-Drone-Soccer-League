@@ -140,7 +140,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
           <div className="relative z-10 space-y-5 text-left pt-12">
             <div className="space-y-2">
               <div className="text-[11px] font-rajdhani font-bold uppercase tracking-[0.2em] text-[#d0fe1d]">
-                FIDA CLASS 40 &amp; CLASS 20 · {GDSL_TOURNAMENT_INFO.dates}
+                GCDIS CLASS 40 &amp; CLASS 20 · {GDSL_TOURNAMENT_INFO.dates}
               </div>
               <h2 className="font-orbitron font-black text-xl sm:text-2xl text-white leading-snug tracking-wide uppercase">
                 Command Your Squad. Track Live Brackets &amp; Official OD Letters.

@@ -143,7 +143,7 @@ export const PracticeArenaPage: React.FC<PracticeArenaPageProps> = ({ onNavigate
               </span>
             </h1>
             <p className="text-slate-400 text-xs hidden sm:block">
-              FIDA regulation 16m×8m aerial soccer proving ground with USB/Bluetooth RC radio transmitter support.
+              GCDIS regulation 16m×8m aerial soccer proving ground with USB/Bluetooth RC radio transmitter support.
             </p>
           </div>
         </div>
@@ -154,7 +154,7 @@ export const PracticeArenaPage: React.FC<PracticeArenaPageProps> = ({ onNavigate
           <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs font-mono">
             {[
               { id: 'stadium', label: '🏟️ Real Stadium' },
-              { id: 'skyfence', label: '⚡ FIDA Cage' },
+              { id: 'skyfence', label: '⚡ GCDIS Cage' },
               { id: 'lab', label: '🏢 Flight Lab' },
             ].map((arena) => (
               <button
@@ -505,12 +505,12 @@ export const PracticeArenaPage: React.FC<PracticeArenaPageProps> = ({ onNavigate
             </div>
           </div>
 
-          {/* 3. FIDA 7-Color LED Role Customizer */}
+          {/* 3. GCDIS 7-Color LED Role Customizer */}
           <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-4 text-white shadow-xl space-y-2">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                 <span>💡</span>
-                <span>FIDA 7-COLOR ROLE LED</span>
+                <span>GCDIS 7-COLOR ROLE LED</span>
               </h3>
               <span className="text-[10px] font-mono text-slate-400 uppercase">{strikerColor}</span>
             </div>
@@ -637,14 +637,14 @@ export const PracticeArenaPage: React.FC<PracticeArenaPageProps> = ({ onNavigate
                 </div>
                 <div className="text-xs font-bold text-slate-200">Pilot Dugout &amp; Pitch Surface</div>
                 <div className="text-[11px] text-slate-400">
-                  Dual pilot control zones behind the short wall netting, high-visibility FIDA markings and takeoff pads.
+                  Dual pilot control zones behind the short wall netting, high-visibility GCDIS markings and takeoff pads.
                 </div>
               </div>
             </div>
 
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2 text-slate-300">
               <div className="text-emerald-400 font-bold uppercase">
-                FIDA 5th Revision Technical Specifications Summary:
+                GCDIS 5th Revision Technical Specifications Summary:
               </div>
               <ul className="list-disc pl-4 space-y-1 text-slate-400 text-[11px]">
                 <li>Class 40: 16m long × 8m wide × 4.5m ceiling with 60cm inner goal hoop at 3.2m height.</li>

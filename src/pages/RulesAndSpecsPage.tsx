@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-  FIDA_CLASS_SPECS,
-  FIDA_7_COLORS,
-  FIDA_REFEREE_SIGNALS,
-  FIDA_5TH_REVISION_UPDATES,
-  FIDA_VIOLATIONS,
+  GCDIS_CLASS_SPECS,
+  GCDIS_7_COLORS,
+  GCDIS_REFEREE_SIGNALS,
+  GCDIS_5TH_REVISION_UPDATES,
+  GCDIS_VIOLATIONS,
   FREQUENT_QUESTIONS,
   GDSL_TOURNAMENT_INFO,
 } from '../data/droneSoccerData';
@@ -40,25 +40,25 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
   };
 
   const handleDownloadPdf = (className: string) => {
-    setDownloadSuccess(`FIDA_Rulebook_${className}_5th_Revision_Oct2025.pdf`);
+    setDownloadSuccess(`GCDIS_Rulebook_${className}_5th_Revision_Oct2025.pdf`);
     setTimeout(() => setDownloadSuccess(null), 3500);
   };
 
-  const spec = FIDA_CLASS_SPECS[selectedClass];
+  const spec = GCDIS_CLASS_SPECS[selectedClass];
 
   return (
     <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
       <div className="max-w-6xl mx-auto space-y-12">
-        {/* Header with FIDA 5th Revision Accreditation */}
+        {/* Header with GCDIS 5th Revision Accreditation */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 px-4 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
-            <span>FIDA OFFICIAL RULEBOOK · 5TH REVISION (OCT 1, 2025)</span>
+            <span>GCDIS OFFICIAL RULEBOOK · 5TH REVISION (OCT 1, 2025)</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-sans font-black text-blue-950 uppercase tracking-tight">
             RULES &amp; DRONE SPECIFICATIONS
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
-            Standard regulations governed by the Federation of International Dronesoccer Association (FIDA) for Class 20 and Class 40, incorporating full VAR video review protocols, 7-color LED identification, and technical arena schematics.
+            Standard regulations governed by the Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS) for Class 20 and Class 40, incorporating full VAR video review protocols, 7-color LED identification, and technical arena schematics.
           </p>
 
           {/* Download Rulebook Triggers */}
@@ -162,7 +162,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                     DRONE BALL SPECIFICATION ({spec.classId})
                   </h3>
                   <span className="font-mono text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                    FIDA RULE 2
+                    GCDIS RULE 2
                   </span>
                 </div>
 
@@ -209,7 +209,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                     SKYFENCE &amp; GOAL HOOP ({spec.classId})
                   </h3>
                   <span className="font-mono text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                    FIDA RULE 1
+                    GCDIS RULE 1
                   </span>
                 </div>
 
@@ -248,7 +248,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
             <div className="bg-white border border-blue-200 rounded-3xl overflow-hidden shadow-xs">
               <div className="p-5 bg-blue-950 text-white flex items-center justify-between">
                 <h4 className="font-sans font-black text-sm uppercase tracking-wide">
-                  COMPLETE FIDA TECHNICAL COMPARATOR MATRIX
+                  COMPLETE GCDIS TECHNICAL COMPARATOR MATRIX
                 </h4>
                 <span className="text-xs font-mono text-sky-300">5TH REVISION REGULATION SPEC</span>
               </div>
@@ -321,7 +321,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           <div className="space-y-8 text-left">
             <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
               <span className="font-mono text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                FIDA CLASS 40 · REGULATION 2-5
+                GCDIS CLASS 40 · REGULATION 2-5
               </span>
               <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
                 THE 7 OFFICIAL COLORS FOR BALL &amp; POSITION IDENTIFICATION
@@ -332,7 +332,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {FIDA_7_COLORS.map((item, index) => (
+              {GCDIS_7_COLORS.map((item, index) => (
                 <div
                   key={index}
                   className="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-blue-400 transition-all"
@@ -480,7 +480,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
                 <div>
                   <span className="font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
-                    FIDA REGULATION 9
+                    GCDIS REGULATION 9
                   </span>
                   <h3 className="text-2xl font-sans font-black uppercase text-white">
                     5-SECOND 1-ON-1 PENALTY KICK
@@ -526,7 +526,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           <div className="space-y-8 text-left">
             <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
               <span className="font-mono text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                FIDA RULES 5-7 &amp; 6-4
+                GCDIS RULES 5-7 &amp; 6-4
               </span>
               <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
                 REFEREE SIGNALS, WHISTLE AUDIO &amp; GOAL LED STATES
@@ -549,7 +549,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-sans">
-                    {FIDA_REFEREE_SIGNALS.map((sig, idx) => (
+                    {GCDIS_REFEREE_SIGNALS.map((sig, idx) => (
                       <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
                         <td className="py-4 px-4 font-bold text-blue-950">{sig.category}</td>
                         <td className="py-4 px-4 text-slate-700">{sig.handSignal}</td>
@@ -580,7 +580,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           <div className="space-y-8 text-left">
             <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
               <span className="font-mono text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                FIDA ADDENDUM 2 · 5TH REVISION (OCT 1, 2025)
+                GCDIS ADDENDUM 2 · 5TH REVISION (OCT 1, 2025)
               </span>
               <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
                 VIDEO ASSISTANT REFEREE (VAR) PROTOCOL
@@ -670,7 +670,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           <div className="space-y-8 text-left">
             <div className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-3">
               <span className="font-mono text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                FIDA REGULATION 11
+                GCDIS REGULATION 11
               </span>
               <h2 className="text-2xl font-sans font-black text-blue-950 uppercase">
                 OFFICIAL VIOLATIONS, WARNINGS &amp; PENALTIES
@@ -681,7 +681,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
             </div>
 
             <div className="space-y-6">
-              {FIDA_VIOLATIONS.map((violation, index) => (
+              {GCDIS_VIOLATIONS.map((violation, index) => (
                 <div
                   key={index}
                   className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4"
@@ -722,7 +722,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                 FREQUENTLY ASKED RULES QUESTIONS
               </h3>
               <p className="text-xs text-slate-600">
-                Official clarifications from the FIDA 5th Revision handbook for participating university squads.
+                Official clarifications from the GCDIS 5th Revision handbook for participating university squads.
               </p>
             </div>
 

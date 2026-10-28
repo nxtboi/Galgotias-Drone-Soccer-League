@@ -76,7 +76,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
               </h2>
               <div className="text-[#d0fe1d] font-mono text-2xl leading-none">↓</div>
               <p className="text-neutral-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-                Every match is governed by strict FIDA aerodynamics, spherical impact protection, and real-time electronic hoop refereeing.
+                Every match is governed by strict GCDIS aerodynamics, spherical impact protection, and real-time electronic hoop refereeing.
               </p>
             </div>
 
@@ -152,7 +152,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
             </div>
 
             <p className="text-center text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto pt-4">
-              University flight squads, pilot captains, and robotics engineers can now compete head-to-head under full international FIDA telemetry standards.
+              University flight squads, pilot captains, and robotics engineers can now compete head-to-head under full international GCDIS telemetry standards.
             </p>
 
             {/* Center Crosshair Divider */}
@@ -197,7 +197,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       </h3>
                     </div>
                     <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-                      5 vs 5 full arena clash · 16m × 8m cage · ≤1100g max drone mass · FIDA standard
+                      5 vs 5 full arena clash · 16m × 8m cage · ≤1100g max drone mass · GCDIS standard
                     </p>
                   </div>
                   <div className="text-right">
@@ -256,7 +256,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       </h3>
                     </div>
                     <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-                      3 vs 3 high-speed agile arena · 8m × 4m cage · ≤110g max drone mass · FIDA standard
+                      3 vs 3 high-speed agile arena · 8m × 4m cage · ≤110g max drone mass · GCDIS standard
                     </p>
                   </div>
                   <div className="text-right">

@@ -29,9 +29,9 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
   {
     id: '2',
     quote: "Inside the 16-meter ballistic netting cage at 50 km/h, there are no second chances. Every 10-millisecond RC radio command and carbon sphere collision test pilot instincts to their absolute limit.",
-    author: "FIDA Senior Technical Delegate",
+    author: "GCDIS Senior Technical Delegate",
     role: "Head of Technical Scrutineering",
-    organization: "FIDA International Drone Soccer Standards",
+    organization: "GCDIS Drone Soccer Standards",
     category: "TECHNICAL DELEGATE"
   },
   {
@@ -85,7 +85,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
             </h2>
 
             <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-              Statements from tournament organizers, FIDA technical scrutineers, team captains, and press correspondents.
+              Statements from tournament organizers, GCDIS technical scrutineers, team captains, and press correspondents.
             </p>
           </div>
 
@@ -175,7 +175,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  FAI/FIDA Class Regulations
+                  FAI/GCDIS Class Regulations
                 </h3>
                 <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                   Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.

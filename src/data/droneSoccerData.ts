@@ -76,7 +76,7 @@ export const GDSL_TOURNAMENT_INFO = {
   regDeadline: 'December 03, 2026 · 23:59 IST',
   emergencyHelpline: '+91 98712 34567',
   supportEmail: 'gcdis.dronesoccer@galgotiasuniversity.edu.in',
-  governingStandard: 'FIDA (Federation of International Dronesoccer Association) 5th Revision',
+  governingStandard: 'GCDIS (Galgotias Centre of Drone Intelligence & Simulation) 5th Revision',
 };
 
 export interface DivisionPrizePool {
@@ -495,8 +495,8 @@ export const MATCH_FIXTURES: MatchFixture[] = [
   },
 ];
 
-// FIDA Official Class 20 vs Class 40 Technical Comparison
-export interface FidaClassSpec {
+// GCDIS Official Class 20 vs Class 40 Technical Comparison
+export interface GcdisClassSpec {
   classId: 'Class 20' | 'Class 40';
   targetCategory: string;
   prizePool: string;
@@ -524,8 +524,9 @@ export interface FidaClassSpec {
   maxCoaches: string;
   strikerSubDuringGame: string;
 }
+export type FidaClassSpec = GcdisClassSpec;
 
-export const FIDA_CLASS_SPECS: Record<'class20' | 'class40', FidaClassSpec> = {
+export const GCDIS_CLASS_SPECS: Record<'class20' | 'class40', GcdisClassSpec> = {
   class20: {
     classId: 'Class 20',
     targetCategory: 'Junior / Varsity / Educational (No modifications allowed)',
@@ -584,8 +585,8 @@ export const FIDA_CLASS_SPECS: Record<'class20' | 'class40', FidaClassSpec> = {
   },
 };
 
-// 7 Official Colors for Position & Team Identification (FIDA Class 40 Rule 2-5)
-export const FIDA_7_COLORS = [
+// 7 Official Colors for Position & Team Identification (GCDIS Class 40 Rule 2-5)
+export const GCDIS_7_COLORS = [
   {
     role: 'Team Color',
     color: 'Red',
@@ -637,8 +638,8 @@ export const FIDA_7_COLORS = [
   },
 ];
 
-// FIDA Referee Whistle & Visual Signals (Rules 5-7, 6-4)
-export const FIDA_REFEREE_SIGNALS = [
+// GCDIS Referee Whistle & Visual Signals (Rules 5-7, 6-4)
+export const GCDIS_REFEREE_SIGNALS = [
   {
     category: '10 Secs to Start',
     handSignal: 'Both arms extended horizontally',
@@ -697,8 +698,8 @@ export const FIDA_REFEREE_SIGNALS = [
   },
 ];
 
-// FIDA 5th Revision Key Updates (Oct 1, 2025 / Jan 1, 2026)
-export const FIDA_5TH_REVISION_UPDATES = [
+// GCDIS 5th Revision Key Updates (Oct 1, 2025 / Jan 1, 2026)
+export const GCDIS_5TH_REVISION_UPDATES = [
   {
     rule: 'Rule 5-2-n & Addendum 2',
     title: 'Addition of VAR (Video Assistant Referee) System',
@@ -731,8 +732,8 @@ export const FIDA_5TH_REVISION_UPDATES = [
   },
 ];
 
-// FIDA Official Violations Hierarchy (Rule 11)
-export const FIDA_VIOLATIONS = [
+// GCDIS Official Violations Hierarchy (Rule 11)
+export const GCDIS_VIOLATIONS = [
   {
     level: 'Warning',
     consequence: '2 Warnings accumulated = 1 Penalty Kick awarded to opponent. Carries over to next set.',
@@ -768,7 +769,7 @@ export const FIDA_VIOLATIONS = [
 export const FREQUENT_QUESTIONS = [
   {
     q: 'What is the exact difference between Class 20 and Class 40?',
-    a: 'Class 20 features 20cm (±1cm) drone balls weighing under 110g in a compact 8m × 4m × 3m Skyfence with 30cm goals, and equipment modifications are strictly prohibited. Class 40 is the premier 40cm (±2cm) division weighing under 1100g in a 16m × 8m × 4.5m Skyfence with 60cm inner goals weighing 10-15kg each, featuring FIDA 7-color LED role positions and in-game Striker substitution.',
+    a: 'Class 20 features 20cm (±1cm) drone balls weighing under 110g in a compact 8m × 4m × 3m Skyfence with 30cm goals, and equipment modifications are strictly prohibited. Class 40 is the premier 40cm (±2cm) division weighing under 1100g in a 16m × 8m × 4.5m Skyfence with 60cm inner goals weighing 10-15kg each, featuring GCDIS 7-color LED role positions and in-game Striker substitution.',
   },
   {
     q: 'How does the Offside rule work in Drone Soccer?',

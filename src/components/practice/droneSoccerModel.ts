@@ -20,7 +20,7 @@ export interface DroneSoccerInstance {
 }
 
 /**
- * Creates an ultra-realistic 3D Drone Soccer Ball model conforming to FIDA specifications.
+ * Creates an ultra-realistic 3D Drone Soccer Ball model conforming to GCDIS specifications.
  * Includes geodesic protective exoskeleton, internal racing quadcopter, brushless motors,
  * tri-blade bullnose props, LiPo battery pack, FPV lens, and 360-degree LED ring.
  */
@@ -224,7 +224,7 @@ export function createDroneSoccerBall(config: DroneSoccerConfig): DroneSoccerIns
     props.push(propGroup as unknown as THREE.Mesh);
   });
 
-  // --- 5. FIDA Striker Ribbon / Tail Streamer ---
+  // --- 5. GCDIS Striker Ribbon / Tail Streamer ---
   let ribbonMesh: THREE.Mesh | undefined;
   if (hasRibbon) {
     const ribbonGeo = new THREE.PlaneGeometry(radius * 0.4, radius * 2.2, 4, 12);

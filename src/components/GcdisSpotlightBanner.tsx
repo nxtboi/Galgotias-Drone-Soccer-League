@@ -38,7 +38,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                 onClick={() => handleJump('rules')}
                 className="xotc-btn-outline px-6 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
               >
-                FIDA 5TH REVISION RULES
+                GCDIS 5TH REVISION RULES
               </button>
               <button
                 onClick={() => handleJump('register')}
@@ -122,7 +122,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                     Action Gallery &amp; Reels
                   </h4>
                   <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                    Official FIDA tournament match video streams, 50 km/h cage collision captures, and podium ceremonies.
+                    Official GCDIS tournament match video streams, 50 km/h cage collision captures, and podium ceremonies.
                   </p>
                 </div>
                 <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">

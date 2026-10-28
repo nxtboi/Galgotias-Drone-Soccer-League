@@ -144,7 +144,7 @@ function createSoccerPitchTexture(): THREE.CanvasTexture {
     ctx.textAlign = 'center';
     ctx.fillText('GALGOTIAS DRONE SOCCER LEAGUE · GDSL ARENA', midX, midY - 60);
     ctx.font = 'bold 20px monospace';
-    ctx.fillText('OFFICIAL STADIUM PROVING GROUND · FIDA CLASS 40 / 20', midX, midY + 80);
+    ctx.fillText('OFFICIAL STADIUM PROVING GROUND · GCDIS CLASS 40 / 20', midX, midY + 80);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -378,7 +378,7 @@ export function createSoccerStadiumArena(arenaClass: 'class40' | 'class20'): Are
     adCtx.fillRect(0, 0, 1024, 128);
     adCtx.fillStyle = '#38bdf8';
     adCtx.font = 'bold 38px monospace';
-    adCtx.fillText('★ GALGOTIAS DRONE SOCCER LEAGUE ★ GDSL CHAMPIONS CUP ★ FIDA WORLD CUP ★', 20, 78);
+    adCtx.fillText('★ GALGOTIAS DRONE SOCCER LEAGUE ★ GDSL CHAMPIONS CUP ★ GCDIS WORLD CUP ★', 20, 78);
   }
   const adTexture = new THREE.CanvasTexture(adCanvas);
   const adMat = new THREE.MeshBasicMaterial({ map: adTexture });
@@ -466,7 +466,7 @@ export function createSoccerStadiumArena(arenaClass: 'class40' | 'class20'): Are
     bCtx.fillText('BLUE vs RED', 256, 130);
     bCtx.fillStyle = '#22c55e';
     bCtx.font = 'bold 24px monospace';
-    bCtx.fillText('FIDA CLASS 40 FLIGHT SIMULATOR', 256, 195);
+    bCtx.fillText('GCDIS CLASS 40 FLIGHT SIMULATOR', 256, 195);
   }
   const boardTex = new THREE.CanvasTexture(boardCanvas);
   const boardMat = new THREE.MeshBasicMaterial({ map: boardTex });
@@ -599,7 +599,7 @@ export function createSoccerStadiumArena(arenaClass: 'class40' | 'class20'): Are
 }
 
 /**
- * Creates the official FIDA SKYFENCE ENCLOSED CAGE ARENA.
+ * Creates the official GCDIS SKYFENCE ENCLOSED CAGE ARENA.
  */
 export function createSkyfenceCageArena(arenaClass: 'class40' | 'class20'): ArenaEnvironmentResult {
   const arenaGroup = new THREE.Group();
@@ -773,7 +773,7 @@ export function createGalgotiasLabArena(arenaClass: 'class40' | 'class20'): Aren
     ctx.fillText('GALGOTIAS UNIVERSITY · DRONE FLIGHT PROVING GROUND', 60, 100);
     ctx.fillStyle = '#94a3b8';
     ctx.font = '22px monospace';
-    ctx.fillText('Autonomous Robotics Lab & FIDA Championship Flight Arena', 60, 160);
+    ctx.fillText('Autonomous Robotics Lab & GCDIS Championship Flight Arena', 60, 160);
   }
   const bannerTex = new THREE.CanvasTexture(labBannerCanvas);
   const bannerMesh = new THREE.Mesh(

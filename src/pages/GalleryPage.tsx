@@ -196,8 +196,8 @@ export const GalleryPage: React.FC<GalleryPageProps> = () => {
   const realMatchVideos = [
     {
       id: 'v-1',
-      title: 'FIDA International Cup: Live 5v5 Aerial Soccer Clash',
-      source: 'FIDA Official Championship',
+      title: 'GCDIS International Cup: Live 5v5 Aerial Soccer Clash',
+      source: 'GCDIS Official Championship',
       videoId: 'vfyZZAgXipA',
       badge: 'OFFICIAL MATCH',
       description: 'Full regulation set play between Taiwan and Malaysia demonstrating high-speed goal entries and tactical escort.',
@@ -205,7 +205,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = () => {
     {
       id: 'v-2',
       title: 'The Most Chaotic Drone Sport: Real Crashes & Mechanics',
-      source: 'FIDA In-Depth Feature',
+      source: 'GCDIS In-Depth Feature',
       videoId: '4S9OA1rtFn4',
       badge: 'ACTION HIGHLIGHTS',
       description: 'Close-up analysis of 50 km/h defensive body checks, keeper saves, and geodesic cage durability.',
@@ -221,7 +221,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = () => {
     {
       id: 'v-4',
       title: 'Drone Soccer National Exhibition & Hardware',
-      source: 'FIDA USA',
+      source: 'GCDIS Arena Broadcast',
       videoId: '3UG-b0J8j38',
       badge: 'EXHIBITION',
       description: 'Live arena demonstration of Class 40 and Class 20 sphere drones in action.',

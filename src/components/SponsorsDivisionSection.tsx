@@ -19,8 +19,8 @@ export const SPONSOR_LOGOS: SponsorLogo[] = [
     logo: '/sponsors/galgotias-gcdis.svg',
   },
   {
-    id: 'fida-intl',
-    name: 'Federation of International Dronesoccer (FIDA)',
+    id: 'gcdis-intl',
+    name: 'Drone Soccer Technical Standards (GCDIS)',
     logo: '/sponsors/fida-dronesoccer.svg',
   },
   {

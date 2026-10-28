@@ -431,7 +431,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             className="bg-white border border-blue-200 rounded-3xl p-6 sm:p-10 shadow-xs text-left space-y-6"
           >
             <h2 className="text-xl font-sans font-black text-blue-950 uppercase border-b border-blue-100 pb-3">
-              STEP 2: FIDA 5-PLAYER FLYING ROSTER &amp; POSITIONS
+              STEP 2: GCDIS 5-PLAYER FLYING ROSTER &amp; POSITIONS
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

@@ -118,7 +118,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'devansh-tripathi',
     name: 'Devansh Tripathi',
     role: 'Head of Technical Scrutineering',
-    department: 'FIDA Certified Aerospace Inspector',
+    department: 'GCDIS Certified Aerospace Inspector',
     category: 'technical',
     categoryLabel: 'HEAD TECH',
     phone: '+91 98991 34567',
