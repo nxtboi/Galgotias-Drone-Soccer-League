@@ -9,13 +9,15 @@ import {
   Instagram, 
   Search, 
   Users, 
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Cpu,
   Building,
   HeartHandshake,
-  Globe
+  RotateCw,
+  RotateCcw,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { TEAM_CATEGORIES, TEAM_MEMBERS, TeamMember } from '../data/teamData';
 import { GcdisLogo } from '../components/GcdisLogo';
@@ -28,14 +30,42 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  
+  // Track individual flipped card IDs
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = (text: string, id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
   };
+
+  const toggleFlip = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setFlippedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const flipAllToBack = () => {
+    const updated: Record<string, boolean> = {};
+    TEAM_MEMBERS.forEach((m) => {
+      updated[m.id] = true;
+    });
+    setFlippedCards(updated);
+  };
+
+  const flipAllToFront = () => {
+    setFlippedCards({});
+  };
+
+  const areAllFlipped = useMemo(() => {
+    return TEAM_MEMBERS.length > 0 && TEAM_MEMBERS.every((m) => flippedCards[m.id]);
+  }, [flippedCards]);
 
   const filteredMembers = useMemo(() => {
     return TEAM_MEMBERS.filter((member) => {
@@ -47,7 +77,8 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
         member.name.toLowerCase().includes(q) ||
         member.role.toLowerCase().includes(q) ||
         member.department.toLowerCase().includes(q) ||
-        member.email.toLowerCase().includes(q);
+        member.email.toLowerCase().includes(q) ||
+        member.phone.toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     });
   }, [selectedCategory, searchQuery]);
@@ -59,7 +90,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="relative w-full min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-12 bg-[#0e100d] text-white overflow-hidden">
-      {/* Background Ambient Lighting */}
+      {/* Background Ambient Cyber Lighting */}
       <div 
         className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-[#d0fe1d]/5 blur-[140px] rounded-full pointer-events-none" 
         aria-hidden="true" 
@@ -69,8 +100,8 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
         aria-hidden="true" 
       />
 
-      <div className="max-w-7xl mx-auto space-y-16 relative z-10">
-        {/* Breadcrumb & Navigation */}
+      <div className="max-w-7xl mx-auto space-y-14 relative z-10">
+        {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
           <button 
             onClick={() => onNavigate('home')} 
@@ -82,50 +113,65 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
           <span className="text-[#d0fe1d] font-bold">OUR TEAM</span>
         </div>
 
-        {/* Page Hero Header */}
-        <div className="text-left space-y-4 max-w-4xl">
-          <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
-            <Users className="w-3.5 h-3.5" />
-            <span>GCDIS SECRETARIAT &amp; STEERING COMMITTEE</span>
+        {/* Hero Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-white/10">
+          <div className="text-left space-y-3 max-w-3xl">
+            <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
+              <Users className="w-4 h-4" />
+              <span>GCDIS SECRETARIAT &amp; ORGANIZING COMMITTEE</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+              MEET THE <span className="text-[#d0fe1d]">ORGANIZERS</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-sans">
+              Connect directly with festival coordinators, avionics scrutineers, arena flight marshals, and university leadership behind GDSL 2026.
+              <span className="hidden sm:inline text-neutral-400"> Click or tap any card below to flip and reveal verified direct contacts.</span>
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-            MEET THE <span className="text-[#d0fe1d]">ORGANIZING TEAM</span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-sans max-w-3xl">
-            The steering committee, flight scrutineers, drone intelligence researchers, and student leaders behind the Galgotias Drone Soccer League 2026. Reach out directly to any vertical lead below for tournament inquiries, scrutineering support, or outstation pilot logistics.
-          </p>
-
-          {/* Quick Stats Banner */}
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs font-mono text-neutral-400">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
-              <span>17 Core Coordinators</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white/20">|</span>
-              <span>6 Specialized Wings</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white/20">|</span>
-              <span>Direct Phone &amp; Email Directory</span>
-            </div>
+          {/* Quick Flip-All Control Pill */}
+          <div className="flex items-center gap-2 bg-[#141612] border border-white/15 p-1.5 rounded-xl self-start md:self-auto shrink-0 shadow-lg">
+            <button
+              onClick={flipAllToFront}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer ${
+                !areAllFlipped
+                  ? 'bg-white/10 text-white border border-white/20'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Show photos on all cards"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#d0fe1d]" />
+              <span>Photos View</span>
+            </button>
+            <button
+              onClick={flipAllToBack}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer ${
+                areAllFlipped
+                  ? 'bg-[#d0fe1d] text-black shadow-[0_0_12px_rgba(208,254,29,0.35)]'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Flip all cards to direct contacts"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+              <span>Contacts View</span>
+            </button>
           </div>
         </div>
 
         {/* Search & Department Filters (Segmented Controls inspired by Techkriti) */}
-        <div className="space-y-6 bg-[#141612] border border-white/10 p-5 sm:p-6 rounded-2xl shadow-xl">
+        <div className="space-y-5 bg-[#141612] border border-white/10 p-5 sm:p-6 rounded-2xl shadow-xl">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <input
                 type="text"
-                placeholder="Search by name, role, department, or email..."
+                placeholder="Search coordinators by name, wing, role, phone or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-[#0e100d] border border-white/20 rounded-xl text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d] transition-all font-sans"
+                className="w-full pl-10 pr-12 py-2.5 text-xs sm:text-sm bg-[#0e100d] border border-white/20 rounded-xl text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d] transition-all font-sans"
               />
               {searchQuery && (
                 <button
@@ -137,8 +183,9 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               )}
             </div>
 
-            <div className="text-xs font-mono text-neutral-400">
-              Showing <span className="text-[#d0fe1d] font-bold">{filteredMembers.length}</span> of {TEAM_MEMBERS.length} members
+            <div className="flex items-center gap-3 text-xs font-mono text-neutral-400">
+              <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
+              <span>Showing <span className="text-[#d0fe1d] font-bold">{filteredMembers.length}</span> of {TEAM_MEMBERS.length} Coordinators</span>
             </div>
           </div>
 
@@ -173,148 +220,280 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Member Cards Grid */}
+        {/* 3D Flashcards Grid (Techkriti Contact Page Design Pattern) */}
         {filteredMembers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7">
             <AnimatePresence>
-              {filteredMembers.map((member) => (
-                <motion.div
-                  key={member.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.2 }}
-                  className="group relative flex flex-col justify-between bg-[#141612] border border-white/10 hover:border-[#d0fe1d]/80 rounded-2xl overflow-hidden shadow-lg hover:shadow-[0_10px_35px_rgba(208,254,29,0.18)] transition-all duration-300"
-                >
-                  {/* Top Photo & Badge */}
-                  <div className="relative aspect-[4/3.8] w-full overflow-hidden bg-neutral-900">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                      onError={(e) => {
-                        // Fallback in case of broken image URL
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+              {filteredMembers.map((member) => {
+                const isFlipped = !!flippedCards[member.id];
+                return (
+                  <motion.div
+                    key={member.id}
+                    layout
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25 }}
+                    className="techkriti-card-perspective h-[440px] w-full"
+                  >
+                    <div
+                      className={`techkriti-card-inner cursor-pointer select-none ${
+                        isFlipped ? 'is-flipped' : ''
+                      }`}
+                      onClick={() => toggleFlip(member.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          toggleFlip(member.id);
+                        }
                       }}
-                    />
-                    {/* Dark gradient overlay for bottom text contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#141612] via-transparent to-black/30 pointer-events-none" />
+                      aria-label={`${member.name} flashcard. Click to ${
+                        isFlipped ? 'view portrait' : 'view contact details'
+                      }`}
+                    >
+                      {/* =========================================
+                          FRONT FACE: Techkriti Style Portrait & Post
+                          ========================================= */}
+                      <div className="techkriti-card-face bg-[#141612] border border-white/15 hover:border-[#d0fe1d]/70 flex flex-col justify-between shadow-xl transition-all duration-300 group overflow-hidden">
+                        {/* High-tech Top Bar */}
+                        <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
+                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/80 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
+                            {member.categoryLabel}
+                          </span>
 
-                    {/* Category Label Tag on top-left */}
-                    <div className="absolute top-3 left-3">
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/75 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
-                        {member.categoryLabel}
-                      </span>
-                    </div>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFlip(member.id, e)}
+                            className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] text-[10px] font-rajdhani font-bold uppercase tracking-wider transition-all duration-200 shadow-md"
+                            title="Flip to contacts"
+                          >
+                            <span>Contacts</span>
+                            <RotateCw className="w-3 h-3 text-[#d0fe1d] group-hover:rotate-180 transition-transform duration-500" />
+                          </button>
+                        </div>
 
-                    {/* Social handles on top-right */}
-                    <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                      {member.linkedin && (
-                        <a
-                          href={member.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-7 h-7 rounded-lg bg-black/70 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
-                          title="LinkedIn Profile"
-                        >
-                          <Linkedin className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                      {member.instagram && (
-                        <a
-                          href={member.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-7 h-7 rounded-lg bg-black/70 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:text-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
-                          title="Instagram Profile"
-                        >
-                          <Instagram className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                        {/* Portrait Image with Tech Frame */}
+                        <div className="relative w-full h-full overflow-hidden bg-neutral-900">
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                            loading="lazy"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+                            }}
+                          />
 
-                  {/* Card Content & Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4 text-left">
-                    <div className="space-y-1.5">
-                      <h3 className="font-orbitron font-bold text-base sm:text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-snug">
-                        {member.name}
-                      </h3>
-                      <div className="font-rajdhani text-xs sm:text-sm font-bold text-[#d0fe1d] leading-snug">
-                        {member.role}
+                          {/* Gradient Vignette overlay for text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/40 to-black/30 pointer-events-none" />
+
+                          {/* Tech Grid Pattern Lines */}
+                          <div 
+                            className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" 
+                          />
+                        </div>
+
+                        {/* Front Bottom Card Info (Name, Role, College & Flip CTA) */}
+                        <div className="absolute bottom-0 inset-x-0 z-20 p-5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-10 text-left space-y-3">
+                          <div className="space-y-1">
+                            <h3 className="font-orbitron font-bold text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-tight">
+                              {member.name}
+                            </h3>
+                            <div className="font-rajdhani text-xs sm:text-sm font-bold text-[#d0fe1d] tracking-wide uppercase">
+                              {member.role}
+                            </div>
+                            <div className="text-[11px] text-neutral-400 font-sans truncate">
+                              {member.department}
+                            </div>
+                          </div>
+
+                          {/* Techkriti Flip Prompt Affordance */}
+                          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-neutral-400 text-[11px] font-mono group-hover:text-white transition-colors">
+                            <span className="flex items-center gap-1.5 text-neutral-400 group-hover:text-[#d0fe1d] transition-colors">
+                              <RotateCw className="w-3 h-3 text-[#d0fe1d]" />
+                              <span>Click to flip card</span>
+                            </span>
+                            <span className="text-[10px] text-neutral-500 font-mono">
+                              DIRECT COMM ↵
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-neutral-400 font-sans leading-relaxed">
-                        {member.department}
-                      </div>
-                      {member.bio && (
-                        <p className="text-[11px] text-neutral-500 font-sans leading-relaxed pt-1 line-clamp-2">
-                          {member.bio}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* Contact Channels (Phone & Email with instant click-to-copy) */}
-                    <div className="pt-3 border-t border-white/10 space-y-2 text-xs">
-                      {/* Phone Channel */}
-                      <div className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/10 rounded-lg group/phone">
-                        <a
-                          href={`tel:${member.phone.replace(/\s+/g, '')}`}
-                          className="flex items-center gap-2 text-neutral-300 hover:text-[#d0fe1d] transition-colors truncate"
-                          title="Call directly"
-                        >
-                          <Phone className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
-                          <span className="font-mono text-[11px] truncate">{member.phone}</span>
-                        </a>
-                        <button
-                          onClick={() => copyToClipboard(member.phone, `phone-${member.id}`)}
-                          className="text-neutral-400 hover:text-white transition-colors p-1"
-                          title="Copy phone number"
-                        >
-                          {copiedId === `phone-${member.id}` ? (
-                            <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
+                      {/* =========================================
+                          BACK FACE: Techkriti Style Contact Flashcard
+                          ========================================= */}
+                      <div className="techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden">
+                        {/* Background Cyber Texture */}
+                        <div 
+                          className="absolute inset-0 opacity-15 bg-[radial-gradient(#d0fe1d_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" 
+                        />
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
+
+                        {/* Back Header: Member summary & Flip back trigger */}
+                        <div className="relative z-10 flex items-start justify-between gap-3 border-b border-white/15 pb-3">
+                          <div className="space-y-0.5">
+                            <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#d0fe1d]">
+                              {member.categoryLabel}
+                            </span>
+                            <h4 className="font-orbitron font-bold text-base text-white leading-tight">
+                              {member.name}
+                            </h4>
+                            <p className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase">
+                              {member.role}
+                            </p>
+                          </div>
+
+                          {/* Flip to Photo button */}
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFlip(member.id, e)}
+                            className="p-1.5 rounded-lg bg-white/5 border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer shrink-0"
+                            title="Flip back to photo"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Back Center: Scope & Bio */}
+                        <div className="relative z-10 space-y-3 py-2">
+                          <div className="text-[11px] text-neutral-400 font-sans leading-relaxed">
+                            <span className="text-neutral-500 block text-[10px] font-mono uppercase tracking-wider">Department / Unit:</span>
+                            <span className="text-white font-medium">{member.department}</span>
+                          </div>
+
+                          {member.bio && (
+                            <div className="p-2.5 bg-[#0e100d]/90 border border-white/10 rounded-xl">
+                              <span className="text-[10px] font-mono text-[#d0fe1d] uppercase tracking-wider block mb-1">
+                                Operational Scope:
+                              </span>
+                              <p className="text-[11px] text-neutral-300 font-sans leading-relaxed">
+                                {member.bio}
+                              </p>
+                            </div>
                           )}
-                        </button>
-                      </div>
+                        </div>
 
-                      {/* Email Channel */}
-                      <div className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/10 rounded-lg group/email">
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="flex items-center gap-2 text-neutral-300 hover:text-[#d0fe1d] transition-colors truncate"
-                          title="Send email"
-                        >
-                          <Mail className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
-                          <span className="font-mono text-[11px] truncate">{member.email}</span>
-                        </a>
-                        <button
-                          onClick={() => copyToClipboard(member.email, `email-${member.id}`)}
-                          className="text-neutral-400 hover:text-white transition-colors p-1"
-                          title="Copy email address"
-                        >
-                          {copiedId === `email-${member.id}` ? (
-                            <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
+                        {/* Back Contacts List (Click to Call & Mail + 1-Tap Copy) */}
+                        <div className="relative z-10 space-y-2 pt-2 border-t border-white/15">
+                          {/* Phone Channel */}
+                          <div 
+                            className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <a
+                              href={`tel:${member.phone.replace(/\s+/g, '')}`}
+                              className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
+                              title="Direct Phone Dial"
+                            >
+                              <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
+                                <Phone className="w-3 h-3 text-[#d0fe1d]" />
+                              </div>
+                              <span className="font-mono text-xs truncate tracking-wider font-semibold">
+                                {member.phone}
+                              </span>
+                            </a>
+                            <button
+                              type="button"
+                              onClick={(e) => copyToClipboard(member.phone, `phone-${member.id}`, e)}
+                              className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
+                              title="Copy Phone Number"
+                            >
+                              {copiedId === `phone-${member.id}` ? (
+                                <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Email Channel */}
+                          <div 
+                            className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <a
+                              href={`mailto:${member.email}`}
+                              className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
+                              title="Send Email"
+                            >
+                              <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
+                                <Mail className="w-3 h-3 text-[#d0fe1d]" />
+                              </div>
+                              <span className="font-mono text-xs truncate tracking-wider font-semibold">
+                                {member.email}
+                              </span>
+                            </a>
+                            <button
+                              type="button"
+                              onClick={(e) => copyToClipboard(member.email, `email-${member.id}`, e)}
+                              className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
+                              title="Copy Email"
+                            >
+                              {copiedId === `email-${member.id}` ? (
+                                <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Socials & Flip to Photo Bottom Button */}
+                          <div 
+                            className="flex items-center justify-between pt-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              {member.linkedin && (
+                                <a
+                                  href={member.linkedin}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/15 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
+                                  title="LinkedIn Profile"
+                                >
+                                  <Linkedin className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              {member.instagram && (
+                                <a
+                                  href={member.instagram}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/15 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
+                                  title="Instagram Handle"
+                                >
+                                  <Instagram className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={(e) => toggleFlip(member.id, e)}
+                              className="inline-flex items-center gap-1 text-[10px] font-rajdhani font-bold uppercase text-neutral-400 hover:text-[#d0fe1d] transition-colors cursor-pointer py-1 px-2"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Flip to Photo</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
         ) : (
           <div className="p-12 text-center bg-[#141612] border border-white/10 rounded-2xl space-y-4 max-w-xl mx-auto">
             <Search className="w-8 h-8 text-neutral-500 mx-auto" />
-            <h3 className="font-orbitron font-bold text-lg text-white">No Team Members Found</h3>
+            <h3 className="font-orbitron font-bold text-lg text-white">No Coordinators Found</h3>
             <p className="text-xs text-neutral-400">
-              No coordinators match your current filter or search query. Try clearing the search or selecting &ldquo;All Wings&rdquo;.
+              No coordinators match your current filter or search query. Try clearing the search query or selecting &ldquo;All Wings&rdquo;.
             </p>
             <button
               onClick={() => {
@@ -328,7 +507,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* Vertical Specific Direct Inquiries (Inspired by Techkriti Direct Contact Blocks) */}
+        {/* Dedicated Desk Inquiries (Techkriti Specific Portals) */}
         <div className="space-y-6 pt-10 border-t border-white/15">
           <div className="text-left space-y-2">
             <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
@@ -338,7 +517,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               SPECIFIC DESK INQUIRIES
             </h2>
             <p className="text-xs sm:text-sm text-neutral-400 max-w-2xl">
-              Need assistance with a specific operational area? Contact the dedicated vertical mailboxes directly.
+              Need immediate assistance with an operational area? Contact the dedicated vertical mailboxes directly.
             </p>
           </div>
 
@@ -426,7 +605,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 GALGOTIAS DRONE SOCCER LEAGUE 2026
               </h3>
               <p className="text-xs text-neutral-400 mt-1 max-w-xl">
-                North India&apos;s biggest intercollegiate drone soccer arena at Galgotias University. 32 team slots · ₹2,00,000 prize purse · Dec 08–09, 2026.
+                North India&apos;s premier collegiate drone soccer tournament at Galgotias University. 32 team slots · ₹2,00,000 prize purse · Dec 08–09, 2026.
               </p>
             </div>
           </div>
