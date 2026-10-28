@@ -18,11 +18,11 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onPracticeClick,
   onShareClick,
 }) => {
-  // Live Tournament Countdown to Dec 02, 2026
-  const [timeLeft, setTimeLeft] = useState({ days: 54, hours: 6, minutes: 15, seconds: 30 });
+  // Live Tournament Countdown to Dec 08, 2026
+  const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
 
   useEffect(() => {
-    const targetDate = new Date('2026-12-02T09:00:00+05:30').getTime();
+    const targetDate = new Date('2026-12-08T09:00:00+05:30').getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -46,6 +46,19 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
       <div className="max-w-7xl mx-auto space-y-8">
         {/* XOTC Chamfered Technical Hero Frame */}
         <div className="relative border border-white/25 bg-[#141612]/85 backdrop-blur-md p-5 sm:p-8 lg:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.65)]">
+          {/* Looping Hero Background Video */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <video
+              src="/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-35 filter brightness-85 contrast-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#141612]/80 via-[#141612]/60 to-[#141612]/92" />
+          </div>
+
           {/* Top-Left & Top-Right Corner Accent Lines */}
           <div className="absolute top-0 left-0 w-16 h-[2px] bg-[#d0fe1d]" />
           <div className="absolute top-0 left-0 w-[2px] h-16 bg-[#d0fe1d]" />
@@ -82,7 +95,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 <div className="flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.2em] text-[#d0fe1d]">
                   <span>NATIONAL CHAMPIONSHIP</span>
                   <span aria-hidden="true">·</span>
-                  <span>FIDA CLASS 40 &amp; 20</span>
+                  <span>Class 40 &amp; 20</span>
                 </div>
                 <h2 className="font-orbitron font-black text-white text-sm sm:text-base lg:text-lg tracking-wider uppercase mt-0.5">
                   GALGOTIAS DRONE SOCCER LEAGUE

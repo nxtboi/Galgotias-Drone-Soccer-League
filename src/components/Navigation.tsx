@@ -23,7 +23,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'home', label: 'League Overview' },
+    { id: 'home', label: 'Home' },
     { id: 'bracket', label: 'Bracket & Fixtures' },
     { id: 'rules', label: 'Rules & Specs' },
     { id: 'contact', label: 'Helpdesk' },
@@ -181,7 +181,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between px-2 mb-3 text-[11px] font-mono text-[#d0fe1d] uppercase tracking-widest">
               <span>GDSL 2026 DIRECTORY</span>
-              <span>DEC 02-03 · ₹1,00,000 CUP</span>
+              <span>DEC 08-09 · ₹1,00,000 CUP</span>
             </div>
             {navItems.map((item) => (
               <button

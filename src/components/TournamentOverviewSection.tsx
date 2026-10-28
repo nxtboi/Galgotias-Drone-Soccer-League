@@ -23,11 +23,11 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
 
   const roadmapSteps = [
     { title: 'Squad Registration', sub: 'Portal Open · 32 Slots', completed: true },
-    { title: 'Tech Scrutineering', sub: 'Dec 02 · Sphere & Weight Check', completed: true },
-    { title: 'Group Stage Heats', sub: 'Dec 02 · 5v5 Cage Clashes', completed: true },
-    { title: 'Quarter-Finals', sub: 'Dec 03 · Knockout Seeding', active: true },
-    { title: 'Semi-Final Showdown', sub: 'Dec 03 · D-40 & D-20 Cups', active: false },
-    { title: 'Grand Championship', sub: 'Dec 03 · ₹1,00,000 Purse', active: false },
+    { title: 'Tech Scrutineering', sub: 'Dec 08 · Sphere & Weight Check', completed: true },
+    { title: 'Group Stage Heats', sub: 'Dec 08 · 5v5 Cage Clashes', completed: true },
+    { title: 'Quarter-Finals', sub: 'Dec 09 · Knockout Seeding', active: true },
+    { title: 'Semi-Final Showdown', sub: 'Dec 09 · D-40 & D-20 Cups', active: false },
+    { title: 'Grand Championship', sub: 'Dec 09 · ₹1,00,000 Purse', active: false },
   ];
 
   return (
@@ -422,7 +422,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 CHAMPIONSHIP ROADMAP
               </h2>
               <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto">
-                2-Day Championship Progression at Galgotias Indoor Arena (Dec 02–03, 2026).
+                2-Day Championship Progression at Galgotias Indoor Arena (Dec 08–09, 2026).
               </p>
             </div>
 

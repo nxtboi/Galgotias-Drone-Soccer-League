@@ -41,7 +41,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
             <ul className="space-y-2.5 text-xs font-sans text-neutral-300">
               <li>
                 <button onClick={() => handleNav('home')} className="hover:text-[#d0fe1d] transition-colors cursor-pointer">
-                  League Overview
+                  Home
                 </button>
               </li>
               <li>
