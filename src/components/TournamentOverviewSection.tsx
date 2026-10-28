@@ -32,8 +32,43 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
 
   return (
     <div className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-transparent text-white">
-      <div className="max-w-7xl mx-auto space-y-28">
-        {/* SECTION 1: WHAT IS DRONE SOCCER? (3D Scroll Perspective + Chamfered Duel Box) */}
+      <div className="max-w-7xl mx-auto space-y-24">
+        {/* ABOUT: GCDIS (Galgotias Centre of Drone Intelligence & Simulation) */}
+        <section className="max-w-5xl mx-auto text-left">
+          <div className="relative bg-[#161814] border border-[#d0fe1d]/40 rounded-2xl p-6 sm:p-10 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden">
+            {/* Ambient neon-lime glow */}
+            <div className="absolute -top-16 -right-16 w-60 h-60 bg-[#d0fe1d]/15 blur-3xl rounded-full pointer-events-none" />
+
+            <div className="relative z-10 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#d0fe1d]/15 border border-[#d0fe1d]/30 text-[#d0fe1d] font-mono text-xs uppercase tracking-widest font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
+                HOST & RESEARCH FACILITY
+              </div>
+
+              <h2 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+                About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence & Simulation (GCDIS)</span>
+              </h2>
+
+              <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans max-w-4xl">
+                The Galgotias Centre for Drone Intelligence & Simulation (GCDIS) is a premier research and training facility at Galgotias University, recognized as the largest drone lab in North India.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#d0fe1d]">
+                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
+                  · NORTH INDIA'S LARGEST DRONE LAB
+                </span>
+                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
+                  · ADVANCED FLIGHT SIMULATION
+                </span>
+                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
+                  · GALGOTIAS UNIVERSITY
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 1: WHAT IS DRONE SOCCER? (3D Scroll Perspective) */}
         <Parallax3DSection offsetY={65} rotateXRange={[8, 0, -6]} scaleRange={[0.94, 1, 0.95]}>
           <section className="space-y-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left max-w-5xl mx-auto">
@@ -52,97 +87,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 </p>
               </ParallaxDepthLayer>
             </div>
-
-            {/* XOTC Chamfered Duel Showcase Frame with 3D Interactive Tilt */}
-            <Tilt3DCard maxTilt={5} scrollOffsetY={40} className="max-w-5xl mx-auto">
-              <div className="relative bg-[#161814] border border-white/30 p-6 sm:p-10 md:p-14 overflow-hidden shadow-[0_24px_65px_rgba(0,0,0,0.6)]">
-                {/* Top-Right Ambient Lime Glow */}
-                <div className="absolute -top-12 right-12 w-64 h-64 bg-[#d0fe1d]/15 blur-3xl rounded-full pointer-events-none" />
-
-                {/* Bottom Dot Matrix Accent */}
-                <div
-                  className="hidden sm:block absolute bottom-3 right-1/3 w-20 h-4 xotc-dots opacity-75 pointer-events-none"
-                  aria-hidden="true"
-                />
-
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center text-left">
-                  {/* Left: STRIKER 01 <-> GOALKEEPER 02 Telemetry Widget */}
-                  <div className="lg:col-span-6 space-y-6">
-                    <div className="flex items-center gap-6 sm:gap-10">
-                      <div>
-                        <span className="block font-orbitron text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                          STRIKER UNIT
-                        </span>
-                        <span className="font-orbitron font-black text-4xl sm:text-6xl text-white tracking-wider">
-                          01
-                        </span>
-                      </div>
-
-                      <div className="text-[#d0fe1d] font-mono text-2xl sm:text-3xl font-bold select-none">
-                        ⇄
-                      </div>
-
-                      <div>
-                        <span className="block font-orbitron text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                          GOALKEEPER
-                        </span>
-                        <span className="font-orbitron font-black text-4xl sm:text-6xl text-white tracking-wider">
-                          02
-                        </span>
-                      </div>
-
-                      {/* Crosshair Reticle */}
-                      <div className="hidden sm:flex ml-auto items-center justify-center w-7 h-7 relative">
-                        <div className="w-3.5 h-3.5 rounded-full border border-white/40" />
-                        <div className="absolute w-7 h-[1px] bg-white/40" />
-                        <div className="absolute h-7 w-[1px] bg-white/40" />
-                      </div>
-                    </div>
-
-                    {/* Inner Neon-Lime Bordered Match Telemetry Box */}
-                    <div className="rounded-xl border border-[#d0fe1d]/60 bg-[#111210] p-4 sm:p-5 space-y-3 shadow-[0_0_25px_rgba(208,254,29,0.08)]">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="font-mono text-xs space-y-0.5">
-                          <div className="text-white font-bold">CLASS 40 : 400MM SPHERE</div>
-                          <div className="text-[#d0fe1d] text-[11px]">THRUST : 2,500G · ≤1100G</div>
-                        </div>
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-300">
-                          HOOP PENETRATION
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="font-mono text-xs space-y-0.5">
-                          <div className="text-white font-bold">CLASS 20 : 200MM SPHERE</div>
-                          <div className="text-[#d0fe1d] text-[11px]">SET DURATION : 3 MIN × 3</div>
-                        </div>
-                        <button
-                          onClick={onRegisterClick}
-                          className="px-4 py-1.5 rounded-full bg-[#d0fe1d] text-black font-orbitron font-black text-[10px] uppercase tracking-wider cursor-pointer hover:bg-[#e2ff54] transition-colors"
-                        >
-                          ENTER ARENA
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Editorial Description */}
-                  <div className="lg:col-span-6 space-y-4">
-                    <h3 className="font-orbitron font-black text-xl sm:text-2xl text-white uppercase tracking-wider">
-                      FULL-CONTACT 5V5 AERIAL TACTICS
-                    </h3>
-                    <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans">
-                      Take part in sanctioned collegiate divisions. Coordinate one-to-one aerial blocks, execute screen passes for your designated Striker, and survive full-speed polycarbonate mid-air collisions inside the 16-meter Skyfence arena.
-                    </p>
-                    <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-[#d0fe1d]">
-                      <span>· FIDA 5TH REVISION</span>
-                      <span>· TIER 2 PRO VAR</span>
-                      <span>· SUB-10MS RC LINK</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Tilt3DCard>
           </section>
         </Parallax3DSection>
 
