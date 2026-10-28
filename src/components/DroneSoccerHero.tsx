@@ -48,6 +48,13 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  const handleScrollToPrizePool = () => {
+    const el = document.getElementById('prize-pool');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="relative w-full pt-1 sm:pt-2 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-12 text-white">
       <div className="max-w-7xl mx-auto">
@@ -161,10 +168,12 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               </button>
 
               <button
-                onClick={onRulesClick}
-                className="xotc-btn-outline min-h-[44px] px-5 py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer bg-black/60 backdrop-blur-sm border-white/30 shadow-lg"
+                onClick={handleScrollToPrizePool}
+                className="xotc-btn-outline min-h-[44px] px-5 py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer bg-black/60 backdrop-blur-sm border-white/30 hover:border-[#d0fe1d] shadow-lg text-white hover:text-[#d0fe1d] transition-colors"
               >
-                <span>FIDA 5TH REVISION RULEBOOK</span>
+                <span>🏆</span>
+                <span>2,00,000 Prize pool</span>
+                <span>↓</span>
               </button>
             </div>
           </div>

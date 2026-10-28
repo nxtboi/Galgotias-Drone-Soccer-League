@@ -250,17 +250,17 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
 
         {/* SECTION 3: DUAL DIVISION PRIZE POOL BREAKDOWN */}
         <Parallax3DSection offsetY={60} rotateXRange={[7, 0, -6]} scaleRange={[0.95, 1, 0.96]}>
-          <section className="relative bg-[#151713] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-14 shadow-[0_0_50px_rgba(208,254,29,0.08)] overflow-hidden">
+          <section id="prize-pool" className="relative scroll-mt-24 bg-[#151713] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-14 shadow-[0_0_50px_rgba(208,254,29,0.08)] overflow-hidden">
             <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
               <div className="max-w-3xl text-left">
                 <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
                   CHAMPIONSHIP STAKES · DUAL TOURNAMENT TIERS
                 </span>
                 <h2 className="mt-2 text-2xl sm:text-4xl lg:text-5xl font-orbitron font-black uppercase tracking-wider text-white">
-                  ₹1,00,000 <span className="text-[#d0fe1d]">TOTAL PRIZE POOL</span>
+                  ₹2,00,000 <span className="text-[#d0fe1d]">TOTAL PRIZE POOL</span>
                 </h2>
                 <p className="mt-3 text-neutral-300 text-sm sm:text-base">
-                  The total pool is <span className="text-white font-bold">₹1,00,000</span> (including trophy and cash prize). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹57,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹37,000)</span> alongside national rolling trophies.
+                  The total pool is <span className="text-white font-bold">₹2,00,000</span> (including championship trophies and cash prizes). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹1,15,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹85,000)</span> alongside national rolling trophies.
                 </p>
               </div>
 
@@ -274,7 +274,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       : 'text-neutral-300 hover:text-white'
                   }`}
                 >
-                  D-40 Pool (₹57K)
+                  D-40 Pool (₹1.15L)
                 </button>
                 <button
                   onClick={() => setSelectedDivision('d20')}
@@ -284,7 +284,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       : 'text-neutral-300 hover:text-white'
                   }`}
                 >
-                  D-20 Pool (₹37K)
+                  D-20 Pool (₹85K)
                 </button>
               </div>
             </div>
