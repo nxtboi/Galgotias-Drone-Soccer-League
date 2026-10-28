@@ -160,37 +160,12 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 <span>→</span>
               </button>
 
-              {onPracticeClick && (
-                <button
-                  onClick={onPracticeClick}
-                  className="xotc-btn-outline min-h-[48px] px-6 py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer border-[#d0fe1d]/50 text-[#d0fe1d]"
-                >
-                  <span>3D PRACTICE ARENA</span>
-                </button>
-              )}
-
-              <button
-                onClick={onBracketClick}
-                className="xotc-btn-outline min-h-[48px] px-6 py-3.5 text-xs flex items-center justify-center gap-2.5 cursor-pointer"
-              >
-                <span>BRACKET &amp; FIXTURES</span>
-              </button>
-
               <button
                 onClick={onRulesClick}
                 className="xotc-btn-outline min-h-[48px] px-5 py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>FIDA 5TH REVISION RULEBOOK</span>
               </button>
-
-              {onShareClick && (
-                <button
-                  onClick={onShareClick}
-                  className="xotc-btn-outline min-h-[48px] px-5 py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>SHARE EVENT</span>
-                </button>
-              )}
             </div>
           </div>
 
