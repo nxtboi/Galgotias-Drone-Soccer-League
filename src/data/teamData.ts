@@ -161,19 +161,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=80',
     bio: 'Overseeing polycarbonate cage structural compliance, netting tensile tests, and pitch impact certifications.',
   },
-  {
-    id: 'harsh-vardhan',
-    name: 'Harsh Vardhan',
-    role: 'Avionics Pit Tech & Field Recovery Marshall',
-    department: 'Robotics Society Member',
-    category: 'technical',
-    categoryLabel: 'FIELD MARSHALL',
-    phone: '+91 97172 34561',
-    email: 'techsupport@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80',
-    bio: 'Directing on-field cage extraction crews, battery triage, and 30-second rapid sphere recovery protocols during sets.',
-  },
+
 
   // ==========================================
   // 3. MARKETING & SPONSORSHIPS
@@ -218,20 +206,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80&fit=facearea&facepad=2',
     bio: 'Connecting with 80+ university robotics societies and aviation clubs across India for squad registrations.',
   },
-  {
-    id: 'sneha-kulkarni',
-    name: 'Sneha Kulkarni',
-    role: 'Brand Experience & Hospitality Lead',
-    department: 'Operations & Event Management',
-    category: 'marketing',
-    categoryLabel: 'HOSPITALITY LEAD',
-    phone: '+91 98189 67890',
-    email: 'hospitality@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80',
-    bio: 'Coordinating guest VIP suites, corporate sponsor booth activations, and visiting squad pilot hospitality.',
-  },
+
 
   // ==========================================
   // 4. SOCIAL MEDIA & DIGITAL MEDIA
@@ -263,34 +238,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     image: '/assets/aistudio/WhatsApp_Image_2026-10-28_at_10.37.11_PM_d9524029.jpeg',
     bio: 'Architect of multi-camera drone feed switching, YouTube 4K 60fps esports live production, and HUD score overlays.',
   },
-  {
-    id: 'kavya-s',
-    name: 'Kavya S.',
-    role: 'Lead UI/UX & Digital Brand Designer',
-    department: 'Design & Visual Communication',
-    category: 'social_media',
-    categoryLabel: 'LEAD DESIGNER',
-    phone: '+91 98117 89045',
-    email: 'design@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80',
-    bio: 'Creator of the tournament visual identity, dynamic HUD motion graphics, digital pilot passes, and social graphics.',
-  },
-  {
-    id: 'aryan-malhotra',
-    name: 'Aryan Malhotra',
-    role: 'Lead Cinematographer & Drone FPV Reel Creator',
-    department: 'Cinematography & Visual Arts',
-    category: 'social_media',
-    categoryLabel: 'FPV MEDIA',
-    phone: '+91 99712 84523',
-    email: 'content@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
-    bio: 'Capturing dynamic high-speed FPV chase shots, arena slow-motion crashes, and pilot micro-documentaries.',
-  },
+
 
   // ==========================================
   // 5. PATRONS & FACULTY ADVISORY

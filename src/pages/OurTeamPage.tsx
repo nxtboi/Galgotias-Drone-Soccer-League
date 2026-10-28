@@ -130,11 +130,6 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
 
               {/* Gradient Vignette overlay for text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/40 to-black/30 pointer-events-none" />
-
-              {/* Tech Grid Pattern Lines */}
-              <div 
-                className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" 
-              />
             </div>
 
             {/* Front Bottom Card Info (Name, Role, College & Flip CTA) */}
@@ -173,10 +168,6 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Background Cyber Texture */}
-            <div 
-              className="absolute inset-0 opacity-15 bg-[radial-gradient(#d0fe1d_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" 
-            />
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
 
             {/* Back Header: Member summary & Flip back trigger */}
