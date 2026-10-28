@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
-const YOUTUBE_VIDEO_ID = 't0LQt8d8ikw';
-const YOUTUBE_EMBED_URL = `https://www.youtube-nocookie.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1`;
+const HERO_VIDEO_SOURCE = '/hero-drone-soccer.mp4';
+const HERO_VIDEO_FALLBACK = '/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -16,6 +16,8 @@ export interface DroneSoccerHeroProps {
 export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
 }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
 
@@ -25,6 +27,13 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
       indexedDB.deleteDatabase('gdsl_hero_media_db');
     } catch {
       // Ignore
+    }
+
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      videoRef.current.play().catch(() => {});
     }
   }, []);
 
@@ -62,21 +71,23 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
         <div
           className="relative w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] lg:min-h-[calc(100vh-6.5rem)] max-h-[960px] border border-white/25 bg-black p-4 sm:p-7 lg:p-10 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
         >
-          {/* Looping Hero Background Video from YouTube - Completely Visible & Bright */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-            <iframe
-              src={YOUTUBE_EMBED_URL}
-              title="Galgotias Drone Soccer League Arena Video"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0"
-              style={{
-                width: 'max(100%, 177.78vh)',
-                height: 'max(100%, 56.25vw)',
-                minWidth: '100%',
-                minHeight: '100%',
-              }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
+          {/* Max Quality Drone Soccer Video - Seamless Continuous Looping, No Controls, No Reloading */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 select-none">
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              disablePictureInPicture
+              disableRemotePlayback
+              controls={false}
+              className="w-full h-full object-cover object-center pointer-events-none"
+            >
+              <source src={HERO_VIDEO_SOURCE} type="video/mp4" />
+              <source src={HERO_VIDEO_FALLBACK} type="video/mp4" />
+            </video>
           </div>
 
 
