@@ -290,7 +290,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <div className="flex items-center gap-1.5">
                   {member.linkedin && (
                     <a
-                      href={member.linkedin}
+                      href={member.linkedin.startsWith('http') ? member.linkedin : `https://${member.linkedin}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
@@ -302,7 +302,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                   )}
                   {member.github && (
                     <a
-                      href={member.github}
+                      href={member.github.startsWith('http') ? member.github : `https://${member.github}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
@@ -314,7 +314,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                   )}
                   {member.instagram && (
                     <a
-                      href={member.instagram}
+                      href={member.instagram.startsWith('http') ? member.instagram : `https://${member.instagram}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}

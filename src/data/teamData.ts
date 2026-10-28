@@ -246,16 +246,16 @@ export const TEAM_MEMBERS: TeamMember[] = [
   // 5. PATRONS & FACULTY ADVISORY
   // ==========================================
   {
-    id: 'dhruv-galgotia',
-    name: 'Prof. (Dr.) Dhruv Galgotia',
+    id: 'puneet-saini',
+    name: 'Dr. Puneet Saini',
     role: 'Chief Patron & CEO',
     department: 'Galgotias University',
     category: 'advisory',
     categoryLabel: 'PATRON',
     phone: '+91 98100 24901',
-    email: 'patron@galgotiasuniversity.edu.in',
-    linkedin: 'https://linkedin.com',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+    email: 'puneetsaini2757@gmail.com',
+    linkedin: 'https://linkedin.com/in/puneet-saini-ba7a72a9',
+    image: '/assets/aistudio/puneet_sir_50b5577e.png',
     bio: 'Visionary behind establishing North India’s largest Drone Intelligence & Simulation facility at Galgotias.',
   },
   {
