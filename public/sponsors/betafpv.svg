@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="100%" height="100%">
+  <!-- BetaFPV Icon -->
+  <g transform="translate(20, 12)">
+    <path d="M10 8 L32 8 C42 8 48 14 48 22 C48 28 44 32 38 34 C46 36 50 42 50 50 C50 58 42 62 30 62 L10 62 Z" fill="#0088cc"/>
+    <path d="M22 18 L30 18 C36 18 38 21 38 25 C38 29 36 32 30 32 L22 32 Z" fill="#ffffff"/>
+    <path d="M22 38 L31 38 C37 38 40 41 40 46 C40 51 37 54 31 54 L22 54 Z" fill="#ffffff"/>
+    <!-- Quad Rotor Points -->
+    <circle cx="8" cy="14" r="4" fill="#00b4d8"/>
+    <circle cx="52" cy="14" r="4" fill="#00b4d8"/>
+    <circle cx="8" cy="56" r="4" fill="#00b4d8"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="92" y="42" font-family="Arial Black, sans-serif" font-size="25" font-weight="900" fill="#002b49" letter-spacing="2.5">BETAFPV</text>
+  <text x="94" y="57" font-family="Arial, sans-serif" font-size="7.5" font-weight="700" fill="#0088cc" letter-spacing="2.5">MICRO DRONE ROBOTICS</text>
+</svg>

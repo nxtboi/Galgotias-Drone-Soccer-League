@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="100%" height="100%">
+  <defs>
+    <linearGradient id="guGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a2540"/>
+      <stop offset="100%" stop-color="#001830"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0a922"/>
+      <stop offset="100%" stop-color="#b88308"/>
+    </linearGradient>
+  </defs>
+  <!-- Circular Crest Seal -->
+  <g transform="translate(15, 6)">
+    <circle cx="34" cy="34" r="32" fill="url(#guGrad)" stroke="#b88308" stroke-width="2.5"/>
+    <circle cx="34" cy="34" r="26" fill="none" stroke="#ffffff" stroke-dasharray="2,2" stroke-width="1" opacity="0.6"/>
+    <!-- Torch & Flight Wings -->
+    <path d="M34 16 L31 29 L37 29 Z" fill="url(#goldGrad)"/>
+    <path d="M34 13 Q38 18 34 23 Q30 18 34 13 Z" fill="#e63946"/>
+    <path d="M22 28 C26 28 30 33 34 37 C38 33 42 28 46 28 C40 38 34 46 34 46 C34 46 28 38 22 28 Z" fill="url(#goldGrad)"/>
+    <!-- Drone Quad Nodes -->
+    <circle cx="21" cy="24" r="3" fill="#ffffff"/>
+    <circle cx="47" cy="24" r="3" fill="#ffffff"/>
+    <circle cx="23" cy="44" r="3" fill="#ffffff"/>
+    <circle cx="45" cy="44" r="3" fill="#ffffff"/>
+    <text x="34" y="55" font-family="Arial, sans-serif" font-size="5.5" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">GCDIS</text>
+  </g>
+  <!-- Wordmark -->
+  <text x="96" y="32" font-family="Georgia, serif" font-size="19" font-weight="900" fill="#0a2540" letter-spacing="0.5">GALGOTIAS</text>
+  <text x="96" y="47" font-family="Arial, sans-serif" font-size="10" font-weight="800" fill="#b88308" letter-spacing="3.5">UNIVERSITY</text>
+  <line x1="96" y1="53" x2="295" y2="53" stroke="#0a2540" stroke-width="0.75" opacity="0.3"/>
+  <text x="96" y="65" font-family="Arial, sans-serif" font-size="7.5" font-weight="700" fill="#4a5568" letter-spacing="1.2">CENTRE FOR DRONE INTELLIGENCE</text>
+</svg>

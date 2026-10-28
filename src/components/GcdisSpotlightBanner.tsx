@@ -1,5 +1,6 @@
 import React from 'react';
 import { Parallax3DSection, Tilt3DCard } from './Parallax3DSection';
+import { GcdisLogo } from './GcdisLogo';
 
 export interface GcdisSpotlightBannerProps {
   onNavigate: (page: string) => void;
@@ -13,51 +14,40 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
 
   return (
     <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-20 space-y-20 pointer-events-auto text-white">
-      {/* Banner 1: XOTC "GET EARLY ACCESS" Style Chamfered Neon-Lime Frame with 3D Parallax */}
-      <Parallax3DSection offsetY={60} rotateXRange={[9, 0, -7]} scaleRange={[0.94, 1, 0.95]}>
-        <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="max-w-6xl mx-auto">
-          <div className="relative bg-[#151713] border border-[#d0fe1d]/70 p-8 sm:p-12 md:p-16 shadow-[0_25px_70px_rgba(208,254,29,0.14)] overflow-hidden">
-            {/* Ambient Acid-Lime City/Arena Glow */}
-            <div
-              className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#d0fe1d]/15 blur-[100px] rounded-full pointer-events-none"
-              aria-hidden="true"
-            />
-
-            {/* Dot Matrix Bottom Accent */}
-            <div
-              className="hidden sm:block absolute bottom-3 left-1/3 w-20 h-4 xotc-dots-lime opacity-85 pointer-events-none"
-              aria-hidden="true"
-            />
-
-            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-              <div className="space-y-4 text-left max-w-xl">
+      {/* Banner 1: Host Institution & Proving Arena (Interchanged from Overview Section) */}
+      <Parallax3DSection offsetY={45} rotateXRange={[6, 0, -5]} scaleRange={[0.96, 1, 0.97]}>
+        <Tilt3DCard maxTilt={4} scrollOffsetY={25} className="max-w-6xl mx-auto">
+          <section className="bg-[#161814] border border-[#d0fe1d]/50 p-6 sm:p-10 md:p-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 text-left shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              <GcdisLogo size="lg" showWordmark={false} />
+              <div className="max-w-xl">
                 <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
-                  OFFICIAL INVITATION · INTERCOLLEGIATE CUP
+                  HOSTED BY GCDIS AT GALGOTIAS UNIVERSITY
                 </span>
-                <h3 className="text-3xl sm:text-5xl font-orbitron font-black tracking-wider uppercase text-white leading-[1.08]">
-                  REGISTER <br />
-                  YOUR <br />
-                  <span className="text-[#d0fe1d]">SQUAD</span>
+                <h3 className="mt-1 text-xl sm:text-3xl font-orbitron font-black text-white uppercase tracking-wider">
+                  GALGOTIAS INDOOR DRONE SOCCER ARENA
                 </h3>
-                <p className="text-xs sm:text-sm text-neutral-300 font-sans leading-relaxed max-w-md">
-                  32 team slots. Total pool of ₹1,00,000 (including trophy and cash prize). Class 20 (₹37,000 pool) &amp; Class 40 (₹57,000 pool) divisions, FIDA rules, and live arena stream at Galgotias University.
+                <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                  Purpose-built with 16m × 8m × 5m protective ballistic netting, dual illuminated goal hoops, 6-camera FPV track telemetry, and 800-seat spectator gallery in Greater Noida, UP.
                 </p>
               </div>
-
-              <div className="hidden lg:block text-[#d0fe1d] font-mono text-4xl font-bold select-none">
-                →
-              </div>
-
-              <div className="w-full lg:w-auto shrink-0">
-                <button
-                  onClick={() => handleJump('register')}
-                  className="xotc-btn-lime w-full sm:w-auto min-h-[56px] px-10 py-4 text-xs sm:text-sm text-center justify-center flex items-center cursor-pointer"
-                >
-                  REGISTER SQUAD NOW
-                </button>
-              </div>
             </div>
-          </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full lg:w-auto shrink-0">
+              <button
+                onClick={() => handleJump('rules')}
+                className="xotc-btn-outline px-6 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
+              >
+                FIDA 5TH REVISION RULES
+              </button>
+              <button
+                onClick={() => handleJump('register')}
+                className="xotc-btn-lime px-7 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
+              >
+                REGISTER SQUAD NOW
+              </button>
+            </div>
+          </section>
         </Tilt3DCard>
       </Parallax3DSection>
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="100%" height="100%">
+  <!-- T-Motor Winged Shield -->
+  <g transform="translate(18, 12)">
+    <path d="M8 8 L52 8 L46 20 L34 20 L34 50 L26 50 L26 20 L14 20 Z" fill="#f36f21"/>
+    <!-- Wing Blades -->
+    <path d="M4 14 L20 14 L12 26 Z" fill="#1e1e1e"/>
+    <path d="M56 14 L40 14 L48 26 Z" fill="#1e1e1e"/>
+    <circle cx="30" cy="14" r="5" fill="#ffffff" stroke="#f36f21" stroke-width="2"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="90" y="38" font-family="Arial Black, Impact, sans-serif" font-size="24" font-weight="900" fill="#1e1e1e" letter-spacing="2">T-MOTOR</text>
+  <text x="91" y="54" font-family="Arial, sans-serif" font-size="7.5" font-weight="800" fill="#f36f21" letter-spacing="1.5">THE SAFEST PROPULSION SYSTEM</text>
+</svg>
