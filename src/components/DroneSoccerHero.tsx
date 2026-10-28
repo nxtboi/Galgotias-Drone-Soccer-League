@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Upload } from 'lucide-react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import {
+  loadStoredHeroVideo,
+  saveHeroVideoBlob,
+} from '../utils/heroVideoStorage';
+
+const DEFAULT_HERO_VIDEO = '/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -12,23 +19,50 @@ export interface DroneSoccerHeroProps {
 
 export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
-  onBracketClick,
-  onRulesClick,
-  onPracticeClick,
-  onShareClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [videoSrc, setVideoSrc] = useState<string>(DEFAULT_HERO_VIDEO);
+  const [drivePreviewId, setDrivePreviewId] = useState<string | null>(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
 
   useEffect(() => {
-    if (videoRef.current) {
+    let activeObjectUrl: string | null = null;
+
+    loadStoredHeroVideo().then((stored) => {
+      if (!stored) return;
+      if (stored.type === 'blob' && stored.blob) {
+        activeObjectUrl = URL.createObjectURL(stored.blob);
+        setDrivePreviewId(null);
+        setVideoSrc(activeObjectUrl);
+      } else if (stored.type === 'gdrive' && stored.driveFileId) {
+        setDrivePreviewId(stored.driveFileId);
+      } else if (stored.type === 'url' && stored.url) {
+        setDrivePreviewId(null);
+        setVideoSrc(stored.url);
+      }
+    });
+
+    return () => {
+      if (activeObjectUrl) {
+        URL.revokeObjectURL(activeObjectUrl);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (videoRef.current && !drivePreviewId) {
+      videoRef.current.load();
       videoRef.current.play().catch(() => {
         // Autoplay handled by browser policies
       });
     }
+  }, [videoSrc, drivePreviewId]);
 
+  useEffect(() => {
     const targetDate = new Date('2026-12-08T09:00:00+05:30').getTime();
 
     const interval = setInterval(() => {
@@ -55,23 +89,69 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
     }
   };
 
+  const handleVideoFileSelect = async (file: File) => {
+    if (!file.type.startsWith('video/')) {
+      return;
+    }
+    await saveHeroVideoBlob(file);
+    const objectUrl = URL.createObjectURL(file);
+    setDrivePreviewId(null);
+    setVideoSrc(objectUrl);
+  };
+
   return (
     <div className="relative w-full pt-1 sm:pt-2 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-12 text-white">
       <div className="max-w-7xl mx-auto">
         {/* XOTC Chamfered Technical Hero Frame - Completely visible video presentation */}
-        <div className="relative w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] lg:min-h-[calc(100vh-6.5rem)] max-h-[960px] border border-white/25 bg-transparent p-4 sm:p-7 lg:p-10 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between">
-          {/* Looping Hero Background Video - Completely Visible (100% Opacity, No Overlay) */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDraggingOver(true);
+          }}
+          onDragLeave={() => setIsDraggingOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDraggingOver(false);
+            const droppedFile = e.dataTransfer.files?.[0];
+            if (droppedFile) {
+              handleVideoFileSelect(droppedFile);
+            }
+          }}
+          className={`relative w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] lg:min-h-[calc(100vh-6.5rem)] max-h-[960px] border ${
+            isDraggingOver ? 'border-[#d0fe1d] ring-2 ring-[#d0fe1d]/50' : 'border-white/25'
+          } bg-transparent p-4 sm:p-7 lg:p-10 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all`}
+        >
+          {/* Looping Hero Background Video - Completely Visible */}
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-            <video
-              ref={videoRef}
-              src="/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover object-center opacity-80"
-            />
+            {drivePreviewId ? (
+              <iframe
+                src={`https://drive.google.com/file/d/${drivePreviewId}/preview?autoplay=1&mute=1`}
+                title="Galgotias Drone Soccer Arena Video"
+                allow="autoplay; encrypted-media"
+                className="w-full h-full object-cover scale-[1.05] border-0 opacity-85 pointer-events-none"
+              />
+            ) : (
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover object-center opacity-80"
+              />
+            )}
           </div>
+
+          {/* Drag-and-Drop Overlay Prompt */}
+          {isDraggingOver && (
+            <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#d0fe1d] pointer-events-none">
+              <Upload className="w-10 h-10 text-[#d0fe1d] animate-bounce" />
+              <p className="font-orbitron font-bold text-sm sm:text-base text-[#d0fe1d] uppercase tracking-wider">
+                Drop your video file (.mp4) to set as Hero Background
+              </p>
+            </div>
+          )}
 
           {/* Top-Left & Top-Right Corner Accent Lines */}
           <div className="absolute top-0 left-0 w-16 h-[2px] bg-[#d0fe1d]" />
@@ -156,7 +236,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             </div>
           </div>
 
-          {/* Bottom Action Controls (Text Removed to Reveal Full Video) */}
+          {/* Bottom Action Controls */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-4">
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <button
