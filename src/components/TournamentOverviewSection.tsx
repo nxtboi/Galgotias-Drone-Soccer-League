@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { PRIZE_POOLS } from '../data/droneSoccerData';
 import { GcdisLogo } from './GcdisLogo';
@@ -19,8 +19,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
   onBracketClick,
   onRulesClick,
 }) => {
-  const [selectedDivision, setSelectedDivision] = useState<'d40' | 'd20'>('d40');
-
   const roadmapSteps = [
     { title: 'Squad Registration', sub: 'Portal Open · 32 Slots', completed: true },
     { title: 'Tech Scrutineering', sub: 'Dec 08 · Sphere & Weight Check', completed: true },
@@ -34,38 +32,14 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
     <div className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-transparent text-white">
       <div className="max-w-7xl mx-auto space-y-24">
         {/* ABOUT: GCDIS (Galgotias Centre of Drone Intelligence & Simulation) */}
-        <section className="max-w-5xl mx-auto text-left">
-          <div className="relative bg-[#161814] border border-[#d0fe1d]/40 rounded-2xl p-6 sm:p-10 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden">
-            {/* Ambient neon-lime glow */}
-            <div className="absolute -top-16 -right-16 w-60 h-60 bg-[#d0fe1d]/15 blur-3xl rounded-full pointer-events-none" />
+        <section className="max-w-5xl mx-auto text-left space-y-4">
+          <h2 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+            About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence & Simulation (GCDIS)</span>
+          </h2>
 
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#d0fe1d]/15 border border-[#d0fe1d]/30 text-[#d0fe1d] font-mono text-xs uppercase tracking-widest font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
-                HOST & RESEARCH FACILITY
-              </div>
-
-              <h2 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-                About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence & Simulation (GCDIS)</span>
-              </h2>
-
-              <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans max-w-4xl">
-                The Galgotias Centre for Drone Intelligence & Simulation (GCDIS) is a premier research and training facility at Galgotias University, recognized as the largest drone lab in North India.
-              </p>
-
-              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[#d0fe1d]">
-                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
-                  · NORTH INDIA'S LARGEST DRONE LAB
-                </span>
-                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
-                  · ADVANCED FLIGHT SIMULATION
-                </span>
-                <span className="px-3 py-1 rounded-md bg-white/5 border border-white/10">
-                  · GALGOTIAS UNIVERSITY
-                </span>
-              </div>
-            </div>
-          </div>
+          <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans max-w-4xl">
+            The Galgotias Centre for Drone Intelligence & Simulation (GCDIS) stands as a premier hub of innovation, research, and training dedicated to advancing the frontiers of unmanned aerial systems and intelligent flight technologies. Established at Galgotias University, the Centre embodies the institution’s vision to create a transformative platform for nurturing next generation engineers, innovators, and entrepreneurs in the field of drones and autonomous aerial systems.
+          </p>
         </section>
 
         {/* SECTION 1: WHAT IS DRONE SOCCER? (3D Scroll Perspective) */}
@@ -207,150 +181,126 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   The total pool is <span className="text-white font-bold">₹2,00,000</span> (including championship trophies and cash prizes). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹1,15,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹85,000)</span> alongside national rolling trophies.
                 </p>
               </div>
-
-              {/* Division Switcher Filter */}
-              <div className="flex items-center gap-2 bg-[#111210] p-1.5 border border-white/20 w-full sm:w-auto self-start lg:self-end">
-                <button
-                  onClick={() => setSelectedDivision('d40')}
-                  className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-orbitron font-bold uppercase transition-all text-center cursor-pointer ${
-                    selectedDivision === 'd40'
-                      ? 'bg-[#d0fe1d] text-black'
-                      : 'text-neutral-300 hover:text-white'
-                  }`}
-                >
-                  D-40 Pool (₹1.15L)
-                </button>
-                <button
-                  onClick={() => setSelectedDivision('d20')}
-                  className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-orbitron font-bold uppercase transition-all text-center cursor-pointer ${
-                    selectedDivision === 'd20'
-                      ? 'bg-[#d0fe1d] text-black'
-                      : 'text-neutral-300 hover:text-white'
-                  }`}
-                >
-                  D-20 Pool (₹85K)
-                </button>
-              </div>
             </div>
 
-            <div className="space-y-10 relative z-10">
-              {selectedDivision === 'd40' ? (
-                <div className="space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
-                          D-40 DIVISION ·
-                        </span>
-                        <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
-                          Class 40 Heavyweight (400mm Sphere)
-                        </h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-                        5 vs 5 full arena clash · 16m × 8m cage · ≤1100g max drone mass · FIDA standard
-                      </p>
+            <div className="space-y-12 relative z-10">
+              {/* D-40 DIVISION */}
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
+                        D-40 DIVISION ·
+                      </span>
+                      <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
+                        Class 40 Heavyweight (400mm Sphere)
+                      </h3>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
-                      <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹57,000</span>
-                    </div>
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+                      5 vs 5 full arena clash · 16m × 8m cage · ≤1100g max drone mass · FIDA standard
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {PRIZE_POOLS.d40.prizes.map((prize, idx) => (
-                      <Tilt3DCard key={`d40-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
-                        <div
-                          className={`p-6 text-left flex flex-col justify-between transition-all h-full ${
-                            prize.highlight ? 'xotc-card-lime' : 'xotc-card'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
-                                {prize.place}
-                              </span>
-                              <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
-                                {prize.highlight ? 'D-40 GOLD CUP' : prize.place === '2nd Place' ? 'SILVER CUP' : 'SPECIAL PRIZE'}
-                              </span>
-                            </div>
-                            <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
-                              {prize.amount}
-                            </div>
-                            <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
-                          </div>
-
-                          <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
-                            {prize.perks.map((p, pIdx) => (
-                              <li key={pIdx} className="flex items-start gap-2">
-                                <span className="text-[#d0fe1d] font-bold">✓</span>
-                                <span>{p}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </Tilt3DCard>
-                    ))}
+                  <div className="text-right">
+                    <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹1,15,000</span>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
-                          D-20 DIVISION ·
-                        </span>
-                        <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
-                          Class 20 High-Speed (200mm Sphere)
-                        </h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-                        3 vs 3 high-speed agile arena · 8m × 4m cage · ≤110g max drone mass · FIDA standard
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
-                      <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹37,000</span>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {PRIZE_POOLS.d20.prizes.map((prize, idx) => (
-                      <Tilt3DCard key={`d20-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
-                        <div
-                          className={`p-6 text-left flex flex-col justify-between transition-all h-full ${
-                            prize.highlight ? 'xotc-card-lime' : 'xotc-card'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
-                                {prize.place}
-                              </span>
-                              <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
-                                {prize.highlight ? 'D-20 GOLD CUP' : prize.place === '2nd Place' ? 'SILVER CUP' : 'SPECIAL PRIZE'}
-                              </span>
-                            </div>
-                            <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
-                              {prize.amount}
-                            </div>
-                            <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {PRIZE_POOLS.d40.prizes.map((prize, idx) => (
+                    <Tilt3DCard key={`d40-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
+                      <div
+                        className={`p-6 text-left flex flex-col justify-between transition-all h-full ${
+                          prize.highlight ? 'xotc-card-lime' : 'xotc-card'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
+                              {prize.place}
+                            </span>
+                            <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
+                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : '3RD PLACE'}
+                            </span>
                           </div>
-
-                          <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
-                            {prize.perks.map((p, pIdx) => (
-                              <li key={pIdx} className="flex items-start gap-2">
-                                <span className="text-[#d0fe1d] font-bold">✓</span>
-                                <span>{p}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
+                            {prize.amount}
+                          </div>
+                          <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
                         </div>
-                      </Tilt3DCard>
-                    ))}
+
+                        <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
+                          {prize.perks.map((p, pIdx) => (
+                            <li key={pIdx} className="flex items-start gap-2">
+                              <span className="text-[#d0fe1d] font-bold">✓</span>
+                              <span>{p}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </Tilt3DCard>
+                  ))}
+                </div>
+              </div>
+
+              {/* D-20 DIVISION */}
+              <div className="space-y-6 pt-8 border-t border-white/15">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
+                        D-20 DIVISION ·
+                      </span>
+                      <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
+                        Class 20 High-Speed (200mm Sphere)
+                      </h3>
+                    </div>
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+                      3 vs 3 high-speed agile arena · 8m × 4m cage · ≤110g max drone mass · FIDA standard
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹85,000</span>
                   </div>
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {PRIZE_POOLS.d20.prizes.map((prize, idx) => (
+                    <Tilt3DCard key={`d20-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
+                      <div
+                        className={`p-6 text-left flex flex-col justify-between transition-all h-full ${
+                          prize.highlight ? 'xotc-card-lime' : 'xotc-card'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
+                              {prize.place}
+                            </span>
+                            <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
+                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : '3RD PLACE'}
+                            </span>
+                          </div>
+                          <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
+                            {prize.amount}
+                          </div>
+                          <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
+                        </div>
+
+                        <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
+                          {prize.perks.map((p, pIdx) => (
+                            <li key={pIdx} className="flex items-start gap-2">
+                              <span className="text-[#d0fe1d] font-bold">✓</span>
+                              <span>{p}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </Tilt3DCard>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         </Parallax3DSection>
