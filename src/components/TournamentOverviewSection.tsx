@@ -355,53 +355,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
           </section>
         </Parallax3DSection>
 
-        {/* SECTION 5: REGISTER YOUR SQUAD (Interchanged from Spotlight Banner) */}
-        <Parallax3DSection offsetY={60} rotateXRange={[9, 0, -7]} scaleRange={[0.94, 1, 0.95]}>
-          <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="max-w-6xl mx-auto">
-            <div className="relative bg-[#151713] border border-[#d0fe1d]/70 p-8 sm:p-12 md:p-16 shadow-[0_25px_70px_rgba(208,254,29,0.14)] overflow-hidden">
-              {/* Ambient Acid-Lime City/Arena Glow */}
-              <div
-                className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#d0fe1d]/15 blur-[100px] rounded-full pointer-events-none"
-                aria-hidden="true"
-              />
-
-              {/* Dot Matrix Bottom Accent */}
-              <div
-                className="hidden sm:block absolute bottom-3 left-1/3 w-20 h-4 xotc-dots-lime opacity-85 pointer-events-none"
-                aria-hidden="true"
-              />
-
-              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-                <div className="space-y-4 text-left max-w-xl">
-                  <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
-                    OFFICIAL INVITATION · INTERCOLLEGIATE CUP
-                  </span>
-                  <h3 className="text-3xl sm:text-5xl font-orbitron font-black tracking-wider uppercase text-white leading-[1.08]">
-                    REGISTER <br />
-                    YOUR <br />
-                    <span className="text-[#d0fe1d]">SQUAD</span>
-                  </h3>
-                  <p className="text-xs sm:text-sm text-neutral-300 font-sans leading-relaxed max-w-md">
-                    32 team slots. Total pool of ₹2,00,000 (including championship trophies and cash prizes). Class 20 (D-20: ₹85,000) &amp; Class 40 (D-40: ₹1,15,000) divisions, FIDA rules, and live arena stream at Galgotias University.
-                  </p>
-                </div>
-
-                <div className="hidden lg:block text-[#d0fe1d] font-mono text-4xl font-bold select-none">
-                  →
-                </div>
-
-                <div className="w-full lg:w-auto shrink-0">
-                  <button
-                    onClick={onRegisterClick}
-                    className="xotc-btn-lime w-full sm:w-auto min-h-[56px] px-10 py-4 text-xs sm:text-sm text-center justify-center flex items-center cursor-pointer"
-                  >
-                    REGISTER SQUAD NOW
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Tilt3DCard>
-        </Parallax3DSection>
       </div>
     </div>
   );
