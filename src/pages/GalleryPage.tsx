@@ -128,7 +128,7 @@ const GDSL_PHOTOS: GalleryPhoto[] = [
     category: 'Pilot Dugout',
     date: 'Dec 03, 2026',
     location: 'Shielded Pilot Pod B',
-    imageUrl: '/drone lab.jpg',
+    imageUrl: '/drone-lab.jpg',
     description:
       'Team captain and pilots locked in focus wearing low-latency HD video goggles behind the safety ballistic screen.',
     droneModel: 'HawkSphere 400X',
