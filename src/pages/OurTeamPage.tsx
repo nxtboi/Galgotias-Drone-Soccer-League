@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Phone, 
@@ -31,7 +31,6 @@ export interface OurTeamPageProps {
 
 export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeSectionId, setActiveSectionId] = useState<string>('all');
   
   // Track individual flipped card IDs
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
@@ -51,34 +50,6 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
       ...prev,
       [id]: !prev[id],
     }));
-  };
-
-  const flipAllToBack = () => {
-    const updated: Record<string, boolean> = {};
-    TEAM_MEMBERS.forEach((m) => {
-      updated[m.id] = true;
-    });
-    setFlippedCards(updated);
-  };
-
-  const flipAllToFront = () => {
-    setFlippedCards({});
-  };
-
-  const areAllFlipped = useMemo(() => {
-    return TEAM_MEMBERS.length > 0 && TEAM_MEMBERS.every((m) => flippedCards[m.id]);
-  }, [flippedCards]);
-
-  const scrollToSection = (sectionId: string) => {
-    setActiveSectionId(sectionId);
-    if (sectionId === 'all') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    const elem = document.getElementById(`section-${sectionId}`);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
   // Helper icons for categories
@@ -105,26 +76,28 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
     return (
       <div key={member.id} className="techkriti-card-perspective h-[440px] w-full">
         <div
-          className={`techkriti-card-inner cursor-pointer select-none ${
+          className={`techkriti-card-inner ${
             isFlipped ? 'is-flipped' : ''
-          }`}
-          onClick={() => toggleFlip(member.id)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              toggleFlip(member.id);
-            }
-          }}
-          aria-label={`${member.name} flashcard. Click to ${
-            isFlipped ? 'view portrait' : 'view contact details'
           }`}
         >
           {/* =========================================
               FRONT FACE: Portrait & Identity
               ========================================= */}
-          <div className="techkriti-card-face bg-[#141612] border border-white/15 hover:border-[#d0fe1d]/70 flex flex-col justify-between shadow-xl transition-all duration-300 group overflow-hidden">
+          <div 
+            className={`techkriti-card-face bg-[#141612] border border-white/15 hover:border-[#d0fe1d]/70 flex flex-col justify-between shadow-xl transition-all duration-300 group overflow-hidden cursor-pointer select-none ${
+              isFlipped ? 'pointer-events-none' : 'pointer-events-auto'
+            }`}
+            onClick={() => toggleFlip(member.id)}
+            role="button"
+            tabIndex={isFlipped ? -1 : 0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFlip(member.id);
+              }
+            }}
+            aria-label={`${member.name}. Click to view contact details`}
+          >
             {/* High-tech Top Bar */}
             <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/85 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
@@ -194,7 +167,12 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
           {/* =========================================
               BACK FACE: Direct Contact Channels & Bio
               ========================================= */}
-          <div className="techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden">
+          <div 
+            className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
+              isFlipped ? 'pointer-events-auto' : 'pointer-events-none'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Background Cyber Texture */}
             <div 
               className="absolute inset-0 opacity-15 bg-[radial-gradient(#d0fe1d_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" 
@@ -219,26 +197,27 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               <button
                 type="button"
                 onClick={(e) => toggleFlip(member.id, e)}
-                className="p-1.5 rounded-lg bg-white/5 border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer shrink-0"
-                title="Flip back to photo"
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer shrink-0 text-[10px] font-rajdhani font-bold uppercase tracking-wider"
+                title="Flip back to portrait photo"
               >
+                <span>Photo</span>
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {/* Back Center: Scope & Bio */}
-            <div className="relative z-10 space-y-3 py-2">
+            <div className="relative z-10 space-y-3 py-2 select-text">
               <div className="text-[11px] text-neutral-400 font-sans leading-relaxed">
                 <span className="text-neutral-500 block text-[10px] font-mono uppercase tracking-wider">Department / Unit:</span>
-                <span className="text-white font-medium">{member.department}</span>
+                <span className="text-white font-medium select-text">{member.department}</span>
               </div>
 
               {member.bio && (
-                <div className="p-2.5 bg-[#0e100d]/90 border border-white/10 rounded-xl">
+                <div className="p-2.5 bg-[#0e100d]/90 border border-white/10 rounded-xl select-text">
                   <span className="text-[10px] font-mono text-[#d0fe1d] uppercase tracking-wider block mb-1">
                     Operational Scope:
                   </span>
-                  <p className="text-[11px] text-neutral-300 font-sans leading-relaxed">
+                  <p className="text-[11px] text-neutral-300 font-sans leading-relaxed select-text">
                     {member.bio}
                   </p>
                 </div>
@@ -254,13 +233,14 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               >
                 <a
                   href={`tel:${member.phone.replace(/\s+/g, '')}`}
+                  onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
                   title="Direct Phone Dial"
                 >
                   <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
                     <Phone className="w-3 h-3 text-[#d0fe1d]" />
                   </div>
-                  <span className="font-mono text-xs truncate tracking-wider font-semibold">
+                  <span className="font-mono text-xs truncate tracking-wider font-semibold select-text">
                     {member.phone}
                   </span>
                 </a>
@@ -285,13 +265,14 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               >
                 <a
                   href={`mailto:${member.email}`}
+                  onClick={(e) => e.stopPropagation()}
                   className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
                   title="Send Email"
                 >
                   <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
                     <Mail className="w-3 h-3 text-[#d0fe1d]" />
                   </div>
-                  <span className="font-mono text-xs truncate tracking-wider font-semibold">
+                  <span className="font-mono text-xs truncate tracking-wider font-semibold select-text">
                     {member.email}
                   </span>
                 </a>
@@ -320,10 +301,11 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                       href={member.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/15 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-8 h-8 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
                       title="LinkedIn Profile"
                     >
-                      <Linkedin className="w-3.5 h-3.5" />
+                      <Linkedin className="w-4 h-4" />
                     </a>
                   )}
                   {member.instagram && (
@@ -331,10 +313,11 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                       href={member.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/15 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-8 h-8 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
                       title="Instagram Handle"
                     >
-                      <Instagram className="w-3.5 h-3.5" />
+                      <Instagram className="w-4 h-4" />
                     </a>
                   )}
                 </div>
@@ -342,9 +325,9 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={(e) => toggleFlip(member.id, e)}
-                  className="inline-flex items-center gap-1 text-[10px] font-rajdhani font-bold uppercase text-neutral-400 hover:text-[#d0fe1d] transition-colors cursor-pointer py-1 px-2"
+                  className="inline-flex items-center gap-1.5 text-xs font-rajdhani font-bold uppercase text-neutral-300 hover:text-black hover:bg-[#d0fe1d] bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/20 transition-all cursor-pointer"
                 >
-                  <RotateCcw className="w-3 h-3" />
+                  <RotateCcw className="w-3.5 h-3.5" />
                   <span>Flip to Photo</span>
                 </button>
               </div>
@@ -381,7 +364,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Hero Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-white/10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-white/10">
           <div className="text-left space-y-3 max-w-3xl">
             <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
               <Users className="w-4 h-4" />
@@ -396,65 +379,6 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               Connect directly with festival coordinators, avionics scrutineers, marketing liaisons, social media creators, and university leadership behind GDSL 2026.
               <span className="hidden sm:inline text-neutral-400"> Click or tap any card to flip and reveal verified direct phone and email channels.</span>
             </p>
-          </div>
-
-          {/* Quick Flip-All Control Pill */}
-          <div className="flex items-center gap-2 bg-[#141612] border border-white/15 p-1.5 rounded-xl self-start md:self-auto shrink-0 shadow-lg">
-            <button
-              onClick={flipAllToFront}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer ${
-                !areAllFlipped
-                  ? 'bg-white/10 text-white border border-white/20'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-              title="Show photos on all cards"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#d0fe1d]" />
-              <span>Photos View</span>
-            </button>
-            <button
-              onClick={flipAllToBack}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer ${
-                areAllFlipped
-                  ? 'bg-[#d0fe1d] text-black shadow-[0_0_12px_rgba(208,254,29,0.35)]'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-              title="Flip all cards to direct contacts"
-            >
-              <RotateCw className="w-3.5 h-3.5" />
-              <span>Contacts View</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Quick Navigation Jump Bar for Wings */}
-        <div className="sticky top-20 z-30 bg-[#0e100d]/90 backdrop-blur-md py-3 border-y border-white/10 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-12 lg:px-12 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mr-1 hidden sm:inline">
-              Jump To Wing:
-            </span>
-            {TEAM_CATEGORIES.map((cat) => {
-              const count = TEAM_MEMBERS.filter((m) => m.category === cat.id).length;
-              const isActive = activeSectionId === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => scrollToSection(cat.id)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-rajdhani font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                    isActive
-                      ? 'bg-[#d0fe1d] text-black shadow-[0_0_12px_rgba(208,254,29,0.3)]'
-                      : 'bg-[#141612] text-neutral-300 hover:text-white border border-white/10 hover:border-[#d0fe1d]/50'
-                  }`}
-                >
-                  <span>{cat.shortLabel}</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                    isActive ? 'bg-black/20 text-black font-black' : 'bg-white/10 text-neutral-400'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
           </div>
         </div>
 
