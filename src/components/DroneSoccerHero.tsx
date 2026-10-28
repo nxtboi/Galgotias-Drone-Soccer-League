@@ -62,7 +62,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               loop
               muted
               playsInline
-              className="w-full h-full object-cover object-center opacity-90"
+              className="w-full h-full object-cover object-center opacity-80"
             />
           </div>
 
