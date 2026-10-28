@@ -7,6 +7,7 @@ import {
   Check, 
   Linkedin, 
   Instagram, 
+  Github, 
   Users, 
   ArrowRight,
   ShieldCheck,
@@ -297,6 +298,18 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                       title="LinkedIn Profile"
                     >
                       <Linkedin className="w-4 h-4" />
+                    </a>
+                  )}
+                  {member.github && (
+                    <a
+                      href={member.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-8 h-8 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
+                      title="GitHub Profile"
+                    >
+                      <Github className="w-4 h-4" />
                     </a>
                   )}
                   {member.instagram && (

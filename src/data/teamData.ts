@@ -8,6 +8,7 @@ export interface TeamMember {
   phone: string;
   email: string;
   linkedin?: string;
+  github?: string;
   instagram?: string;
   image: string;
   bio?: string;
@@ -167,17 +168,18 @@ export const TEAM_MEMBERS: TeamMember[] = [
   // 3. MARKETING & SPONSORSHIPS
   // ==========================================
   {
-    id: 'tanvi-deshmukh',
-    name: 'Tanvi Deshmukh',
+    id: 'vedanta-singh',
+    name: 'Vedanta Singh',
     role: 'Head of Corporate Alliances & Sponsorships',
     department: 'Strategic Corporate Relations',
     category: 'marketing',
     categoryLabel: 'SPONSORSHIP HEAD',
-    phone: '+91 98214 78901',
-    email: 'sponsorships@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
-    bio: 'Liaising with drone hardware manufacturers, avionics brands, and MeitY startup incubation delegates for festival grants.',
+    phone: '+91 76962 08871',
+    email: 'Vedantasingh@hotmail.com',
+    linkedin: 'https://www.linkedin.com/in/vedantasingh',
+    github: 'https://github.com/Vedanta-Singh',
+    image: '/assets/aistudio/WhatsApp_Image_2026-10-28_at_10.26.28_PM_7f45dca8.jpeg',
+    bio: 'Liaising with drone hardware manufacturers, corporate brand alliances, and institutional festival sponsorships.',
   },
   {
     id: 'rohan-bose',
@@ -229,7 +231,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'nikhil-kumar',
     name: 'Nikhil Kumar',
     role: 'Head of Esports Broadcast & Live Stream',
-    department: 'Computer Science & Cloud Systems',
+    department: 'BSc. Artificial Intelligence',
     category: 'social_media',
     categoryLabel: 'BROADCAST LEAD',
     phone: '+91 99580 01890',
