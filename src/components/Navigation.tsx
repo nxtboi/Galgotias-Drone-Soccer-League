@@ -26,6 +26,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'home', label: 'Home' },
     { id: 'bracket', label: 'Bracket & Fixtures' },
     { id: 'rules', label: 'Rules & Specs' },
+    { id: 'team', label: 'Our Team' },
     { id: 'contact', label: 'Helpdesk' },
   ];
 

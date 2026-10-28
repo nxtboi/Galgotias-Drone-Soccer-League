@@ -15,6 +15,7 @@ import { TeamRegistrationPage } from './pages/TeamRegistrationPage';
 import { RulesAndSpecsPage } from './pages/RulesAndSpecsPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { ContactPage } from './pages/ContactPage';
+import { OurTeamPage } from './pages/OurTeamPage';
 import { TeamLoginPage } from './pages/TeamLoginPage';
 import { TeamDashboardPage } from './pages/TeamDashboardPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
@@ -31,7 +32,7 @@ import {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<
-    'home' | 'practice' | 'bracket' | 'register' | 'rules' | 'gallery' | 'contact' | 'login' | 'dashboard' | 'admin'
+    'home' | 'practice' | 'bracket' | 'register' | 'rules' | 'gallery' | 'team' | 'contact' | 'login' | 'dashboard' | 'admin'
   >('home');
 
   const [currentTeam, setCurrentTeam] = useState<RegisteredTeamProfile | null>(null);
@@ -201,6 +202,13 @@ export function App() {
       {activeTab === 'contact' && (
         <div className="xotc-page-scope">
           <ContactPage onNavigate={handleSelectTab} />
+        </div>
+      )}
+
+      {/* Dedicated Page: Our Team (Techkriti-inspired card directory) */}
+      {activeTab === 'team' && (
+        <div className="xotc-page-scope">
+          <OurTeamPage onNavigate={handleSelectTab} />
         </div>
       )}
 

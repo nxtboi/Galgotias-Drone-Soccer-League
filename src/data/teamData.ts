@@ -1,0 +1,270 @@
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  category: 'patrons' | 'core' | 'technical' | 'logistics' | 'marketing' | 'web';
+  categoryLabel: string;
+  phone: string;
+  email: string;
+  linkedin?: string;
+  instagram?: string;
+  image: string;
+  bio?: string;
+}
+
+export interface TeamCategory {
+  id: 'all' | 'patrons' | 'core' | 'technical' | 'logistics' | 'marketing' | 'web';
+  label: string;
+}
+
+export const TEAM_CATEGORIES: TeamCategory[] = [
+  { id: 'all', label: 'All Wings' },
+  { id: 'patrons', label: 'Patrons & Advisory' },
+  { id: 'core', label: 'Core Secretariat' },
+  { id: 'technical', label: 'Avionics & Scrutineering' },
+  { id: 'logistics', label: 'Arena Logistics & Pits' },
+  { id: 'marketing', label: 'PR & Corporate Alliances' },
+  { id: 'web', label: 'Web Ops & Broadcast' },
+];
+
+export const TEAM_MEMBERS: TeamMember[] = [
+  // 1. Patrons & Advisory
+  {
+    id: 'dhruv-galgotia',
+    name: 'Prof. (Dr.) Dhruv Galgotia',
+    role: 'Chief Patron & CEO',
+    department: 'Galgotias University',
+    category: 'patrons',
+    categoryLabel: 'PATRON',
+    phone: '+91 98100 24901',
+    email: 'patron@galgotiasuniversity.edu.in',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+    bio: 'Visionary behind establishing North India’s largest Drone Intelligence & Simulation facility at Galgotias.',
+  },
+  {
+    id: 'nitin-gaur',
+    name: 'Dr. Nitin Gaur',
+    role: 'Director, GCDIS & Faculty Advisor',
+    department: 'Centre for Drone Intelligence & Simulation',
+    category: 'patrons',
+    categoryLabel: 'FACULTY ADVISOR',
+    phone: '+91 98112 56780',
+    email: 'director.gcdis@galgotiasuniversity.edu.in',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+    bio: 'Pioneering aerial robotics research and autonomous multirotor simulation programs at Galgotias.',
+  },
+  {
+    id: 'ananya-sengupta',
+    name: 'Prof. Ananya Sengupta',
+    role: 'Dean, Aerospace & Robotics Engineering',
+    department: 'School of Engineering, Galgotias University',
+    category: 'patrons',
+    categoryLabel: 'ADVISORY DEAN',
+    phone: '+91 98734 11200',
+    email: 'dean.aero@galgotiasuniversity.edu.in',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+    bio: 'Academic lead overseeing national intercollegiate engineering collaborations and aeronautical curriculum.',
+  },
+
+  // 2. Core Secretariat / Overall Management
+  {
+    id: 'arjun-singhania',
+    name: 'Arjun Singhania',
+    role: 'Overall Festival Coordinator (GDSL 2026)',
+    department: 'Robotics & Autonomous Systems, Final Year',
+    category: 'core',
+    categoryLabel: 'CONVENER',
+    phone: '+91 99580 43210',
+    email: 'coordinator@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+    bio: 'Chief convenor steering tournament operations, collegiate registration quotas, and nationwide team outreach.',
+  },
+  {
+    id: 'rhea-mehrotra',
+    name: 'Rhea Mehrotra',
+    role: 'Co-Convener & Head of Operations',
+    department: 'Drone Avionics & Flight Control Lab',
+    category: 'core',
+    categoryLabel: 'CO-CONVENER',
+    phone: '+91 98108 77654',
+    email: 'operations@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    bio: 'Managing real-time event schedules, referee allocations, and cross-wing logistics coordination.',
+  },
+  {
+    id: 'kabir-varma',
+    name: 'Kabir Varma',
+    role: 'Chief Secretariat Lead',
+    department: 'School of Computing Sciences',
+    category: 'core',
+    categoryLabel: 'SECRETARIAT',
+    phone: '+91 97115 88921',
+    email: 'secretariat@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
+    bio: 'Supervising official team communications, certificate accreditation, and administrative clearances.',
+  },
+
+  // 3. Technical & Avionics Wing
+  {
+    id: 'devansh-tripathi',
+    name: 'Devansh Tripathi',
+    role: 'Head of Technical Scrutineering',
+    department: 'FIDA Certified Aerospace Inspector',
+    category: 'technical',
+    categoryLabel: 'HEAD TECH',
+    phone: '+91 98991 34567',
+    email: 'scrutineering@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80',
+    bio: 'Leading Class 20 & Class 40 sphere dimension verification, motor spec validation, and fail-safe safety locks.',
+  },
+  {
+    id: 'pooja-nair',
+    name: 'Pooja Nair',
+    role: 'Lead Electronic Referee & Telemetry Engineer',
+    department: 'Sensors & Digital Systems Laboratory',
+    category: 'technical',
+    categoryLabel: 'TELEMETRY LEAD',
+    phone: '+91 98203 44556',
+    email: 'telemetry@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80',
+    bio: 'In charge of optical goal hoop sensor grids, electronic scoring sync, and 10ms RF beacon tracking.',
+  },
+  {
+    id: 'vikramaditya-roy',
+    name: 'Vikramaditya Roy',
+    role: 'Ballistic Sphere & Safety Marshall',
+    department: 'Materials & Mechanical Dynamics Lab',
+    category: 'technical',
+    categoryLabel: 'SAFETY MARSHALL',
+    phone: '+91 99104 55678',
+    email: 'safety@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=80',
+    bio: 'Overseeing polycarbonate cage structural compliance and pitch impact barrier certifications.',
+  },
+
+  // 4. Arena Logistics & Pits
+  {
+    id: 'aman-saxena',
+    name: 'Aman Saxena',
+    role: 'Head of Arena Logistics & Flight Pit Marshall',
+    department: 'Industrial & Mechanical Engineering',
+    category: 'logistics',
+    categoryLabel: 'ARENA MARSHALL',
+    phone: '+91 98711 23489',
+    email: 'arena@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=600&q=80',
+    bio: 'Managing 16m × 8m ballistic cage rigging, LiPo rapid charging stations, and team bench pit boxes.',
+  },
+  {
+    id: 'sneha-kulkarni',
+    name: 'Sneha Kulkarni',
+    role: 'Lead Hospitality & Outstation Squad Desk',
+    department: 'Operations & Event Management',
+    category: 'logistics',
+    categoryLabel: 'HOSPITALITY LEAD',
+    phone: '+91 98189 67890',
+    email: 'hospitality@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80',
+    bio: 'Coordinating campus guest suites, hostel allotments, and 24/7 pilot airport/station transport shuttles.',
+  },
+  {
+    id: 'harsh-vardhan',
+    name: 'Harsh Vardhan',
+    role: 'Field Marshall & Emergency Recovery',
+    department: 'Robotics Society Member',
+    category: 'logistics',
+    categoryLabel: 'FIELD MARSHALL',
+    phone: '+91 97172 34561',
+    email: 'field@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80',
+    bio: 'Directing on-field cage extraction crews and 30-second rapid sphere retrieval protocols during sets.',
+  },
+
+  // 5. Public Relations, Marketing & Sponsors
+  {
+    id: 'tanvi-deshmukh',
+    name: 'Tanvi Deshmukh',
+    role: 'Head of Corporate Alliances & Sponsorships',
+    department: 'Strategic Corporate Relations',
+    category: 'marketing',
+    categoryLabel: 'SPONSORSHIP HEAD',
+    phone: '+91 98214 78901',
+    email: 'sponsorships@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
+    bio: 'Liaising with drone hardware manufacturers, avionics brands, and MeitY startup incubation delegates.',
+  },
+  {
+    id: 'rohan-bose',
+    name: 'Rohan Bose',
+    role: 'Head of Public Relations & Media Relations',
+    department: 'Mass Communication & Journalism',
+    category: 'marketing',
+    categoryLabel: 'MEDIA LEAD',
+    phone: '+91 98105 43290',
+    email: 'media@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=600&q=80',
+    bio: 'Facilitating press correspondents, live interview desks, and national news coverage distribution.',
+  },
+  {
+    id: 'meera-joshi',
+    name: 'Meera Joshi',
+    role: 'Campus Ambassador Lead',
+    department: 'Outreach & Intercollegiate Affairs',
+    category: 'marketing',
+    categoryLabel: 'AMBASSADOR LEAD',
+    phone: '+91 98912 67834',
+    email: 'ambassador@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80&fit=facearea&facepad=2',
+    bio: 'Connecting with 80+ university robotics societies and aviation clubs across India for squad registrations.',
+  },
+
+  // 6. Web Ops, Live Broadcast & Digital Infrastructure
+  {
+    id: 'aditya-nair',
+    name: 'Aditya Nair',
+    role: 'Head of Web Systems & Live Stream Ops',
+    department: 'Computer Science & Cloud Systems',
+    category: 'web',
+    categoryLabel: 'TECH HEAD',
+    phone: '+91 99532 11890',
+    email: 'tech@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+    bio: 'Architect of the GDSL registration portal, live bracket bracketology sync, and multi-angle arena feed.',
+  },
+  {
+    id: 'kavya-s',
+    name: 'Kavya S.',
+    role: 'Lead UI/UX & Esports Broadcast Designer',
+    department: 'Design & Visual Communication',
+    category: 'web',
+    categoryLabel: 'LEAD DESIGNER',
+    phone: '+91 98117 89045',
+    email: 'design@gdsl2026.org',
+    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com',
+    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80',
+    bio: 'Creator of the tournament visual identity, dynamic HUD overlays, and digital squad passes.',
+  },
+];

@@ -65,6 +65,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
                 </button>
               </li>
               <li>
+                <button onClick={() => handleNav('team')} className="hover:text-[#d0fe1d] transition-colors cursor-pointer">
+                  Our Team &amp; Secretariat
+                </button>
+              </li>
+              <li>
                 <button 
                   onClick={() => {
                     handleNav('home');
