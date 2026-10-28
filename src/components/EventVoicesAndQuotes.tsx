@@ -192,7 +192,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                   ₹1,00,000 Total Purse
                 </h3>
                 <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                  Dedicated cash prizes, custom gold &amp; silver trophies, official flight certificates, and national ranking points for all top-performing squads.
+                  Dedicated cash prizes, trophies, medals, official certificates, and national ranking points for all top-performing squads.
                 </p>
               </div>
             </Tilt3DCard>
