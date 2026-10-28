@@ -246,13 +246,26 @@ export const TEAM_MEMBERS: TeamMember[] = [
   // 5. PATRONS & FACULTY ADVISORY
   // ==========================================
   {
+    id: 'meenakshi-awasthi',
+    name: 'Dr. Meenakshi Awasthi',
+    role: 'Faculty Advisor & Mentor',
+    department: 'Galgotias University',
+    category: 'advisory',
+    categoryLabel: 'FACULTY ADVISOR',
+    phone: '+91 99118 71195',
+    email: 'awasthi.meenakshi@gmail.com',
+    linkedin: 'https://linkedin.com/in/dr-meenakshi-awasthi-59a40537',
+    image: '/assets/aistudio/meenakshi_ma_am_a53df79a.png',
+    bio: 'Distinguished faculty mentor guiding student research, autonomous engineering innovations, and academic excellence.',
+  },
+  {
     id: 'puneet-saini',
     name: 'Dr. Puneet Saini',
     role: 'Chief Patron & CEO',
     department: 'Galgotias University',
     category: 'advisory',
     categoryLabel: 'PATRON',
-    phone: '+91 98100 24901',
+    phone: '+91 98733 28878',
     email: 'puneetsaini2757@gmail.com',
     linkedin: 'https://linkedin.com/in/puneet-saini-ba7a72a9',
     image: '/assets/aistudio/puneet_sir_50b5577e.png',
