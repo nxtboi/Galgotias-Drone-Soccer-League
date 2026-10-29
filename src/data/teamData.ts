@@ -25,7 +25,7 @@ export interface TeamCategory {
 export const TEAM_CATEGORIES: TeamCategory[] = [
   {
     id: 'management',
-    label: 'Management & Secretariat',
+    label: 'Management',
     shortLabel: 'Management',
     badge: 'CORE LEADERSHIP',
     description: 'Tournament directors, operational coordinators, and collegiate secretariat steering GDSL 2026 execution.',
@@ -53,7 +53,7 @@ export const TEAM_CATEGORIES: TeamCategory[] = [
   },
   {
     id: 'advisory',
-    label: 'Patrons & Faculty Advisory',
+    label: 'Faculty Advisory',
     shortLabel: 'Advisory',
     badge: 'INSTITUTIONAL LEADERSHIP',
     description: 'Visionary leadership from Galgotias University and the Centre for Drone Intelligence & Simulation (GCDIS).',
