@@ -241,12 +241,12 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               Connect with fellow team captains, arrange practice scrimmages in the indoor cage, and receive instant weather and schedule updates.
             </p>
             <a
-              href="https://whatsapp.com"
+              href={GDSL_TOURNAMENT_INFO.whatsappCommunityLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="xotc-btn-lime inline-block px-5 py-2.5 text-xs"
             >
-              Open Pilot Community Chat
+              Open Pilot Community Chat ↗
             </a>
           </div>
         </div>
