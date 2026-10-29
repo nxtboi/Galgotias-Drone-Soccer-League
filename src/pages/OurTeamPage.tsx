@@ -251,36 +251,38 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               </div>
 
               {/* Email Channel */}
-              <div 
-                className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <a
-                  href={`mailto:${member.email}`}
+              {member.email && (
+                <div 
+                  className="flex items-center justify-between gap-2 p-2 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
-                  title="Send Email"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
-                    <Mail className="w-3 h-3 text-[#d0fe1d]" />
-                  </div>
-                  <span className="font-mono text-xs truncate tracking-wider font-semibold select-text">
-                    {member.email}
-                  </span>
-                </a>
-                <button
-                  type="button"
-                  onClick={(e) => copyToClipboard(member.email, `email-${member.id}`, e)}
-                  className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
-                  title="Copy Email"
-                >
-                  {copiedId === `email-${member.id}` ? (
-                    <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              </div>
+                  <a
+                    href={`mailto:${member.email}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors truncate flex-1"
+                    title="Send Email"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
+                      <Mail className="w-3 h-3 text-[#d0fe1d]" />
+                    </div>
+                    <span className="font-mono text-xs truncate tracking-wider font-semibold select-text">
+                      {member.email}
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={(e) => copyToClipboard(member.email!, `email-${member.id}`, e)}
+                    className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
+                    title="Copy Email"
+                  >
+                    {copiedId === `email-${member.id}` ? (
+                      <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              )}
 
               {/* Socials & Flip to Photo Bottom Button */}
               <div 

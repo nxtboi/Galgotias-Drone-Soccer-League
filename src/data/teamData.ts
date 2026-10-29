@@ -6,7 +6,7 @@ export interface TeamMember {
   category: 'management' | 'technical' | 'marketing' | 'social_media' | 'advisory';
   categoryLabel: string;
   phone: string;
-  email: string;
+  email?: string;
   linkedin?: string;
   github?: string;
   instagram?: string;
@@ -270,6 +270,18 @@ export const TEAM_MEMBERS: TeamMember[] = [
     linkedin: 'https://linkedin.com/in/puneet-saini-ba7a72a9',
     image: '/assets/aistudio/puneet_sir_50b5577e.png',
     bio: 'Visionary behind establishing North India’s largest Drone Intelligence & Simulation facility at Galgotias.',
+  },
+  {
+    id: 'paras-sharma',
+    name: 'Paras Sharma',
+    role: 'Faculty Advisor & Mentor',
+    department: 'Galgotias University',
+    category: 'advisory',
+    categoryLabel: 'FACULTY ADVISOR',
+    phone: '+91 63989 36899',
+    linkedin: 'https://www.linkedin.com/in/paras-sharma-a571a521a/',
+    image: '/assets/aistudio/paras_sir_706b87d5.png',
+    bio: 'Faculty advisor and mentor guiding student flight teams, autonomous drone integration, and engineering excellence.',
   },
   {
     id: 'nitin-gaur',
