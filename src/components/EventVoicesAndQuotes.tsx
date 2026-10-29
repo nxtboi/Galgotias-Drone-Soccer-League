@@ -53,7 +53,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
       phone: '+91 120 4370000',
       email: 'chancellor@galgotiasuniversity.edu.in',
       linkedin: 'https://www.linkedin.com/school/galgotias-university/',
-      image: '/assets/aistudio/suneet_sir_6e51059f.jpg',
+      image: '/assets/aistudio/Suneel_Galgotia__Chancellor__G-x1800_f1634cb3.webp',
       bio: 'Visionary founder and Chancellor of Galgotias University, dedicated to fostering world-class innovation, research excellence, and next-generation technology leadership.'
     }
   },
@@ -221,7 +221,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                       <img
                         src={currentMember.image}
                         alt={currentMember.name}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -445,7 +445,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                         <img
                           src={currentMember.image}
                           alt={currentMember.name}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-[#d0fe1d]/50 shrink-0"
+                          className="w-12 h-12 rounded-full object-cover object-top border-2 border-[#d0fe1d]/50 shrink-0"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src =
