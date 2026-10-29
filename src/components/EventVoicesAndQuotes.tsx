@@ -62,33 +62,6 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
     organization: "GCDIS Avionics & Scrutineering",
     category: "TECHNICAL SCRUTINEERING",
     memberId: 'devansh-tripathi'
-  },
-  {
-    id: '4',
-    quote: "When 10 caged drones clash simultaneously in mid-air at 12,000 RPM and the illuminated goal hoop flashes red, the energy in the arena is electric. This is true collegiate 3D aerial soccer.",
-    author: "Arjun Singhania",
-    role: "Overall Festival Coordinator (GDSL 2026)",
-    organization: "Galgotias Drone Soccer League 2026",
-    category: "CORE LEADERSHIP",
-    memberId: 'arjun-singhania'
-  },
-  {
-    id: '5',
-    quote: "With 10-millisecond RF telemetry tracking and precision optical goal sensors, every high-velocity aerial strike is recorded with zero latency down to the millisecond.",
-    author: "Vijay Prasad",
-    role: "Lead Electronic Referee & Telemetry Engineer",
-    organization: "GCDIS Sensors & Telemetry Lab",
-    category: "TELEMETRY & TIMING",
-    memberId: 'vijay-prasad'
-  },
-  {
-    id: '6',
-    quote: "GDSL 2026 brings together the sharpest collegiate drone pilots and leading aerospace industry sponsors for India's premier high-octane caged aerial soccer spectacle.",
-    author: "Vedanta Singh",
-    role: "Head of Corporate Alliances & Sponsorships",
-    organization: "Galgotias Strategic Alliances",
-    category: "CORPORATE ALLIANCES",
-    memberId: 'vedanta-singh'
   }
 ];
 
