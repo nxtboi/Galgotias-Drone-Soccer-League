@@ -25,6 +25,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'rules', label: 'Rules & Specs' },
+    { id: 'gallery', label: 'Gallery' },
     { id: 'team', label: 'Our Team' },
     { id: 'contact', label: 'Helpdesk' },
   ];
@@ -175,19 +176,20 @@ export const Navigation: React.FC<NavigationProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Dropdown Navigation Menu - No Scroll, All Pages Visible */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[63px] z-50 bg-[#111210]/98 backdrop-blur-2xl border-t border-white/15 p-5 sm:p-6 flex flex-col justify-between overflow-y-auto lg:hidden shadow-2xl">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between px-2 mb-3 text-[11px] font-mono text-[#d0fe1d] uppercase tracking-widest">
-              <span>GDSL 2026 DIRECTORY</span>
-              <span>DEC 08-09 · ₹1,00,000 CUP</span>
-            </div>
+        <div className="absolute top-full left-0 right-0 w-full z-50 bg-[#111210] border-t border-b border-white/20 px-4 sm:px-6 py-4 flex flex-col gap-3 lg:hidden shadow-[0_24px_60px_rgba(0,0,0,0.9)]">
+          <div className="flex items-center justify-between px-1 text-[10px] font-mono text-[#d0fe1d] uppercase tracking-widest">
+            <span>GDSL 2026 DIRECTORY</span>
+            <span>DEC 08-09 · ₹2,00,000 CUP</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full text-left px-4 py-3.5 min-h-[48px] font-orbitron font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-between border cursor-pointer ${
+                className={`w-full text-left px-3.5 py-2.5 font-orbitron font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-between border cursor-pointer ${
                   activeTab === item.id
                     ? 'bg-[#d0fe1d] text-black border-[#d0fe1d]'
                     : 'bg-[#171915] text-neutral-200 border-white/10 hover:border-[#d0fe1d]/50'
@@ -199,21 +201,33 @@ export const Navigation: React.FC<NavigationProps> = ({
             ))}
 
             {isAdminLoggedIn && (
-              <div className="space-y-1.5 pt-2">
-                <button
-                  onClick={() => handleNavClick('admin')}
-                  className="w-full text-left px-4 py-3 min-h-[48px] font-orbitron font-bold text-xs tracking-wider uppercase bg-[#171915] text-[#d0fe1d] border border-[#d0fe1d]/50 flex items-center justify-between"
-                >
-                  <span>Tournament Admin Hub</span>
-                  <span>→</span>
-                </button>
-              </div>
+              <button
+                onClick={() => handleNavClick('admin')}
+                className="w-full text-left px-3.5 py-2.5 font-orbitron font-bold text-xs tracking-wider uppercase bg-[#171915] text-[#d0fe1d] border border-[#d0fe1d]/50 flex items-center justify-between cursor-pointer"
+              >
+                <span>Tournament Admin Hub</span>
+                <span>→</span>
+              </button>
+            )}
+
+            {loggedInTeam && (
+              <button
+                onClick={() => handleNavClick('dashboard')}
+                className="w-full text-left px-3.5 py-2.5 font-orbitron font-bold text-xs tracking-wider uppercase bg-[#171915] text-[#d0fe1d] border border-[#d0fe1d]/50 flex items-center justify-between cursor-pointer"
+              >
+                <span>{loggedInTeam.teamName.split(' ')[0]} Squad Hub</span>
+                <span>→</span>
+              </button>
             )}
 
             {!loggedInTeam && !isAdminLoggedIn && (
               <button
                 onClick={() => handleNavClick('login')}
-                className="w-full text-left px-4 py-3.5 min-h-[48px] font-orbitron font-bold text-xs tracking-wider uppercase bg-[#171915] text-white border border-white/15 flex items-center justify-between"
+                className={`w-full text-left px-3.5 py-2.5 font-orbitron font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-between border cursor-pointer ${
+                  activeTab === 'login'
+                    ? 'bg-[#d0fe1d] text-black border-[#d0fe1d]'
+                    : 'bg-[#171915] text-white border-white/15 hover:border-[#d0fe1d]/50'
+                }`}
               >
                 <span>Squad &amp; Admin Portal Login</span>
                 <span className="text-[#d0fe1d]">→</span>
@@ -221,22 +235,22 @@ export const Navigation: React.FC<NavigationProps> = ({
             )}
           </div>
 
-          <div className="pt-5 border-t border-white/15 space-y-3">
+          <div className="pt-2.5 border-t border-white/15 flex flex-col sm:flex-row gap-2">
             {onOpenShare && (
               <button
                 onClick={() => {
                   onOpenShare();
                   setMobileMenuOpen(false);
                 }}
-                className="xotc-btn-outline w-full py-3 min-h-[46px] text-xs flex items-center justify-center gap-2 cursor-pointer"
+                className="xotc-btn-outline w-full py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>SHARE EVENT ON SOCIAL MEDIA</span>
+                <span>SHARE EVENT</span>
               </button>
             )}
 
             <button
               onClick={() => handleNavClick('register')}
-              className="xotc-btn-lime w-full py-3.5 min-h-[48px] text-xs flex items-center justify-center gap-2 cursor-pointer"
+              className="xotc-btn-lime w-full py-2.5 text-xs flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>REGISTER SQUAD (D-20 &amp; D-40 POOLS)</span>
             </button>

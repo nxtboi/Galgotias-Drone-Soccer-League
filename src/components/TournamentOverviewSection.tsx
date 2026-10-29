@@ -37,7 +37,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
             About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence & Simulation (GCDIS)</span>
           </h2>
 
-          <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans max-w-4xl text-justify">
+          <p className="text-neutral-300 text-base sm:text-lg md:text-xl leading-relaxed font-sans max-w-4xl text-justify">
             The Galgotias Centre for Drone Intelligence & Simulation (GCDIS) stands as a premier hub of innovation, research, and training dedicated to advancing the frontiers of unmanned aerial systems and intelligent flight technologies. Established at Galgotias University, the Centre embodies the institution’s vision to create a transformative platform for nurturing next generation engineers, innovators, and entrepreneurs in the field of drones and autonomous aerial systems.
           </p>
         </section>
@@ -56,7 +56,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 </h2>
               </ParallaxDepthLayer>
               <ParallaxDepthLayer speed={-0.12} translateZ={16} className="lg:col-span-6 lg:pt-6">
-                <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-sans text-justify">
+                <p className="text-neutral-300 text-base sm:text-lg md:text-xl leading-relaxed font-sans text-justify">
                   Drone Soccer is a game in which 3-5 players from each team control the drone in the shape of a soccer ball to score in a round goal of the opponent team inside a Netted play Zone called the Arena. Two teams of five players compete in a netted arena. Roles include a designated Striker (the only drone allowed to score points by flying through the opponent's suspended hoop) alongside blockers, midfielders, and defenders
                 </p>
               </ParallaxDepthLayer>
