@@ -1,7 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Quote, Award, ChevronLeft, ChevronRight, ShieldCheck, Ticket } from 'lucide-react';
+import { 
+  Quote, 
+  Award, 
+  ChevronLeft, 
+  ChevronRight, 
+  ShieldCheck, 
+  Ticket,
+  Phone,
+  Mail,
+  Copy,
+  Check,
+  Linkedin,
+  Instagram,
+  Github,
+  RotateCw,
+  RotateCcw
+} from 'lucide-react';
 import { Parallax3DSection, Tilt3DCard } from './Parallax3DSection';
+import { TEAM_MEMBERS, TeamMember } from '../data/teamData';
 
 export interface EventVoicesAndQuotesProps {
   onRegisterClick?: () => void;
@@ -15,55 +32,111 @@ interface TestimonialQuote {
   role: string;
   organization: string;
   category: string;
+  memberId: string;
 }
 
 export const EVENT_QUOTES: TestimonialQuote[] = [
   {
     id: '1',
     quote: "Galgotias Drone Soccer League is engineered to push the boundaries of young mind robotics, high-speed telemetry, and tactical teamwork. It is where classroom engineering translates into real stadium glory.",
-    author: "GCDIS Secretariat & League Leadership",
-    role: "Patron & Event Organizer",
-    organization: "Galgotias Centre for Drone Intelligence & Simulation",
-    category: "LEADERSHIP KEYNOTE"
+    author: "Dr. Meenakshi Awasthi",
+    role: "Faculty Advisor & Mentor",
+    organization: "Galgotias University",
+    category: "FACULTY ADVISOR",
+    memberId: 'meenakshi-awasthi'
   },
   {
     id: '2',
     quote: "Inside the 16-meter ballistic netting cage at 50 km/h, there are no second chances. Every 10-millisecond RC radio command and carbon sphere collision test pilot instincts to their absolute limit.",
-    author: "GCDIS Senior Technical Delegate",
-    role: "Head of Technical Scrutineering",
-    organization: "GCDIS Drone Soccer Standards",
-    category: "TECHNICAL DELEGATE"
+    author: "Dr. Puneet Saini",
+    role: "Faculty Advisor & Mentor",
+    organization: "Galgotias Centre for Drone Intelligence & Simulation",
+    category: "FACULTY ADVISOR",
+    memberId: 'puneet-saini'
   },
   {
     id: '3',
-    quote: "When 10 caged drones clash simultaneously in mid-air at 12,000 RPM and the illuminated goal hoop flashes red, the energy in the arena is electric. This is true 3D aerial soccer.",
-    author: "Captain A. Sharma",
-    role: "Reigning Striker Pilot",
-    organization: "Delhi NCR Flight Squad (GDSL Finalist)",
-    category: "SQUAD CAPTAIN"
+    quote: "Scrutineering is where championship integrity is won. Every 400mm and 200mm protective sphere, battery fail-safe cutoff, and frequency hopping channel is rigorously validated before launch.",
+    author: "Devansh Tripathi",
+    role: "Head of Technical Scrutineering",
+    organization: "GCDIS Avionics & Scrutineering",
+    category: "TECHNICAL SCRUTINEERING",
+    memberId: 'devansh-tripathi'
   },
   {
     id: '4',
-    quote: "A groundbreaking national championship elevating student engineers into high-speed e-sports athletes. GDSL 2026 sets the standard for university robotics competitions nationwide.",
-    author: "National Tech & Robotics Journal",
-    role: "Featured Press Review",
-    organization: "Tech & Aerospace India (Oct 2026 Issue)",
-    category: "MEDIA ENDORSEMENT"
+    quote: "When 10 caged drones clash simultaneously in mid-air at 12,000 RPM and the illuminated goal hoop flashes red, the energy in the arena is electric. This is true collegiate 3D aerial soccer.",
+    author: "Arjun Singhania",
+    role: "Overall Festival Coordinator (GDSL 2026)",
+    organization: "Galgotias Drone Soccer League 2026",
+    category: "CORE LEADERSHIP",
+    memberId: 'arjun-singhania'
+  },
+  {
+    id: '5',
+    quote: "With 10-millisecond RF telemetry tracking and precision optical goal sensors, every high-velocity aerial strike is recorded with zero latency down to the millisecond.",
+    author: "Vijay Prasad",
+    role: "Lead Electronic Referee & Telemetry Engineer",
+    organization: "GCDIS Sensors & Telemetry Lab",
+    category: "TELEMETRY & TIMING",
+    memberId: 'vijay-prasad'
+  },
+  {
+    id: '6',
+    quote: "GDSL 2026 brings together the sharpest collegiate drone pilots and leading aerospace industry sponsors for India's premier high-octane caged aerial soccer spectacle.",
+    author: "Vedanta Singh",
+    role: "Head of Corporate Alliances & Sponsorships",
+    organization: "Galgotias Strategic Alliances",
+    category: "CORPORATE ALLIANCES",
+    memberId: 'vedanta-singh'
   }
 ];
 
 export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(0);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Automatically advance both the team member card and quote card every 2 seconds
+  useEffect(() => {
+    if (isPaused || isCardFlipped) return;
+
+    const interval = setInterval(() => {
+      setIsCardFlipped(false);
+      setActiveQuoteIndex((prev) => (prev + 1) % EVENT_QUOTES.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isPaused, isCardFlipped]);
+
+  const copyToClipboard = (text: string, id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
+  };
 
   const handleNext = () => {
+    setIsCardFlipped(false);
     setActiveQuoteIndex((prev) => (prev + 1) % EVENT_QUOTES.length);
   };
 
   const handlePrev = () => {
+    setIsCardFlipped(false);
     setActiveQuoteIndex((prev) => (prev - 1 + EVENT_QUOTES.length) % EVENT_QUOTES.length);
   };
 
+  const handleSelectQuote = (idx: number) => {
+    setIsCardFlipped(false);
+    setActiveQuoteIndex(idx);
+  };
+
   const currentQuote = EVENT_QUOTES[activeQuoteIndex];
+  const currentMember: TeamMember =
+    TEAM_MEMBERS.find((m) => m.id === currentQuote.memberId) || TEAM_MEMBERS[0];
 
   return (
     <section className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-[#141612] text-white overflow-hidden border-y border-white/15">
@@ -83,89 +156,355 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
             <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
               VOICES OF THE <span className="text-[#d0fe1d]">LEAGUE</span>
             </h2>
-
-            <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">
-              Statements from tournament organizers, GCDIS technical scrutineers, team captains, and press correspondents.
-            </p>
           </div>
 
-          {/* Featured Interactive Quote Card (XOTC Chamfered Frame + 3D Tilt) */}
-          <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="max-w-4xl mx-auto">
-            <div className="relative bg-[#111210] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-12 shadow-[0_24px_60px_rgba(0,0,0,0.65)] text-left overflow-hidden">
-              <Quote className="absolute top-6 right-6 w-20 h-20 text-[#d0fe1d]/10 pointer-events-none" />
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentQuote.id}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -14 }}
-                  transition={{ duration: 0.28 }}
-                  className="space-y-6"
+          {/* Interactive Division: Team Member Card on Left + Quote Division on Right */}
+          <div 
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-7xl w-full mx-auto"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {/* LEFT: Card like ones in our team page */}
+            <div className="lg:col-span-4 flex flex-col justify-center">
+              <div className="techkriti-card-perspective h-[480px] lg:h-[500px] w-full max-w-sm mx-auto">
+                <div
+                  className={`techkriti-card-inner ${
+                    isCardFlipped ? 'is-flipped' : ''
+                  }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#d0fe1d]">
-                      {currentQuote.category}
-                    </span>
-                    <span className="text-xs font-mono text-neutral-400">
-                      0{activeQuoteIndex + 1} / 0{EVENT_QUOTES.length}
-                    </span>
+                  {/* FRONT FACE: Portrait & Identity */}
+                  <div
+                    className={`techkriti-card-face bg-[#141612] border border-white/15 hover:border-[#d0fe1d]/70 flex flex-col justify-between shadow-xl transition-all duration-300 group overflow-hidden cursor-pointer select-none ${
+                      isCardFlipped ? 'pointer-events-none' : 'pointer-events-auto'
+                    }`}
+                    onClick={() => setIsCardFlipped(!isCardFlipped)}
+                    role="button"
+                    tabIndex={isCardFlipped ? -1 : 0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setIsCardFlipped(!isCardFlipped);
+                      }
+                    }}
+                    aria-label={`${currentMember.name}. Click to view contact details`}
+                  >
+                    {/* Top Bar */}
+                    <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/85 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
+                        {currentMember.categoryLabel}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsCardFlipped(!isCardFlipped);
+                        }}
+                        className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] text-[10px] font-rajdhani font-bold uppercase tracking-wider transition-all duration-200 shadow-md cursor-pointer"
+                        title="Flip to contacts"
+                      >
+                        <span>Contacts</span>
+                        <RotateCw className="w-3 h-3 text-[#d0fe1d] group-hover:rotate-180 transition-transform duration-500" />
+                      </button>
+                    </div>
+
+                    {/* Portrait Image with Tech Frame */}
+                    <div className="relative w-full h-full overflow-hidden bg-neutral-900">
+                      <img
+                        src={currentMember.image}
+                        alt={currentMember.name}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src =
+                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/40 to-black/30 pointer-events-none" />
+                    </div>
+
+                    {/* Front Bottom Card Info */}
+                    <div className="absolute bottom-0 inset-x-0 z-20 p-5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-10 text-left space-y-3">
+                      <div className="space-y-1">
+                        <h3 className="font-orbitron font-bold text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-tight">
+                          {currentMember.name}
+                        </h3>
+                        <div className="font-rajdhani text-xs sm:text-sm font-bold text-[#d0fe1d] tracking-wide uppercase">
+                          {currentMember.role}
+                        </div>
+                        <div className="text-[11px] text-neutral-400 font-sans truncate">
+                          {currentMember.department}
+                        </div>
+                      </div>
+
+                      {/* Flip Prompt */}
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-neutral-400 text-[11px] font-mono group-hover:text-white transition-colors">
+                        <span className="flex items-center gap-1.5 text-neutral-400 group-hover:text-[#d0fe1d] transition-colors">
+                          <RotateCw className="w-3 h-3 text-[#d0fe1d]" />
+                          <span>Click to flip card</span>
+                        </span>
+                        <span className="text-[10px] text-neutral-500 font-mono">
+                          DIRECT COMM ↵
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <blockquote className="text-lg sm:text-2xl md:text-3xl font-sans font-bold leading-relaxed text-white">
-                    &ldquo;{currentQuote.quote}&rdquo;
-                  </blockquote>
+                  {/* BACK FACE: Direct Contact Channels & Bio */}
+                  <div
+                    className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
+                      isCardFlipped ? 'pointer-events-auto' : 'pointer-events-none'
+                    }`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
 
-                  <div className="flex items-center gap-4 pt-4 border-t border-white/15">
-                    <div className="w-11 h-11 xotc-icon-box flex items-center justify-center font-orbitron font-black text-sm shrink-0">
-                      0{activeQuoteIndex + 1}
-                    </div>
-                    <div>
-                      <div className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
-                        {currentQuote.author}
+                    {/* Back Header */}
+                    <div className="relative z-10 flex items-start justify-between gap-3 border-b border-white/15 pb-3">
+                      <div className="space-y-0.5">
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#d0fe1d]">
+                          {currentMember.categoryLabel}
+                        </span>
+                        <h4 className="font-orbitron font-bold text-base text-white leading-tight">
+                          {currentMember.name}
+                        </h4>
+                        <p className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase">
+                          {currentMember.role}
+                        </p>
                       </div>
-                      <div className="text-xs font-mono text-[#d0fe1d]">
-                        {currentQuote.role} · <span className="text-neutral-400">{currentQuote.organization}</span>
+
+                      {/* Flip back to photo */}
+                      <button
+                        type="button"
+                        onClick={() => setIsCardFlipped(false)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer shrink-0 text-[10px] font-rajdhani font-bold uppercase tracking-wider"
+                        title="Flip back to portrait photo"
+                      >
+                        <span>Photo</span>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Back Center: Scope & Bio */}
+                    <div className="relative z-10 space-y-3 py-2 select-text">
+                      <div className="text-[11px] text-neutral-400 font-sans leading-relaxed">
+                        <span className="text-neutral-500 block text-[10px] font-mono uppercase tracking-wider">
+                          Department / Unit:
+                        </span>
+                        <span className="text-white font-medium select-text">
+                          {currentMember.department}
+                        </span>
+                      </div>
+
+                      {currentMember.bio && (
+                        <div className="p-2.5 bg-[#0e100d]/90 border border-white/10 rounded-xl select-text">
+                          <span className="text-[10px] font-mono text-[#d0fe1d] uppercase tracking-wider block mb-1">
+                            Operational Scope:
+                          </span>
+                          <p className="text-[11px] text-neutral-300 font-sans leading-relaxed select-text">
+                            {currentMember.bio}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Back Contacts List */}
+                    <div className="relative z-10 space-y-2 pt-2 border-t border-white/15">
+                      {/* Phone */}
+                      <div className="flex items-center justify-between gap-2 p-1.5 bg-[#0e100d] border border-white/10 rounded-lg">
+                        <a
+                          href={`tel:${currentMember.phone.replace(/[^0-9+]/g, '')}`}
+                          className="flex items-center gap-2 text-xs font-mono text-neutral-300 hover:text-[#d0fe1d] transition-colors truncate"
+                        >
+                          <Phone className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
+                          <span className="truncate">{currentMember.phone}</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={(e) =>
+                            copyToClipboard(currentMember.phone, `phone-${currentMember.id}`, e)
+                          }
+                          className="p-1 text-neutral-400 hover:text-white transition-colors shrink-0 cursor-pointer"
+                          title="Copy phone"
+                        >
+                          {copiedId === `phone-${currentMember.id}` ? (
+                            <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Email */}
+                      {currentMember.email && (
+                        <div className="flex items-center justify-between gap-2 p-1.5 bg-[#0e100d] border border-white/10 rounded-lg">
+                          <a
+                            href={`mailto:${currentMember.email}`}
+                            className="flex items-center gap-2 text-xs font-mono text-neutral-300 hover:text-[#d0fe1d] transition-colors truncate"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
+                            <span className="truncate">{currentMember.email}</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              copyToClipboard(currentMember.email!, `email-${currentMember.id}`, e)
+                            }
+                            className="p-1 text-neutral-400 hover:text-white transition-colors shrink-0 cursor-pointer"
+                            title="Copy email"
+                          >
+                            {copiedId === `email-${currentMember.id}` ? (
+                              <Check className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Socials */}
+                      <div className="flex items-center gap-2 pt-1">
+                        {currentMember.linkedin && (
+                          <a
+                            href={currentMember.linkedin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 bg-[#0e100d] border border-white/10 hover:border-[#d0fe1d] text-neutral-400 hover:text-[#d0fe1d] rounded-lg transition-colors cursor-pointer"
+                            title="LinkedIn Profile"
+                          >
+                            <Linkedin className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {currentMember.github && (
+                          <a
+                            href={currentMember.github}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 bg-[#0e100d] border border-white/10 hover:border-[#d0fe1d] text-neutral-400 hover:text-[#d0fe1d] rounded-lg transition-colors cursor-pointer"
+                            title="GitHub Profile"
+                          >
+                            <Github className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {currentMember.instagram && (
+                          <a
+                            href={currentMember.instagram}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 bg-[#0e100d] border border-white/10 hover:border-[#d0fe1d] text-neutral-400 hover:text-[#d0fe1d] rounded-lg transition-colors cursor-pointer"
+                            title="Instagram Profile"
+                          >
+                            <Instagram className="w-3.5 h-3.5" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Navigation Controls */}
-              <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
-                <div className="flex items-center gap-2">
-                  {EVENT_QUOTES.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveQuoteIndex(idx)}
-                      className={`h-1.5 transition-all cursor-pointer ${
-                        activeQuoteIndex === idx ? 'w-8 bg-[#d0fe1d]' : 'w-2 bg-white/25 hover:bg-white/50'
-                      }`}
-                      aria-label={`Jump to quote ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handlePrev}
-                    className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
-                    aria-label="Previous quote"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
-                    aria-label="Next quote"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             </div>
-          </Tilt3DCard>
+
+            {/* RIGHT: Featured Interactive Quote Card (This division) */}
+            <div className="lg:col-span-8 flex flex-col justify-center w-full">
+              <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="w-full h-full">
+                <div className="relative w-full bg-[#111210] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-12 shadow-[0_24px_60px_rgba(0,0,0,0.65)] text-left overflow-hidden h-full flex flex-col justify-between">
+                  <Quote className="absolute top-6 right-6 w-20 h-20 text-[#d0fe1d]/10 pointer-events-none" />
+
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentQuote.id}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -14 }}
+                      transition={{ duration: 0.28 }}
+                      className="space-y-6"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#d0fe1d]">
+                          {currentQuote.category}
+                        </span>
+                        <span className="text-xs font-mono text-neutral-400">
+                          0{activeQuoteIndex + 1} / 0{EVENT_QUOTES.length}
+                        </span>
+                      </div>
+
+                      <blockquote className="text-base sm:text-xl md:text-2xl font-sans font-bold leading-relaxed text-white">
+                        &ldquo;{currentQuote.quote}&rdquo;
+                      </blockquote>
+
+                      <div className="flex items-center gap-4 pt-4 border-t border-white/15">
+                        <img
+                          src={currentMember.image}
+                          alt={currentMember.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-[#d0fe1d]/50 shrink-0"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+                          }}
+                        />
+                        <div>
+                          <div className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                            {currentQuote.author}
+                          </div>
+                          <div className="text-xs font-mono text-[#d0fe1d]">
+                            {currentQuote.role} · <span className="text-neutral-400">{currentQuote.organization}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Navigation Controls */}
+                  <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      {EVENT_QUOTES.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSelectQuote(idx)}
+                          className={`h-1.5 transition-all cursor-pointer relative overflow-hidden rounded-full ${
+                            activeQuoteIndex === idx ? 'w-10 bg-white/20' : 'w-2 bg-white/25 hover:bg-white/50'
+                          }`}
+                          aria-label={`Jump to quote ${idx + 1}`}
+                        >
+                          {activeQuoteIndex === idx && !isPaused && !isCardFlipped && (
+                            <motion.span
+                              key={`progress-${activeQuoteIndex}`}
+                              initial={{ width: 0 }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: 2, ease: 'linear' }}
+                              className="absolute inset-0 bg-[#d0fe1d]"
+                            />
+                          )}
+                          {activeQuoteIndex === idx && (isPaused || isCardFlipped) && (
+                            <span className="absolute inset-0 bg-[#d0fe1d]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handlePrev}
+                        className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                        aria-label="Previous quote"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                        aria-label="Next quote"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Tilt3DCard>
+            </div>
+          </div>
 
           {/* 3-Pillar Event Value Cards with Staggered 3D Parallax */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left">
