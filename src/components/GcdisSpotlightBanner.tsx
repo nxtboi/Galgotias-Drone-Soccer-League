@@ -35,7 +35,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                 onClick={() => handleJump('rules')}
                 className="xotc-btn-outline px-6 py-3.5 text-xs text-center justify-center flex items-center cursor-pointer"
               >
-                GCDIS 5TH REVISION RULES
+                GDSL Rules
               </button>
               <button
                 onClick={() => handleJump('register')}

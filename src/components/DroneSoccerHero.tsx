@@ -65,11 +65,11 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   };
 
   return (
-    <div className="relative w-full pt-1 sm:pt-2 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-12 text-white">
-      <div className="max-w-7xl mx-auto">
-        {/* XOTC Chamfered Technical Hero Frame - Completely visible video presentation */}
+    <div className="relative w-full flex-1 flex flex-col pt-1 sm:pt-1.5 pb-2 sm:pb-3 px-2 sm:px-4 lg:px-6 text-white">
+      <div className="w-full flex-1 flex flex-col mx-auto">
+        {/* XOTC Chamfered Technical Hero Frame - Full-screen adaptive video presentation */}
         <div
-          className="relative w-full min-h-[580px] sm:min-h-[660px] md:min-h-[720px] lg:min-h-[calc(100vh-6.5rem)] max-h-[960px] border border-white/25 bg-black p-4 sm:p-7 lg:p-10 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
+          className="relative w-full flex-1 min-h-[calc(100dvh-4.25rem)] sm:min-h-[calc(100dvh-4.75rem)] border border-white/25 bg-black p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
         >
           {/* Max Quality Drone Soccer Video - Seamless Continuous Looping, No Controls, No Reloading */}
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 select-none">

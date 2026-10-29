@@ -119,7 +119,7 @@ export function App() {
       {isHomePage && (
         <div className="relative z-20">
           {/* Hero Section: Real Drone Soccer Broadcast Arena & Official Tournament Presentation */}
-          <section id="hero" className="relative w-full pt-16 flex flex-col justify-between">
+          <section id="hero" className="relative w-full min-h-screen min-h-[100dvh] pt-14 sm:pt-16 flex flex-col justify-between">
             <DroneSoccerHero
               onRegisterClick={() => handleSelectTab('register')}
               onBracketClick={() => handleSelectTab('bracket')}

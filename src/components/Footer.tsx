@@ -45,16 +45,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNav('practice')} className="hover:text-[#d0fe1d] transition-colors font-semibold text-white cursor-pointer">
-                  Practice Arena (3D)
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleNav('bracket')} className="hover:text-[#d0fe1d] transition-colors cursor-pointer">
-                  Bracket &amp; Fixtures
-                </button>
-              </li>
-              <li>
                 <button onClick={() => handleNav('rules')} className="hover:text-[#d0fe1d] transition-colors cursor-pointer">
                   Rules &amp; Drone Specs
                 </button>
@@ -130,14 +120,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
                 REGISTER NOW
               </button>
 
-              {onOpenShare && (
-                <button
-                  onClick={onOpenShare}
-                  className="xotc-btn-outline w-full py-2.5 px-4 text-[11px] text-center flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <span>SHARE EVENT</span>
-                </button>
-              )}
+              <button
+                onClick={() => handleNav('contact')}
+                className="xotc-btn-outline w-full py-2.5 px-4 text-[11px] text-center flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>HelpDesk</span>
+              </button>
             </div>
           </div>
         </div>
