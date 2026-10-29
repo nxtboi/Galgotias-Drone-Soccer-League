@@ -16,7 +16,7 @@ export const SPONSOR_LOGOS: SponsorLogo[] = [
   {
     id: 'gcdis-galgotias',
     name: 'Galgotias University & GCDIS',
-    logo: '/sponsors/galgotias-gcdis.svg',
+    logo: '/assets/aistudio/GCDIS_HD_Logo_aeb80099.png',
   },
   {
     id: 'gcdis-intl',
