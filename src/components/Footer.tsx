@@ -23,8 +23,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
             <div className="flex items-center gap-3">
               <GcdisLogo size="md" showWordmark={true} />
             </div>
-            <p className="text-xs text-neutral-400 font-sans leading-relaxed max-w-md">
-              Galgotias Drone Soccer League (GDSL 2026): India&apos;s premier national intercollegiate 3D aerial robotics e-sport championship, organized by GCDIS at Galgotias University under FAI Class F9A regulations.
+            <p className="text-xs text-neutral-400 font-sans leading-relaxed max-w-md text-justify">
+              Galgotias Drone Soccer League (GDSL 2026): India&apos;s premier national intercollegiate aerial robotics sport championship, organized by GCDIS at Galgotias University under GDSL Class D-20 and D-40 regulations.
             </p>
             <div className="text-[11px] font-mono text-neutral-400 space-y-1">
               <div><span className="text-[#d0fe1d]">VENUE:</span> Galgotias University Indoor Arena, Greater Noida, UP</div>

@@ -1,49 +1,9 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { Award, Sparkles, Building2, Radio, Trophy, ShieldCheck, Mail, ArrowRight } from 'lucide-react';
+import { Award, Building2, Mail, ArrowRight } from 'lucide-react';
 
 export interface SponsorsDivisionSectionProps {
   onNavigate?: (tab: string) => void;
 }
-
-export interface SponsorTierPreview {
-  id: string;
-  category: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-}
-
-const UPCOMING_TIERS: SponsorTierPreview[] = [
-  {
-    id: 'tier-title',
-    category: 'TIER 01',
-    label: 'Title Sponsor',
-    icon: Trophy,
-    description: 'Headline branding across the central high-voltage arena cage & official broadcast.',
-  },
-  {
-    id: 'tier-avionics',
-    category: 'TIER 02',
-    label: 'Avionics & Tech Partner',
-    icon: Radio,
-    description: 'Providing official flight controllers, telemetry stations, and battery charging hubs.',
-  },
-  {
-    id: 'tier-broadcast',
-    category: 'TIER 03',
-    label: 'Arena Broadcast Partner',
-    icon: Sparkles,
-    description: 'Live multicam streaming, pilot FPV HUD graphics, and nationwide esports coverage.',
-  },
-  {
-    id: 'tier-ecosystem',
-    category: 'TIER 04',
-    label: 'Institutional Partner',
-    icon: ShieldCheck,
-    description: 'Aerospace innovation grants, university research alliances, and pilot certifications.',
-  },
-];
 
 export const SponsorsDivisionSection: React.FC<SponsorsDivisionSectionProps> = ({ onNavigate }) => {
   return (
@@ -91,55 +51,10 @@ export const SponsorsDivisionSection: React.FC<SponsorsDivisionSectionProps> = (
             </div>
 
             {/* Prominent Coming Soon Heading */}
-            <div className="space-y-2">
+            <div className="space-y-2 py-4">
               <h3 className="text-4xl sm:text-6xl md:text-7xl font-orbitron font-black text-white tracking-widest uppercase">
                 COMING SOON<span className="text-[#d0fe1d]">...</span>
               </h3>
-              <p className="text-neutral-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-rajdhani font-medium">
-                Official tournament sponsors, aerospace industry partners, and tech booth exhibitors for Galgotias Drone Soccer League 2026 are currently being finalized and will be unveiled soon.
-              </p>
-            </div>
-
-            {/* Tier Teaser Slots */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 text-left">
-              {UPCOMING_TIERS.map((tier) => {
-                const IconComponent = tier.icon;
-                return (
-                  <motion.div
-                    key={tier.id}
-                    whileHover={{ y: -3 }}
-                    transition={{ duration: 0.2 }}
-                    className="relative p-5 rounded-xl bg-[#0e100d]/90 border border-white/10 hover:border-[#d0fe1d]/50 transition-colors group flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold text-[#d0fe1d] uppercase tracking-widest">
-                          {tier.category}
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/70 group-hover:text-[#d0fe1d] group-hover:bg-[#d0fe1d]/10 transition-colors">
-                          <IconComponent className="w-4 h-4" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-orbitron font-bold text-sm text-white group-hover:text-[#d0fe1d] transition-colors">
-                          {tier.label}
-                        </h4>
-                        <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-rajdhani font-medium">
-                          {tier.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                      <span className="text-[11px] font-orbitron font-black text-[#d0fe1d] tracking-wider uppercase">
-                        Coming soon...
-                      </span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#d0fe1d]/80 animate-pulse" />
-                    </div>
-                  </motion.div>
-                );
-              })}
             </div>
 
             {/* Sponsorship Inquiries & Partnership Deck CTA */}
