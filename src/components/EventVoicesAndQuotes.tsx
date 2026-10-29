@@ -53,7 +53,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
       phone: '+91 120 4370000',
       email: 'chancellor@galgotiasuniversity.edu.in',
       linkedin: 'https://www.linkedin.com/school/galgotias-university/',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+      image: '/assets/aistudio/suneet_sir_6e51059f.jpg',
       bio: 'Visionary founder and Chancellor of Galgotias University, dedicated to fostering world-class innovation, research excellence, and next-generation technology leadership.'
     }
   },
@@ -74,7 +74,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
       phone: '+91 120 4370000',
       email: 'ceo@galgotiasuniversity.edu.in',
       linkedin: 'https://www.linkedin.com/school/galgotias-university/',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+      image: '/assets/aistudio/dhruv_sir_26c46d2d.jpg',
       bio: 'Chief Executive Officer spearheading global academic alliances, frontier technology hubs, and futuristic robotics and aerial sports ecosystems at Galgotias University.'
     }
   },
