@@ -18,7 +18,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { Parallax3DSection, Tilt3DCard } from './Parallax3DSection';
-import { TEAM_MEMBERS, TeamMember } from '../data/teamData';
+import { TeamMember } from '../data/teamData';
 
 export interface EventVoicesAndQuotesProps {
   onRegisterClick?: () => void;
@@ -32,36 +32,72 @@ interface TestimonialQuote {
   role: string;
   organization: string;
   category: string;
-  memberId: string;
+  member: TeamMember;
 }
 
 export const EVENT_QUOTES: TestimonialQuote[] = [
   {
     id: '1',
     quote: "Galgotias Drone Soccer League is engineered to push the boundaries of young mind robotics, high-speed telemetry, and tactical teamwork. It is where classroom engineering translates into real stadium glory.",
-    author: "Dr. Meenakshi Awasthi",
-    role: "Faculty Advisor & Mentor",
+    author: "Shri. Suneel Galgotia",
+    role: "Chancellor",
     organization: "Galgotias University",
-    category: "FACULTY ADVISOR",
-    memberId: 'meenakshi-awasthi'
+    category: "CHANCELLOR",
+    member: {
+      id: 'suneel-galgotia',
+      name: 'Shri. Suneel Galgotia',
+      role: 'Chancellor',
+      department: 'Galgotias University',
+      category: 'advisory',
+      categoryLabel: 'CHANCELLOR',
+      phone: '+91 120 4370000',
+      email: 'chancellor@galgotiasuniversity.edu.in',
+      linkedin: 'https://www.linkedin.com/school/galgotias-university/',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+      bio: 'Visionary founder and Chancellor of Galgotias University, dedicated to fostering world-class innovation, research excellence, and next-generation technology leadership.'
+    }
   },
   {
     id: '2',
     quote: "Inside the 16-meter ballistic netting cage at 50 km/h, there are no second chances. Every 10-millisecond RC radio command and carbon sphere collision test pilot instincts to their absolute limit.",
-    author: "Dr. Puneet Saini",
-    role: "Faculty Advisor & Mentor",
-    organization: "Galgotias Centre for Drone Intelligence & Simulation",
-    category: "FACULTY ADVISOR",
-    memberId: 'puneet-saini'
+    author: "Dr. Dhruv Galgotia",
+    role: "CEO",
+    organization: "Galgotias University",
+    category: "CEO",
+    member: {
+      id: 'dhruv-galgotia',
+      name: 'Dr. Dhruv Galgotia',
+      role: 'CEO',
+      department: 'Galgotias University',
+      category: 'advisory',
+      categoryLabel: 'CEO',
+      phone: '+91 120 4370000',
+      email: 'ceo@galgotiasuniversity.edu.in',
+      linkedin: 'https://www.linkedin.com/school/galgotias-university/',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+      bio: 'Chief Executive Officer spearheading global academic alliances, frontier technology hubs, and futuristic robotics and aerial sports ecosystems at Galgotias University.'
+    }
   },
   {
     id: '3',
     quote: "Scrutineering is where championship integrity is won. Every 400mm and 200mm protective sphere, battery fail-safe cutoff, and frequency hopping channel is rigorously validated before launch.",
-    author: "Devansh Tripathi",
-    role: "Head of Technical Scrutineering",
-    organization: "GCDIS Avionics & Scrutineering",
-    category: "TECHNICAL SCRUTINEERING",
-    memberId: 'devansh-tripathi'
+    author: "Aradhana Galgotia",
+    role: "Director",
+    organization: "Galgotias University",
+    category: "DIRECTOR",
+    member: {
+      id: 'aradhana-galgotia',
+      name: 'Aradhana Galgotia',
+      role: 'Director',
+      department: 'Galgotias University',
+      category: 'advisory',
+      categoryLabel: 'DIRECTOR',
+      phone: '+91 120 4370000',
+      email: 'director@galgotiasuniversity.edu.in',
+      linkedin: 'https://www.linkedin.com/school/galgotias-university/',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+      bio: 'Director at Galgotias University driving institutional excellence, student empowerment, and national-scale collegiate innovation championships.'
+    }
   }
 ];
 
@@ -108,8 +144,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
   };
 
   const currentQuote = EVENT_QUOTES[activeQuoteIndex];
-  const currentMember: TeamMember =
-    TEAM_MEMBERS.find((m) => m.id === currentQuote.memberId) || TEAM_MEMBERS[0];
+  const currentMember: TeamMember = currentQuote.member;
 
   return (
     <section className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-[#141612] text-white overflow-hidden border-y border-white/15">

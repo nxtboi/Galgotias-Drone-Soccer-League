@@ -135,19 +135,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
           <div>
             GDSL © 2026 ALL RIGHTS RESERVED · GCDIS GALGOTIAS UNIVERSITY
           </div>
-
-          <div className="flex items-center gap-6">
-            <span className="text-[#d0fe1d] font-bold">FAI CLASS F9A RECOGNISED</span>
-            <span className="text-white/20">|</span>
-            <button
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="text-neutral-300 hover:text-[#d0fe1d] font-bold transition-colors cursor-pointer"
-            >
-              TOP ↑
-            </button>
-          </div>
         </div>
       </div>
     </footer>
