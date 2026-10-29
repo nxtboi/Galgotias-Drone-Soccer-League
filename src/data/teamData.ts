@@ -51,13 +51,6 @@ export const TEAM_CATEGORIES: TeamCategory[] = [
     badge: 'BROADCAST & CONTENT',
     description: 'Live esports broadcast streamers, FPV drone cinematographers, digital content producers, and visual designers.',
   },
-  {
-    id: 'advisory',
-    label: 'Faculty Advisory',
-    shortLabel: 'Advisory',
-    badge: 'INSTITUTIONAL LEADERSHIP',
-    description: 'Visionary leadership from Galgotias University and the Centre for Drone Intelligence & Simulation (GCDIS).',
-  },
 ];
 
 export const TEAM_MEMBERS: TeamMember[] = [
