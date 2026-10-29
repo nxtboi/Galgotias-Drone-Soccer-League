@@ -487,7 +487,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  FAI/GCDIS Class Regulations
+                  GDSL CLASS REGULATIONS
                 </h3>
                 <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                   Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.
@@ -501,7 +501,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                   <Award className="w-5 h-5" />
                 </div>
                 <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  ₹1,00,000 Total Purse
+                  ₹2,00,000 Total Purse
                 </h3>
                 <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
                   Dedicated cash prizes, trophies, medals, official certificates, and national ranking points for all top-performing squads.

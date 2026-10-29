@@ -25,7 +25,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
     { title: 'Group Stage Heats', sub: 'Dec 08 · 5v5 Cage Clashes', completed: true },
     { title: 'Quarter-Finals', sub: 'Dec 09 · Knockout Seeding', active: true },
     { title: 'Semi-Final Showdown', sub: 'Dec 09 · D-40 & D-20 Cups', active: false },
-    { title: 'Grand Championship', sub: 'Dec 09 · ₹1,00,000 Purse', active: false },
+    { title: 'Grand Championship', sub: 'Dec 09 · ₹2,00,000 Purse', active: false },
   ];
 
   return (
@@ -178,7 +178,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   ₹2,00,000 <span className="text-[#d0fe1d]">TOTAL PRIZE POOL</span>
                 </h2>
                 <p className="mt-3 text-neutral-300 text-sm sm:text-base">
-                  The total pool is <span className="text-white font-bold">₹2,00,000</span> (including championship trophies and cash prizes). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹1,15,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹85,000)</span> alongside national rolling trophies.
+                  The total pool is <span className="text-white font-bold">₹2,00,000</span> (including championship trophies and cash prizes). Dedicated division funds for <span className="text-[#d0fe1d] font-bold">Class 40 (D-40: ₹94,000)</span> and <span className="text-[#d0fe1d] font-bold">Class 20 (D-20: ₹74,000)</span> alongside national rolling trophies.
                 </p>
               </div>
             </div>
@@ -202,11 +202,11 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
-                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹1,15,000</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹94,000</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {PRIZE_POOLS.d40.prizes.map((prize, idx) => (
                     <Tilt3DCard key={`d40-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
                       <div
@@ -220,7 +220,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               {prize.place}
                             </span>
                             <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
-                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : '3RD PLACE'}
+                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : prize.place === '3rd Place' ? '3RD PLACE' : 'SPECIAL PRIZE'}
                             </span>
                           </div>
                           <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
@@ -261,11 +261,11 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Division Purse</span>
-                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹85,000</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹74,000</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {PRIZE_POOLS.d20.prizes.map((prize, idx) => (
                     <Tilt3DCard key={`d20-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
                       <div
@@ -279,7 +279,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               {prize.place}
                             </span>
                             <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
-                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : '3RD PLACE'}
+                              {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : prize.place === '3rd Place' ? '3RD PLACE' : 'SPECIAL PRIZE'}
                             </span>
                           </div>
                           <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">

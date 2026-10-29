@@ -27,9 +27,6 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                 <h3 className="mt-1 text-xl sm:text-3xl font-orbitron font-black text-white uppercase tracking-wider">
                   GALGOTIAS INDOOR DRONE SOCCER ARENA
                 </h3>
-                <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed">
-                  Purpose-built with 16m × 8m × 5m protective ballistic netting, dual illuminated goal hoops, 6-camera FPV track telemetry, and 800-seat spectator gallery in Greater Noida, UP.
-                </p>
               </div>
             </div>
 
@@ -101,7 +98,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                     Rules &amp; Drone Specs
                   </h4>
                   <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                    FAI Class F9A regulations, 400mm sphere cage tolerances, weight limits, and scoring hoops.
+                    GDSL Class D-20 and D-40 regulations, 400mm and 200mm sphere cage tolerances, weight limits, and scoring hoops.
                   </p>
                 </div>
                 <div className="text-xs font-rajdhani text-[#d0fe1d] font-bold flex items-center gap-1.5 uppercase tracking-widest pt-2">

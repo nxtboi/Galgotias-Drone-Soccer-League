@@ -122,7 +122,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                         : 'bg-white text-slate-700 hover:bg-blue-100'
                     }`}
                   >
-                    Class 40 / D-40 (₹57K Purse)
+                    Class 40 / D-40 (₹94K Purse)
                   </button>
                   <button
                     onClick={() => setSelectedClass('class20')}
@@ -132,7 +132,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                         : 'bg-white text-slate-700 hover:bg-blue-100'
                     }`}
                   >
-                    Class 20 / D-20 (₹37K Purse)
+                    Class 20 / D-20 (₹74K Purse)
                   </button>
                 </div>
               </div>

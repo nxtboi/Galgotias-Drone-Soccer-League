@@ -118,7 +118,7 @@ const GDSL_PHOTOS: GalleryPhoto[] = [
     location: 'Main Amphitheatre Stage',
     imageUrl: '/drone-lab.jpg',
     description:
-      'The winning collegiate squad receiving the national championship trophy and official prize cheque (D-40 ₹31,000 / D-20 ₹21,000) amidst arena confetti.',
+      'The winning collegiate squad receiving the national championship trophy and official prize cheque (D-40 ₹41,000 / D-20 ₹31,000) amidst arena confetti.',
     droneModel: 'HawkSphere 400X',
     tags: ['Champions', 'Gold Cup', 'National Trophy', 'Podium'],
   },
@@ -173,7 +173,7 @@ const GDSL_ALBUMS: GalleryAlbum[] = [
   {
     id: 'album-podium',
     title: 'Podium Trophies & Pilot Awards',
-    subtitle: 'Total pool of ₹1,00,000 (including trophy and cash prize; D-40 ₹57K & D-20 ₹37K), MVP citations, and medals.',
+    subtitle: 'Total pool of ₹2,00,000 (including trophy and cash prize; D-40 ₹94K & D-20 ₹74K), MVP citations, and medals.',
     category: 'Podium & Awards',
     coverImage: '/drone-lab.jpg',
     photosCount: 2,
