@@ -95,7 +95,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
       phone: '+91 120 4370000',
       email: 'director@galgotiasuniversity.edu.in',
       linkedin: 'https://www.linkedin.com/school/galgotias-university/',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+      image: '/assets/aistudio/aradhana_ma_am_a1d82ebe.jpg',
       bio: 'Director at Galgotias University driving institutional excellence, student empowerment, and national-scale collegiate innovation championships.'
     }
   }
