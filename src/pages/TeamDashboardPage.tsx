@@ -45,11 +45,32 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [pdfDownloadSuccess, setPdfDownloadSuccess] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
-  // Edit Profile State
+  // Edit Profile State (All Team Details)
   const [isEditing, setIsEditing] = useState(false);
-  const [editPhone, setEditPhone] = useState(team.captainPhone);
-  const [editDroneModel, setEditDroneModel] = useState(team.droneModel);
-  const [editVtx, setEditVtx] = useState(team.vtxBand);
+  const [editForm, setEditForm] = useState({
+    teamName: team.teamName,
+    institution: team.institution,
+    city: team.city,
+    state: team.state,
+    division: team.division,
+    accessCode: team.accessCode,
+    captainName: team.captainName,
+    captainEmail: team.captainEmail,
+    captainPhone: team.captainPhone,
+    strikerPilot: team.strikerPilot,
+    goalkeeper: team.goalkeeper,
+    defender1: team.defender1,
+    defender2: team.defender2,
+    pitMechanic: team.pitMechanic,
+    droneModel: team.droneModel,
+    controlProtocol: team.controlProtocol,
+    vtxBand: team.vtxBand,
+    allocatedPit: team.allocatedPit,
+    facultyName: team.attendanceData?.facultyName || 'The Dean / Head of Department',
+    designation: team.attendanceData?.designation || 'Head of Department',
+    department: team.attendanceData?.department || 'Department of Mechanical / Aerospace Engineering',
+    collegeName: team.attendanceData?.collegeName || team.institution,
+  });
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Google Sheets Integration State
@@ -177,11 +198,86 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    const updatedFee = getDivisionFee(editForm.division);
+    const syncedStudents = [
+      {
+        name: editForm.captainName,
+        role: students[0]?.role || 'Team Captain / Pilot',
+        rollNo: students[0]?.rollNo || 'ROLL-01',
+        phone: editForm.captainPhone,
+      },
+      {
+        name: editForm.strikerPilot,
+        role: students[1]?.role || 'Striker Pilot',
+        rollNo: students[1]?.rollNo || 'ROLL-02',
+        phone: students[1]?.phone || '',
+      },
+      {
+        name: editForm.goalkeeper,
+        role: students[2]?.role || 'Goalkeeper Pilot',
+        rollNo: students[2]?.rollNo || 'ROLL-03',
+        phone: students[2]?.phone || '',
+      },
+      {
+        name: editForm.defender1,
+        role: students[3]?.role || 'Defender 1 (Libero)',
+        rollNo: students[3]?.rollNo || 'ROLL-04',
+        phone: students[3]?.phone || '',
+      },
+      {
+        name: editForm.defender2,
+        role: students[4]?.role || 'Defender 2 (Sweeper)',
+        rollNo: students[4]?.rollNo || 'ROLL-05',
+        phone: students[4]?.phone || '',
+      },
+      {
+        name: editForm.pitMechanic,
+        role: students[5]?.role || 'Pit Engineer / Mechanic',
+        rollNo: students[5]?.rollNo || 'ROLL-06',
+        phone: students[5]?.phone || '',
+      },
+    ];
+
+    setStudents(syncedStudents);
+    setFacultyName(editForm.facultyName);
+    setDepartment(editForm.department);
+    setCollegeName(editForm.collegeName);
+
     const updatedTeam: RegisteredTeamProfile = {
       ...team,
-      captainPhone: editPhone,
-      droneModel: editDroneModel,
-      vtxBand: editVtx,
+      teamName: editForm.teamName,
+      institution: editForm.institution,
+      city: editForm.city,
+      state: editForm.state,
+      division: editForm.division,
+      accessCode: editForm.accessCode,
+      captainName: editForm.captainName,
+      captainEmail: editForm.captainEmail,
+      captainPhone: editForm.captainPhone,
+      strikerPilot: editForm.strikerPilot,
+      goalkeeper: editForm.goalkeeper,
+      defender1: editForm.defender1,
+      defender2: editForm.defender2,
+      pitMechanic: editForm.pitMechanic,
+      droneModel: editForm.droneModel,
+      controlProtocol: editForm.controlProtocol,
+      vtxBand: editForm.vtxBand,
+      allocatedPit: editForm.allocatedPit,
+      paymentInfo: {
+        ...team.paymentInfo,
+        amount:
+          team.paymentInfo.status === 'PENDING'
+            ? updatedFee.formatted
+            : team.paymentInfo.amount,
+      },
+      attendanceData: {
+        facultyName: editForm.facultyName,
+        designation: editForm.designation,
+        department: editForm.department,
+        collegeName: editForm.collegeName,
+        travelDatesIncluded: true,
+        students: syncedStudents,
+      },
     };
     saveRegisteredTeam(updatedTeam);
     setCurrentSession(updatedTeam);
@@ -193,7 +289,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setSheetSyncLoading(true);
     try {
       await syncTeamToSheet(updatedTeam);
-      setSheetSyncSuccess('Squad profile details updated.');
+      setSheetSyncSuccess('All squad profile, roster, and hardware details updated.');
       setTimeout(() => setSheetSyncSuccess(null), 4000);
     } catch (err: any) {
       console.warn('Profile save notice:', err);
@@ -459,6 +555,16 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               )}
               <button
                 type="button"
+                onClick={() => {
+                  setActiveTab('profile');
+                  setIsEditing(true);
+                }}
+                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-[#d0fe1d]/50 bg-[#d0fe1d]/10 text-[#d0fe1d] hover:bg-[#d0fe1d] hover:text-black transition-all cursor-pointer whitespace-nowrap"
+              >
+                Edit Team Details
+              </button>
+              <button
+                type="button"
                 onClick={() => onNavigate('home')}
                 className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
               >
@@ -699,13 +805,23 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     Model: {team.droneModel}
                   </div>
                 </div>
-                <div className="mt-5 pt-4 border-t border-white/10">
+                <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('profile');
+                      setIsEditing(true);
+                    }}
+                    className="flex-1 py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all cursor-pointer"
+                  >
+                    Edit Details
+                  </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('profile')}
-                    className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-white text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
+                    className="py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-white text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
                   >
-                    Manage Profile
+                    View
                   </button>
                 </div>
               </div>
@@ -1356,64 +1472,305 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
+                className="px-4 py-2 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl border border-[#d0fe1d] bg-[#d0fe1d] text-black hover:bg-[#e2ff54] transition-all cursor-pointer whitespace-nowrap shadow-[0_0_15px_rgba(208,254,29,0.25)]"
               >
-                {isEditing ? 'Cancel Editing' : 'Edit Contact / Hardware'}
+                {isEditing ? 'Cancel Editing' : 'Edit All Team Details'}
               </button>
             </div>
 
             {saveSuccess && (
               <div className="p-3.5 bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs rounded-xl shadow-lg">
-                Profile updated successfully.
+                All team details updated and saved successfully.
               </div>
             )}
 
             {isEditing && (
               <form
                 onSubmit={handleSaveProfile}
-                className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 space-y-4 text-xs shadow-2xl"
+                className="bg-[#141612]/95 border border-[#d0fe1d]/40 rounded-3xl p-6 sm:p-8 space-y-6 text-xs shadow-2xl"
               >
-                <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider">Update Contact &amp; Drone Specs</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="border-b border-white/10 pb-3 flex items-center justify-between">
                   <div>
-                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Captain Phone Number</label>
-                    <input
-                      type="text"
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                    />
+                    <h3 className="font-orbitron font-bold text-white text-sm sm:text-base uppercase tracking-wider">
+                      Edit All Squad &amp; Roster Details
+                    </h3>
+                    <p className="text-neutral-400 text-xs mt-0.5">
+                      Modify team identity, institution, division, all 6 squad members, hardware specs, and OD details.
+                    </p>
                   </div>
-                  <div>
-                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Drone Model</label>
-                    <input
-                      type="text"
-                      value={editDroneModel}
-                      onChange={(e) => setEditDroneModel(e.target.value)}
-                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">VTX Band / Channel</label>
-                    <input
-                      type="text"
-                      value={editVtx}
-                      onChange={(e) => setEditVtx(e.target.value)}
-                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                    />
+                  <span className="font-mono text-[10px] text-[#d0fe1d] uppercase px-2.5 py-1 rounded bg-[#d0fe1d]/10 border border-[#d0fe1d]/30">
+                    {team.teamId}
+                  </span>
+                </div>
+
+                {/* Section 1: Team & Institution Identity */}
+                <div className="space-y-3">
+                  <h4 className="font-orbitron font-bold text-[#d0fe1d] text-xs uppercase tracking-wider">
+                    1. Team &amp; Institution Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Team Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.teamName}
+                        onChange={(e) => setEditForm({ ...editForm, teamName: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Institution / University</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.institution}
+                        onChange={(e) => setEditForm({ ...editForm, institution: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Tournament Division</label>
+                      <select
+                        value={editForm.division}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            division: e.target.value as 'Class 40 (400mm)' | 'Class 20 (200mm)',
+                          })
+                        }
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      >
+                        <option value="Class 40 (400mm)">Class 40 (400mm)</option>
+                        <option value="Class 20 (200mm)">Class 20 (200mm)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">City</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.city}
+                        onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">State</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.state}
+                        onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Access Code / Password</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.accessCode}
+                        onChange={(e) => setEditForm({ ...editForm, accessCode: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 pt-2">
+
+                {/* Section 2: Captain & Pilot Roster (All 6 Members) */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <h4 className="font-orbitron font-bold text-[#d0fe1d] text-xs uppercase tracking-wider">
+                    2. Captain &amp; Squad Pilot Roster (6 Members)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Team Captain Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.captainName}
+                        onChange={(e) => setEditForm({ ...editForm, captainName: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Captain Email</label>
+                      <input
+                        type="email"
+                        required
+                        value={editForm.captainEmail}
+                        onChange={(e) => setEditForm({ ...editForm, captainEmail: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Captain Phone Number</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.captainPhone}
+                        onChange={(e) => setEditForm({ ...editForm, captainPhone: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Striker Pilot</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.strikerPilot}
+                        onChange={(e) => setEditForm({ ...editForm, strikerPilot: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Goalkeeper Pilot</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.goalkeeper}
+                        onChange={(e) => setEditForm({ ...editForm, goalkeeper: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Defender 1 (Libero)</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.defender1}
+                        onChange={(e) => setEditForm({ ...editForm, defender1: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Defender 2 (Sweeper)</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.defender2}
+                        onChange={(e) => setEditForm({ ...editForm, defender2: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Pit Mechanic / Engineer</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.pitMechanic}
+                        onChange={(e) => setEditForm({ ...editForm, pitMechanic: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Drone Hardware & Arena Specifications */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <h4 className="font-orbitron font-bold text-[#d0fe1d] text-xs uppercase tracking-wider">
+                    3. Drone Hardware &amp; Arena Specifications
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Drone Model</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.droneModel}
+                        onChange={(e) => setEditForm({ ...editForm, droneModel: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Radio Control Protocol</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.controlProtocol}
+                        onChange={(e) => setEditForm({ ...editForm, controlProtocol: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">VTX Band / Channel</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.vtxBand}
+                        onChange={(e) => setEditForm({ ...editForm, vtxBand: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Allocated Pit Bay</label>
+                      <input
+                        type="text"
+                        value={editForm.allocatedPit}
+                        onChange={(e) => setEditForm({ ...editForm, allocatedPit: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 4: Institutional OD & Faculty Details */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <h4 className="font-orbitron font-bold text-[#d0fe1d] text-xs uppercase tracking-wider">
+                    4. Institutional OD &amp; Faculty Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Faculty / HOD Name</label>
+                      <input
+                        type="text"
+                        value={editForm.facultyName}
+                        onChange={(e) => setEditForm({ ...editForm, facultyName: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Designation</label>
+                      <input
+                        type="text"
+                        value={editForm.designation}
+                        onChange={(e) => setEditForm({ ...editForm, designation: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Department</label>
+                      <input
+                        type="text"
+                        value={editForm.department}
+                        onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">College Name (For OD)</label>
+                      <input
+                        type="text"
+                        value={editForm.collegeName}
+                        onChange={(e) => setEditForm({ ...editForm, collegeName: e.target.value })}
+                        className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-sans focus:outline-none focus:border-[#d0fe1d]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-3 border-t border-white/10">
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase rounded-xl text-xs transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer"
+                    className="px-6 py-2.5 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase rounded-xl text-xs transition-all shadow-[0_0_20px_rgba(208,254,29,0.35)] cursor-pointer"
                   >
-                    Save Changes
+                    Save All Team Details
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2.5 border border-white/20 bg-white/5 text-neutral-300 hover:bg-white/10 rounded-xl text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer"
+                    className="px-5 py-2.5 border border-white/20 bg-white/5 text-neutral-300 hover:bg-white/10 rounded-xl text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer"
                   >
                     Cancel
                   </button>

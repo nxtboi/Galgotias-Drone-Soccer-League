@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { PRIZE_POOLS } from '../data/droneSoccerData';
+import { PRIZE_POOLS, SPECIAL_PRIZE_CATEGORIES } from '../data/droneSoccerData';
 import { GcdisLogo } from './GcdisLogo';
 import {
   Parallax3DSection,
@@ -274,6 +274,58 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                           <div className="flex items-center justify-between mb-3">
                             <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
                               {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : prize.place === '3rd Place' ? '3RD PLACE' : 'SPECIAL PRIZE'}
+                            </span>
+                          </div>
+                          <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">
+                            {prize.amount}
+                          </div>
+                          <div className="text-sm font-bold text-[#d0fe1d] mb-4">{prize.title}</div>
+                        </div>
+
+                        <ul className="space-y-2 border-t border-white/15 pt-4 text-xs text-neutral-300">
+                          {prize.perks.map((p, pIdx) => (
+                            <li key={pIdx} className="flex items-start gap-2">
+                              <span className="text-[#d0fe1d] font-bold">✓</span>
+                              <span>{p}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </Tilt3DCard>
+                  ))}
+                </div>
+              </div>
+
+              {/* SPECIAL PRIZES CATEGORY */}
+              <div className="space-y-6 pt-8 border-t border-white/15">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-4 text-left">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-black uppercase text-[#d0fe1d]">
+                        SPECIAL DIVISION ·
+                      </span>
+                      <h3 className="text-lg sm:text-2xl font-orbitron font-black uppercase tracking-wider text-white">
+                        Special Prizes
+                      </h3>
+                    </div>
+                    <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+                      Individual &amp; tactical excellence awards · MVP, Max Goal Scorer &amp; Best Defender
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">Category Purse</span>
+                    <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">₹33,000</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {SPECIAL_PRIZE_CATEGORIES.map((prize, idx) => (
+                    <Tilt3DCard key={`special-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
+                      <div className="p-6 text-left flex flex-col justify-between transition-all h-full xotc-card">
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
+                              {prize.place}
                             </span>
                           </div>
                           <div className="text-3xl sm:text-4xl font-orbitron font-black tracking-wider mb-2 text-white">

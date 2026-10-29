@@ -169,9 +169,31 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
   },
 };
 
+export const SPECIAL_PRIZE_CATEGORIES: PrizeItem[] = [
+  {
+    place: 'MVP',
+    amount: '₹11,000',
+    title: 'MVP',
+    perks: ['Trophy and Medals'],
+  },
+  {
+    place: 'MAX GOAL SCORER',
+    amount: '₹11,000',
+    title: 'Max Goal Scorer',
+    perks: ['Trophy and Medals'],
+  },
+  {
+    place: 'BEST DEFENDER',
+    amount: '₹11,000',
+    title: 'Best Defender',
+    perks: ['Trophy and Medals'],
+  },
+];
+
 export const PRIZE_POOL: PrizeItem[] = [
   ...PRIZE_POOLS.d40.prizes,
   ...PRIZE_POOLS.d20.prizes,
+  ...SPECIAL_PRIZE_CATEGORIES,
 ];
 
 export const TOURNAMENT_TIMELINE: TournamentPhase[] = [

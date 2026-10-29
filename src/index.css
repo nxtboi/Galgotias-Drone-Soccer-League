@@ -7,28 +7,28 @@
   --font-sans: 'Rajdhani', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Elevated Site-Wide Typography Scale */
-  --text-xs: 0.875rem;
+  /* Balanced Site-Wide Typography Scale */
+  --text-xs: 0.8125rem;
   --text-xs--line-height: 1.4;
-  --text-sm: 1rem;
+  --text-sm: 0.925rem;
   --text-sm--line-height: 1.5;
-  --text-base: 1.125rem;
+  --text-base: 1.05rem;
   --text-base--line-height: 1.6;
-  --text-lg: 1.25rem;
+  --text-lg: 1.175rem;
   --text-lg--line-height: 1.55;
-  --text-xl: 1.4rem;
+  --text-xl: 1.3rem;
   --text-xl--line-height: 1.45;
-  --text-2xl: 1.7rem;
+  --text-2xl: 1.55rem;
   --text-2xl--line-height: 1.35;
-  --text-3xl: 2.1rem;
+  --text-3xl: 1.925rem;
   --text-3xl--line-height: 1.25;
-  --text-4xl: 2.6rem;
+  --text-4xl: 2.35rem;
   --text-4xl--line-height: 1.18;
-  --text-5xl: 3.25rem;
+  --text-5xl: 3rem;
   --text-5xl--line-height: 1.12;
-  --text-6xl: 4rem;
+  --text-6xl: 3.75rem;
   --text-6xl--line-height: 1.08;
-  --text-7xl: 4.75rem;
+  --text-7xl: 4.5rem;
   --text-7xl--line-height: 1.05;
 
   /* XOTC Obsidian & Electric Acid Lime Theme Tokens */
@@ -53,12 +53,12 @@
   }
 
   html {
-    font-size: 108%;
+    font-size: 102%;
   }
 
   @media (min-width: 640px) {
     html {
-      font-size: 112.5%;
+      font-size: 104%;
     }
   }
 
@@ -83,19 +83,19 @@
 
 /* Scale up micro pixel font classes site-wide */
 .text-\[7px\] {
-  font-size: 0.65rem !important;
+  font-size: 0.575rem !important;
 }
 .text-\[8px\] {
-  font-size: 0.7rem !important;
+  font-size: 0.625rem !important;
 }
 .text-\[9px\] {
-  font-size: 0.75rem !important;
+  font-size: 0.6875rem !important;
 }
 .text-\[10px\] {
-  font-size: 0.8125rem !important;
+  font-size: 0.75rem !important;
 }
 .text-\[11px\] {
-  font-size: 0.875rem !important;
+  font-size: 0.8125rem !important;
 }
 
 .font-orbitron {
