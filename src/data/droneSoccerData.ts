@@ -130,14 +130,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
           'Trophy and Medals',
         ],
       },
-      {
-        place: 'Special Prize',
-        amount: '₹11,000',
-        title: 'Special Innovation Award',
-        perks: [
-          'Trophy and Medals',
-        ],
-      },
     ],
   },
   d20: {
@@ -169,14 +161,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         place: '3rd Place',
         amount: '₹11,000',
         title: '2nd Runner-Up',
-        perks: [
-          'Trophy and Medals',
-        ],
-      },
-      {
-        place: 'Special Prize',
-        amount: '₹11,000',
-        title: 'Special Innovation Award',
         perks: [
           'Trophy and Medals',
         ],

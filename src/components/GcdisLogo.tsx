@@ -70,9 +70,6 @@ export const GcdisLogo: React.FC<GcdisLogoProps> = ({
             >
               GALGOTIAS DRONE SOCCER LEAGUE
             </span>
-            <span className="hidden md:inline-flex items-center text-[10px] font-mono font-bold text-[#d0fe1d] tracking-widest uppercase">
-              · GDSL 2026
-            </span>
           </div>
           <span className="font-rajdhani uppercase text-neutral-400 font-semibold leading-tight mt-0.5 hidden sm:block text-xs tracking-widest">
             GCDIS · Galgotias Centre for Drone Intelligence &amp; Simulation

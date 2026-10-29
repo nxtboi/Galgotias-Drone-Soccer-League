@@ -206,7 +206,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {PRIZE_POOLS.d40.prizes.map((prize, idx) => (
                     <Tilt3DCard key={`d40-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
                       <div
@@ -216,9 +216,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       >
                         <div>
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
-                              {prize.place}
-                            </span>
                             <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
                               {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : prize.place === '3rd Place' ? '3RD PLACE' : 'SPECIAL PRIZE'}
                             </span>
@@ -265,7 +262,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {PRIZE_POOLS.d20.prizes.map((prize, idx) => (
                     <Tilt3DCard key={`d20-${prize.place}`} maxTilt={6} scrollOffsetY={20 + idx * 12}>
                       <div
@@ -275,9 +272,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       >
                         <div>
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-300">
-                              {prize.place}
-                            </span>
                             <span className="text-[10px] font-orbitron font-black uppercase tracking-widest text-[#d0fe1d]">
                               {prize.highlight ? '1ST PLACE' : prize.place === '2nd Place' ? '2ND PLACE' : prize.place === '3rd Place' ? '3RD PLACE' : 'SPECIAL PRIZE'}
                             </span>
