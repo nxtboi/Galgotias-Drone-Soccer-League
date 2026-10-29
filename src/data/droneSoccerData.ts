@@ -74,7 +74,13 @@ export const GDSL_TOURNAMENT_INFO = {
   matchFormat: '5 vs 5 & 3 vs 3 Caged Aerial Soccer',
   setDuration: '3 sets × 3 minutes each',
   regDeadline: 'December 03, 2026 · 23:59 IST',
-  emergencyHelpline: '+91 98712 34567',
+  emergencyHelpline: '+91 94110 53011',
+  helplines: [
+    { label: 'Pilot Desk 1', number: '+91 94110 53011', tel: '+919411053011' },
+    { label: 'Pilot Desk 2', number: '+91 97986 93029', tel: '+919798693029' },
+    { label: 'Safety & Scrutineering', number: '+91 95696 96140', tel: '+919569696140' },
+    { label: 'Telemetry & Ref Desk', number: '+91 76260 40216', tel: '+917626040216' },
+  ],
   supportEmail: 'gcdis.dronesoccer@galgotiasuniversity.edu.in',
   governingStandard: 'GCDIS (Galgotias Centre of Drone Intelligence & Simulation) 5th Revision',
 };

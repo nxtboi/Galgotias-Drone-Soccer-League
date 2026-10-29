@@ -179,8 +179,34 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
 
             <div className="space-y-4 text-xs">
               <div>
-                <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">EMERGENCY PILOT HELPLINE</span>
-                <span className="text-base font-orbitron font-bold text-white mt-0.5 block">{GDSL_TOURNAMENT_INFO.emergencyHelpline}</span>
+                <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">EMERGENCY PILOT HELPLINES</span>
+                <span className="mt-2.5 block space-y-2">
+                  {[
+                    { label: 'Pilot Helpdesk 1', number: '9411053011', display: '+91 94110 53011' },
+                    { label: 'Pilot Helpdesk 2', number: '9798693029', display: '+91 97986 93029' },
+                    { label: 'Safety & Scrutineering', number: '9569696140', display: '+91 95696 96140' },
+                    { label: 'Telemetry & Ref Desk', number: '7626040216', display: '+91 76260 40216' },
+                  ].map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={`tel:+91${item.number}`}
+                      className="group flex items-center justify-between p-2.5 rounded bg-[#111210] border border-white/15 hover:border-[#d0fe1d] hover:bg-[#d0fe1d]/5 transition-all"
+                      title={`Call ${item.label} at ${item.display}`}
+                    >
+                      <div>
+                        <span className="block text-[10px] font-mono text-neutral-400 group-hover:text-[#d0fe1d] uppercase tracking-wider font-semibold">
+                          {item.label}
+                        </span>
+                        <span className="text-sm sm:text-base font-orbitron font-bold text-white group-hover:text-[#d0fe1d] tracking-wide transition-colors">
+                          {item.display}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-neutral-400 group-hover:text-[#d0fe1d] border border-white/20 group-hover:border-[#d0fe1d] px-2.5 py-1 rounded transition-colors uppercase flex items-center gap-1 font-semibold">
+                        Call ↗
+                      </span>
+                    </a>
+                  ))}
+                </span>
               </div>
 
               <div>
