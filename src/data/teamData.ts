@@ -146,7 +146,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     email: 'vk16122001@gmail.com',
     linkedin: 'https://www.linkedin.com/in/nxtboi',
     github: 'https://github.com/nxtboi',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80',
+    image: '/assets/aistudio/Vijay_139e0c2f.png',
     bio: 'In charge of optical goal hoop sensor grids, electronic scoring sync, and 10ms RF beacon tracking.',
   },
   {
