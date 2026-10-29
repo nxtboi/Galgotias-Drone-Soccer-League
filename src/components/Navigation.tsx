@@ -48,10 +48,10 @@ export const Navigation: React.FC<NavigationProps> = ({
             <GcdisLogo size="sm" showWordmark={false} />
             <div className="flex flex-col">
               <span className="font-orbitron font-black text-base sm:text-lg tracking-widest text-white group-hover:text-[#d0fe1d] transition-colors leading-none">
-                GDSL<span className="text-[#d0fe1d]">.26</span>
+                GCDIS
               </span>
               <span className="font-mono text-[9px] tracking-widest text-neutral-400 uppercase mt-0.5 hidden sm:inline">
-                GCDIS · GALGOTIAS
+                Galgotias University
               </span>
             </div>
           </button>

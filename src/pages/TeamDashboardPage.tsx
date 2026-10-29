@@ -356,15 +356,15 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   ];
 
   return (
-    <div className="basic-dashboard-scope relative z-20 min-h-screen bg-slate-900 pt-24 pb-20 px-4 sm:px-6 lg:px-8 text-slate-100 font-sans">
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 text-white font-sans">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Status Notifications */}
         {sheetSyncSuccess && (
-          <div className="p-3.5 rounded-md bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs flex items-center justify-between shadow-lg">
             <span>{sheetSyncSuccess}</span>
             <button
               onClick={() => setSheetSyncSuccess(null)}
-              className="text-slate-400 hover:text-white font-medium ml-3 cursor-pointer"
+              className="text-emerald-400 hover:text-white font-medium ml-3 cursor-pointer"
             >
               Dismiss
             </button>
@@ -372,11 +372,11 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         )}
 
         {sheetSyncError && (
-          <div className="p-3.5 rounded-md bg-slate-800 border border-red-700/60 text-red-300 text-xs flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-300 text-xs flex items-center justify-between shadow-lg">
             <span>{sheetSyncError}</span>
             <button
               onClick={() => setSheetSyncError(null)}
-              className="text-slate-400 hover:text-white font-medium ml-3 cursor-pointer"
+              className="text-rose-400 hover:text-white font-medium ml-3 cursor-pointer"
             >
               Dismiss
             </button>
@@ -385,22 +385,23 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
         {/* Prominent Pending Payment Banner (When Payment is Not Yet Completed) */}
         {!isPaymentCompleted && (
-          <div className="bg-amber-950/40 border border-amber-600/60 rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
-            <div className="space-y-1">
-              <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
-                Action Required · Registration Fee Pending ({fee.code}: {fee.formatted})
+          <div className="bg-[#1b1c15] border-2 border-[#d0fe1d]/50 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 text-left shadow-[0_0_35px_rgba(208,254,29,0.15)]">
+            <div className="space-y-1.5">
+              <div className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-wider flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
+                <span>Action Required · Registration Fee Pending ({fee.code}: {fee.formatted})</span>
               </div>
-              <h2 className="text-base font-semibold text-white">
-                Complete Your {fee.formatted} Entry Fee Payment to Unlock Your Official Event Pass
+              <h2 className="text-base sm:text-lg font-orbitron font-bold text-white uppercase tracking-wider">
+                Complete Your {fee.formatted} Entry Fee to Unlock Your Official Event Pass
               </h2>
-              <p className="text-xs text-slate-300 max-w-2xl">
-                Event passes and verified tax receipts are issued only after completing the registration payment ({team.division} — {fee.formatted}).
+              <p className="text-xs text-neutral-300 max-w-2xl font-sans">
+                Official accreditation event passes and verified tax receipts are issued immediately after completing the registration fee ({team.division} — {fee.formatted}).
               </p>
             </div>
             <button
               type="button"
               onClick={() => setIsPaymentModalOpen(true)}
-              className="px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs sm:text-sm font-orbitron font-bold uppercase tracking-wider whitespace-nowrap shrink-0 flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
             >
               <CreditCard className="w-4 h-4" />
               <span>Pay {fee.formatted} Now</span>
@@ -408,39 +409,41 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         )}
 
-        {/* 1. Basic Utilitarian Header */}
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-5 sm:p-6 text-left">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-700">
+        {/* 1. High-Tech Squad Header Card */}
+        <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 sm:p-8 text-left shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 border-b border-white/10">
             <div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mb-1">
-                <span>Squad Dashboard</span>
-                <span aria-hidden="true">·</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 mb-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-black/70 text-[#d0fe1d] border border-[#d0fe1d]/30">
+                  SQUAD DASHBOARD
+                </span>
+                <span aria-hidden="true" className="text-neutral-600">·</span>
                 {isPaymentCompleted ? (
-                  <span className="text-emerald-400 font-medium">
-                    Fee Paid ({fee.formatted}) · Event Pass Unlocked
+                  <span className="text-emerald-400 font-mono text-xs font-semibold">
+                    ✓ Fee Paid ({fee.formatted}) · Pass Unlocked
                   </span>
                 ) : (
-                  <span className="text-amber-400 font-medium">
-                    Payment Pending ({fee.formatted}) · Pass Locked
+                  <span className="text-amber-400 font-mono text-xs font-semibold">
+                    ⏳ Payment Pending ({fee.formatted}) · Pass Locked
                   </span>
                 )}
-                <span aria-hidden="true">·</span>
-                <span className="font-mono tabular-nums">{team.teamId}</span>
+                <span aria-hidden="true" className="text-neutral-600">·</span>
+                <span className="font-mono tabular-nums text-neutral-300 font-bold">{team.teamId}</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-white">
+              <h1 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
                 {team.teamName}
               </h1>
-              <p className="text-sm text-slate-400 mt-0.5">
-                {team.institution} · {team.city}, {team.state}
+              <p className="text-xs sm:text-sm text-neutral-400 font-sans mt-1">
+                {team.institution} · <span className="text-neutral-300">{team.city}, {team.state}</span>
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               {!isPaymentCompleted ? (
                 <button
                   type="button"
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer whitespace-nowrap"
                 >
                   Pay Fee ({fee.formatted})
                 </button>
@@ -448,7 +451,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <button
                   type="button"
                   onClick={handleResetToPendingDemo}
-                  className="px-3 py-2 text-xs font-medium rounded-md border border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-3.5 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-300 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
                   title="Reset payment status to PENDING to test the payment gateway checkout"
                 >
                   Test Payment Gateway
@@ -457,14 +460,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
               >
                 Main Site
               </button>
               <button
                 type="button"
                 onClick={onLogout}
-                className="px-3.5 py-2 text-xs font-medium rounded-md border border-red-800/70 bg-red-950/40 text-red-300 hover:bg-red-900/50 transition-colors cursor-pointer whitespace-nowrap"
+                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 transition-all cursor-pointer whitespace-nowrap"
               >
                 Logout
               </button>
@@ -472,34 +475,34 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
 
           {/* Key Info Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-sm">
-            <div>
-              <span className="text-xs text-slate-400 block">Team ID</span>
-              <span className="font-mono tabular-nums font-medium text-slate-100 mt-0.5 block">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5 text-sm">
+            <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+              <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Team ID</span>
+              <span className="font-orbitron font-bold text-white mt-1 block">
                 {team.teamId}
               </span>
             </div>
-            <div>
-              <span className="text-xs text-slate-400 block">Division &amp; Registration Fee</span>
-              <span className="font-medium text-slate-100 mt-0.5 block">
+            <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+              <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Division &amp; Fee</span>
+              <span className="font-orbitron font-bold text-white mt-1 block truncate">
                 {team.division} ({fee.formatted})
               </span>
             </div>
-            <div>
-              <span className="text-xs text-slate-400 block">Payment Status</span>
+            <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+              <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Payment Status</span>
               <span
-                className={`font-medium mt-0.5 block ${
-                  isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                className={`font-orbitron font-bold mt-1 block truncate ${
+                  isPaymentCompleted ? 'text-[#d0fe1d]' : 'text-amber-400'
                 }`}
               >
-                {isPaymentCompleted ? `Verified (${fee.formatted})` : `Pending (${fee.formatted} Due)`}
+                {isPaymentCompleted ? `Verified (${fee.formatted})` : `Pending (${fee.formatted})`}
               </span>
             </div>
-            <div>
-              <span className="text-xs text-slate-400 block">Event Pass</span>
+            <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+              <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Event Pass</span>
               <span
-                className={`font-medium mt-0.5 block ${
-                  isPaymentCompleted ? 'text-emerald-400' : 'text-slate-400'
+                className={`font-orbitron font-bold mt-1 block truncate ${
+                  isPaymentCompleted ? 'text-emerald-400' : 'text-neutral-400'
                 }`}
               >
                 {isPaymentCompleted ? 'Ready to Download' : 'Locked Until Payment'}
@@ -508,8 +511,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         </div>
 
-        {/* 2. Standard Horizontal Tabs */}
-        <div className="flex items-center gap-1 border-b border-slate-700 overflow-x-auto">
+        {/* 2. Cyber Horizontal Tabs */}
+        <div className="flex items-center gap-2 border-b border-white/15 pb-2 overflow-x-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -517,19 +520,21 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+                className={`px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
                   isActive
-                    ? 'border-blue-500 text-white bg-slate-800/60'
-                    : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+                    ? 'bg-[#d0fe1d] text-black shadow-[0_0_20px_rgba(208,254,29,0.35)]'
+                    : 'bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:border-white/20'
                 }`}
               >
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                      isPaymentCompleted
-                        ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50'
-                        : 'bg-amber-950/80 text-amber-300 border border-amber-700/50'
+                    className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                      isActive
+                        ? 'bg-black/80 text-[#d0fe1d]'
+                        : isPaymentCompleted
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                     }`}
                   >
                     {tab.badge}
@@ -545,49 +550,49 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* ========================================================= */}
         {activeTab === 'overview' && (
           <div className="space-y-6 text-left">
-            {/* Simple 4-Card Summary Grid */}
+            {/* Cyber 4-Card Summary Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Card 1: Registration Payment & Receipt */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
+              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
                 <div>
                   <div
-                    className={`text-xs font-medium mb-1 ${
-                      isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                    className={`text-[11px] font-mono font-bold uppercase tracking-wider mb-1 ${
+                      isPaymentCompleted ? 'text-emerald-400' : 'text-[#d0fe1d]'
                     }`}
                   >
                     {isPaymentCompleted
                       ? `Paid · ${fee.formatted}`
                       : `Payment Due · ${fee.formatted}`}
                   </div>
-                  <h2 className="font-semibold text-white text-sm">
-                    {isPaymentCompleted ? 'Payment Receipt' : 'Registration Fee Payment'}
+                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">
+                    {isPaymentCompleted ? 'Payment Receipt' : 'Entry Fee Payment'}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     {isPaymentCompleted
                       ? 'Official registration fee receipt and tax invoice.'
                       : `Pay ${fee.formatted} (${fee.code} Division) via UPI, Card, or Net Banking.`}
                   </p>
-                  <div className="mt-3 text-xs font-mono tabular-nums text-slate-300">
+                  <div className="mt-3 text-xs font-mono tabular-nums text-neutral-300">
                     {isPaymentCompleted
                       ? `Ref: ${team.paymentInfo.receiptNo}`
                       : `Amount Due: ${fee.formatted}.00`}
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-700 flex items-center gap-2">
+                <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2">
                   {isPaymentCompleted ? (
                     <>
                       <button
                         type="button"
                         onClick={handleDownloadReceiptPdf}
                         disabled={isGeneratingPdf}
-                        className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-md transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                        className="flex-1 py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all disabled:opacity-60 cursor-pointer whitespace-nowrap shadow-[0_0_15px_rgba(208,254,29,0.3)]"
                       >
                         {isGeneratingPdf ? 'Generating...' : 'Download PDF'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setActiveTab('receipt')}
-                        className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap"
+                        className="px-3.5 py-2.5 bg-white/10 hover:bg-white/15 border border-white/20 text-neutral-200 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer whitespace-nowrap"
                       >
                         View
                       </button>
@@ -596,7 +601,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsPaymentModalOpen(true)}
-                      className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md transition-colors cursor-pointer"
+                      className="w-full py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
                     >
                       Pay {fee.formatted} Now
                     </button>
@@ -605,10 +610,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
 
               {/* Card 2: Official Event Pass (Gated by Payment) */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
+              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
                 <div>
                   <div
-                    className={`text-xs font-medium mb-1 flex items-center gap-1.5 ${
+                    className={`text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5 ${
                       isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
                     }`}
                   >
@@ -624,22 +629,22 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       </>
                     )}
                   </div>
-                  <h2 className="font-semibold text-white text-sm">Official Event Pass</h2>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">Official Event Pass</h2>
+                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     {isPaymentCompleted
                       ? 'Official squad entry badge & pit bay pass ready for download.'
                       : 'Complete your registration payment to unlock the event pass.'}
                   </p>
-                  <div className="mt-3 text-xs font-mono tabular-nums text-slate-300">
+                  <div className="mt-3 text-xs font-mono tabular-nums text-[#d0fe1d]">
                     {isPaymentCompleted ? team.allocatedPit : 'Requires Fee Verification'}
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-700">
+                <div className="mt-5 pt-4 border-t border-white/10">
                   {isPaymentCompleted ? (
                     <button
                       type="button"
                       onClick={() => setActiveTab('pass')}
-                      className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-md transition-colors cursor-pointer"
+                      className="w-full py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer"
                     >
                       View &amp; Download Pass
                     </button>
@@ -647,7 +652,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsPaymentModalOpen(true)}
-                      className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                      className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-300 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
                     >
                       Pay {fee.formatted} to Unlock
                     </button>
@@ -656,24 +661,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
 
               {/* Card 3: Attendance Request */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
+              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
                 <div>
-                  <div className="text-xs text-slate-400 font-medium mb-1">
+                  <div className="text-[11px] font-mono font-bold uppercase text-neutral-400 tracking-wider mb-1">
                     University Document
                   </div>
-                  <h2 className="font-semibold text-white text-sm">Attendance (OD Letter)</h2>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">OD Attendance Letter</h2>
+                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     On-Duty leave letter for college faculty and department heads.
                   </p>
-                  <div className="mt-3 text-xs tabular-nums text-slate-300">
+                  <div className="mt-3 text-xs tabular-nums text-neutral-300 font-mono">
                     {students.length} roster members listed
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-700">
+                <div className="mt-5 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setActiveTab('attendance')}
-                    className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-100 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                    className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-white text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
                   >
                     Open OD Letter
                   </button>
@@ -681,24 +686,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </div>
 
               {/* Card 4: Team Profile */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col justify-between">
+              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
                 <div>
-                  <div className="text-xs text-slate-400 font-medium mb-1">
+                  <div className="text-[11px] font-mono font-bold uppercase text-neutral-400 tracking-wider mb-1">
                     Roster &amp; Specs
                   </div>
-                  <h2 className="font-semibold text-white text-sm">Team Profile</h2>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">Squad Profile</h2>
+                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     Pilot assignments, captain contact details, and drone hardware.
                   </p>
-                  <div className="mt-3 text-xs text-slate-300 truncate">
+                  <div className="mt-3 text-xs text-neutral-300 truncate font-mono">
                     Model: {team.droneModel}
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-700">
+                <div className="mt-5 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setActiveTab('profile')}
-                    className="w-full py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-100 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                    className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-white text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
                   >
                     Manage Profile
                   </button>
@@ -707,25 +712,25 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             {/* Registration Summary Table */}
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
-              <h2 className="text-sm font-semibold text-white mb-4 pb-2.5 border-b border-slate-700">
+            <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-2xl">
+              <h2 className="text-base font-orbitron font-black text-white uppercase tracking-wider mb-4 pb-3 border-b border-white/10">
                 Registration &amp; Fee Summary
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs">
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Institution</span>
-                  <span className="font-medium text-slate-200 text-right">{team.institution}</span>
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Institution</span>
+                  <span className="font-medium text-white text-right">{team.institution}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Division &amp; Entry Fee</span>
-                  <span className="font-medium text-slate-200 tabular-nums">
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Division &amp; Entry Fee</span>
+                  <span className="font-orbitron font-bold text-[#d0fe1d] tabular-nums">
                     {team.division} · {fee.formatted}
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Payment Status</span>
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Payment Status</span>
                   <span
-                    className={`font-medium ${
+                    className={`font-mono font-bold ${
                       isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
                     }`}
                   >
@@ -734,19 +739,19 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       : `PENDING (${fee.formatted} Due)`}
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Captain Contact</span>
-                  <span className="font-mono tabular-nums font-medium text-slate-200">
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Captain Contact</span>
+                  <span className="font-mono tabular-nums font-medium text-white">
                     {team.captainPhone}
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Drone Hardware</span>
-                  <span className="font-medium text-slate-200">{team.droneModel}</span>
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Drone Hardware</span>
+                  <span className="font-medium text-white">{team.droneModel}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-700/70">
-                  <span className="text-slate-400">Allocated Pit</span>
-                  <span className="font-medium text-slate-200">
+                <div className="flex justify-between py-2 border-b border-white/10">
+                  <span className="text-neutral-400 font-mono">Allocated Pit</span>
+                  <span className="font-mono font-bold text-[#d0fe1d]">
                     {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
                   </span>
                 </div>
@@ -761,34 +766,34 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {activeTab === 'pass' && (
           <div className="space-y-5 text-left">
             {!isPaymentCompleted ? (
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center max-w-2xl mx-auto space-y-4">
-                <div className="w-12 h-12 rounded-full bg-amber-950/60 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto">
-                  <Lock className="w-6 h-6" />
+              <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-5 shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-[#d0fe1d]/10 border border-[#d0fe1d]/40 text-[#d0fe1d] flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(208,254,29,0.2)]">
+                  <Lock className="w-7 h-7" />
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">
-                    Event Pass Locked · Payment Required
+                  <span className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-wider">
+                    Event Pass Locked · Fee Payment Required
                   </span>
-                  <h2 className="text-lg sm:text-xl font-semibold text-white">
-                    Complete Your {fee.formatted} Registration Payment to Unlock Event Pass
+                  <h2 className="text-xl sm:text-2xl font-orbitron font-bold text-white uppercase tracking-wider">
+                    Complete Your {fee.formatted} Registration Fee to Unlock Event Pass
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
-                    Participants receive their Official GDSL 2026 Event Pass, QR entry credential, and Pit Bay assignment only after the {fee.formatted} registration fee for {team.division} is verified.
+                  <p className="text-xs sm:text-sm text-neutral-300 max-w-lg mx-auto leading-relaxed font-sans">
+                    Participants receive their Official GDSL 2026 Event Pass, gate QR access credential, and Pit Bay assignment immediately after the {fee.formatted} registration fee for {team.division} is verified.
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 max-w-md mx-auto text-xs space-y-2 text-left">
-                  <div className="flex justify-between py-1 border-b border-slate-800">
-                    <span className="text-slate-400">Squad Name</span>
-                    <span className="font-medium text-white">{team.teamName}</span>
+                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-5 max-w-md mx-auto text-xs space-y-2 text-left">
+                  <div className="flex justify-between py-1.5 border-b border-white/10">
+                    <span className="text-neutral-400 font-mono">Squad Name</span>
+                    <span className="font-bold text-white font-orbitron">{team.teamName}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-800">
-                    <span className="text-slate-400">Division Classification</span>
+                  <div className="flex justify-between py-1.5 border-b border-white/10">
+                    <span className="text-neutral-400 font-mono">Division Classification</span>
                     <span className="font-medium text-white">{team.division}</span>
                   </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Entry Fee Payable</span>
-                    <span className="font-mono font-bold text-amber-400">{fee.formatted}.00</span>
+                  <div className="flex justify-between py-1.5">
+                    <span className="text-neutral-400 font-mono">Entry Fee Payable</span>
+                    <span className="font-orbitron font-bold text-[#d0fe1d]">{fee.formatted}.00</span>
                   </div>
                 </div>
 
@@ -796,7 +801,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsPaymentModalOpen(true)}
-                    className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 transition-colors cursor-pointer"
+                    className="px-6 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase tracking-wider text-xs sm:text-sm inline-flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
                   >
                     <CreditCard className="w-4 h-4" />
                     <span>Pay {fee.formatted} &amp; Unlock Event Pass</span>
@@ -806,21 +811,21 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             ) : (
               <>
                 {/* Action Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
                   <div>
-                    <h2 className="text-sm font-semibold text-white">
+                    <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">
                       Official GDSL 2026 Event Pass &amp; Squad Entry Badge
                     </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Payment verified ({fee.formatted}). Present this pass at the Arena Security &amp; Scrutineering Desk.
+                    <p className="text-xs text-neutral-400 mt-0.5 font-sans">
+                      Payment verified ({fee.formatted}). Present this pass at Arena Security &amp; Scrutineering Desk.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <button
                       type="button"
                       onClick={handleDownloadPassPdf}
                       disabled={isGeneratingPassPdf}
-                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1.5 transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                      className="px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] disabled:opacity-60 cursor-pointer whitespace-nowrap"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>{isGeneratingPassPdf ? 'Generating PDF...' : 'Download Pass (PDF)'}</span>
@@ -828,7 +833,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100 flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+                      className="px-4 py-2.5 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>Print Pass</span>
@@ -840,7 +845,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <div
                   ref={passRef}
                   id="printable-receipt"
-                  className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900"
+                  className="bg-white border border-slate-300 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 shadow-2xl"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-5">
                     <div>
@@ -968,20 +973,20 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {activeTab === 'receipt' && (
           <div className="space-y-5 text-left">
             {!isPaymentCompleted ? (
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center max-w-2xl mx-auto space-y-4">
-                <div className="w-12 h-12 rounded-full bg-amber-950/60 border border-amber-700/60 text-amber-400 flex items-center justify-center mx-auto">
-                  <CreditCard className="w-6 h-6" />
+              <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-5 shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-[#d0fe1d]/10 border border-[#d0fe1d]/40 text-[#d0fe1d] flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(208,254,29,0.2)]">
+                  <CreditCard className="w-7 h-7" />
                 </div>
-                <h2 className="text-lg font-semibold text-white">
+                <h2 className="text-xl sm:text-2xl font-orbitron font-bold text-white uppercase tracking-wider">
                   Registration Fee Payment Pending ({fee.formatted})
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+                <p className="text-xs sm:text-sm text-neutral-300 max-w-md mx-auto font-sans leading-relaxed">
                   Your official tax invoice and payment receipt will be generated automatically once you complete the {fee.formatted} fee payment for {team.division}.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 transition-colors cursor-pointer"
+                  className="px-6 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase tracking-wider text-xs sm:text-sm inline-flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
                 >
                   <span>Pay {fee.formatted} Now</span>
                 </button>
@@ -989,46 +994,46 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             ) : (
               <>
                 {/* Action Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
                   <div>
-                    <h2 className="text-sm font-semibold text-white">Payment Receipt &amp; Tax Invoice</h2>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">Payment Receipt &amp; Tax Invoice</h2>
+                    <p className="text-xs text-neutral-400 mt-0.5 font-sans">
                       Proof of entry fee payment ({fee.formatted}) and verified tournament registration.
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       type="button"
                       onClick={handleDownloadReceiptPdf}
                       disabled={isGeneratingPdf}
-                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-60 cursor-pointer whitespace-nowrap"
+                      className="px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] disabled:opacity-60 cursor-pointer whitespace-nowrap"
                     >
                       {isGeneratingPdf ? 'Generating PDF...' : 'Download PDF'}
                     </button>
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="px-3.5 py-2 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-100 transition-colors cursor-pointer whitespace-nowrap"
+                      className="px-4 py-2.5 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 transition-all cursor-pointer whitespace-nowrap"
                     >
                       Print
                     </button>
                     <button
                       type="button"
                       onClick={handleCopyReceiptNo}
-                      className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                      className="px-3.5 py-2.5 text-xs font-mono rounded-xl border border-white/15 bg-white/5 text-neutral-300 hover:bg-white/10 transition-all cursor-pointer whitespace-nowrap"
                     >
-                      {copiedReceipt ? 'Copied' : 'Copy Receipt #'}
+                      {copiedReceipt ? '✓ Copied' : 'Copy Receipt #'}
                     </button>
                   </div>
                 </div>
 
                 {pdfDownloadSuccess && (
-                  <div className="p-3 bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs rounded-md flex items-center justify-between">
+                  <div className="p-3.5 bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs rounded-xl flex items-center justify-between shadow-lg">
                     <span>Invoice PDF for {team.teamName} downloaded.</span>
                     <button
                       type="button"
                       onClick={() => setPdfDownloadSuccess(false)}
-                      className="text-slate-400 hover:text-white ml-2 cursor-pointer"
+                      className="text-emerald-400 hover:text-white ml-2 cursor-pointer font-bold"
                     >
                       Dismiss
                     </button>
@@ -1036,12 +1041,12 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 )}
 
                 {pdfError && (
-                  <div className="p-3 bg-slate-800 border border-red-700/60 text-red-300 text-xs rounded-md flex items-center justify-between">
+                  <div className="p-3.5 bg-rose-950/70 border border-rose-500/50 text-rose-300 text-xs rounded-xl flex items-center justify-between shadow-lg">
                     <span>{pdfError}</span>
                     <button
                       type="button"
                       onClick={() => setPdfError(null)}
-                      className="text-slate-400 hover:text-white ml-2 cursor-pointer"
+                      className="text-rose-400 hover:text-white ml-2 cursor-pointer font-bold"
                     >
                       Dismiss
                     </button>
@@ -1052,7 +1057,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <div
                   ref={receiptRef}
                   id="printable-receipt"
-                  className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 print:border-none print:shadow-none"
+                  className="bg-white border border-slate-300 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 shadow-2xl print:border-none print:shadow-none"
                 >
                   <div className="flex items-start justify-between border-b border-slate-200 pb-5">
                     <div>
@@ -1170,25 +1175,25 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* ========================================================= */}
         {activeTab === 'attendance' && (
           <div className="space-y-5 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
               <div>
-                <h2 className="text-sm font-semibold text-white">Attendance Application (On-Duty Letter)</h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Customize recipient details and student roll numbers before printing.
+                <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">Attendance Application (On-Duty Letter)</h2>
+                <p className="text-xs text-neutral-400 mt-0.5 font-sans">
+                  Customize recipient authority details and student roll numbers before printing.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={handleSaveAttendance}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
                 >
                   Save Changes
                 </button>
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="px-3.5 py-2 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer whitespace-nowrap"
                 >
                   Print / Save PDF
                 </button>
@@ -1196,39 +1201,39 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             {odDispatchedAlert && (
-              <div className="p-3 bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs rounded-md">
+              <div className="p-3.5 bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs rounded-xl shadow-lg">
                 Attendance letter details saved.
               </div>
             )}
 
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-5 space-y-4 text-xs">
-              <h3 className="font-semibold text-white text-sm">Recipient Details</h3>
+            <div className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 space-y-4 text-xs shadow-2xl">
+              <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider">Recipient Details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-slate-400 mb-1">To (Authority Title)</label>
+                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">To (Authority Title)</label>
                   <input
                     type="text"
                     value={facultyName}
                     onChange={(e) => setFacultyName(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1">Department</label>
+                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Department</label>
                   <input
                     type="text"
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1">College / University</label>
+                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">College / University</label>
                   <input
                     type="text"
                     value={collegeName}
                     onChange={(e) => setCollegeName(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                   />
                 </div>
               </div>
@@ -1236,7 +1241,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
             <div
               id="printable-od-letter"
-              className="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 max-w-3xl mx-auto space-y-5 text-slate-800 leading-relaxed"
+              className="bg-white border border-slate-300 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-5 text-slate-800 leading-relaxed shadow-2xl"
             >
               <div className="flex items-start justify-between border-b border-slate-300 pb-4">
                 <div>
@@ -1247,7 +1252,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     Galgotias University, Greater Noida · Tournament Secretariat
                   </p>
                 </div>
-                <div className="text-right text-xs text-slate-500 tabular-nums">
+                <div className="text-right text-xs text-slate-500 tabular-nums font-mono">
                   <div>Ref: GCDIS/OD-2026/{team.teamId}</div>
                   <div>
                     Date:{' '}
@@ -1341,74 +1346,74 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* ========================================================= */}
         {activeTab === 'profile' && (
           <div className="space-y-5 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
               <div>
-                <h2 className="text-sm font-semibold text-white">Team Profile &amp; Pilot Roster</h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Registered squad members, contact details, and drone hardware specifications.
+                <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">Squad Profile &amp; Pilot Roster</h2>
+                <p className="text-xs text-neutral-400 mt-0.5 font-sans">
+                  Registered squad members, contact channels, and drone hardware specifications.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="px-3.5 py-2 text-xs font-medium rounded-md border border-slate-600 text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap"
+                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
               >
                 {isEditing ? 'Cancel Editing' : 'Edit Contact / Hardware'}
               </button>
             </div>
 
             {saveSuccess && (
-              <div className="p-3 bg-slate-800 border border-emerald-700/60 text-emerald-300 text-xs rounded-md">
-                Profile updated.
+              <div className="p-3.5 bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs rounded-xl shadow-lg">
+                Profile updated successfully.
               </div>
             )}
 
             {isEditing && (
               <form
                 onSubmit={handleSaveProfile}
-                className="bg-slate-800 border border-slate-700 rounded-lg p-5 space-y-4 text-xs"
+                className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 space-y-4 text-xs shadow-2xl"
               >
-                <h3 className="font-semibold text-white text-sm">Update Contact &amp; Drone Specs</h3>
+                <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider">Update Contact &amp; Drone Specs</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-slate-400 mb-1">Captain Phone Number</label>
+                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Captain Phone Number</label>
                     <input
                       type="text"
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1">Drone Model</label>
+                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Drone Model</label>
                     <input
                       type="text"
                       value={editDroneModel}
                       onChange={(e) => setEditDroneModel(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1">VTX Band / Channel</label>
+                    <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">VTX Band / Channel</label>
                     <input
                       type="text"
                       value={editVtx}
                       onChange={(e) => setEditVtx(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-2">
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md font-medium text-xs transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase rounded-xl text-xs transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer"
                   >
                     Save Changes
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsEditing(false)}
-                    className="px-3.5 py-2 border border-slate-600 text-slate-300 hover:bg-slate-700 rounded-md text-xs transition-colors cursor-pointer"
+                    className="px-4 py-2.5 border border-white/20 bg-white/5 text-neutral-300 hover:bg-white/10 rounded-xl text-xs font-rajdhani font-bold uppercase transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1416,75 +1421,75 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </form>
             )}
 
-            <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-slate-700">
-                <h3 className="font-semibold text-white text-sm">Squad Roster (6 Members)</h3>
+            <div className="bg-[#141612]/95 border border-white/15 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="px-6 py-4 border-b border-white/10">
+                <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider">Squad Roster (6 Accredited Members)</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
                   <thead>
-                    <tr className="border-b border-slate-700 bg-slate-800/80 text-slate-400">
-                      <th className="py-2.5 px-5 font-medium">Position / Role</th>
-                      <th className="py-2.5 px-5 font-medium">Member Name</th>
-                      <th className="py-2.5 px-5 font-medium">Assignment</th>
+                    <tr className="border-b border-white/10 bg-[#0e100d] text-neutral-400 font-mono uppercase text-[11px]">
+                      <th className="py-3 px-5 font-medium">Position / Role</th>
+                      <th className="py-3 px-5 font-medium">Member Name</th>
+                      <th className="py-3 px-5 font-medium">Assignment</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-700/70">
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Team Captain</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.captainName}</td>
-                      <td className="py-3 px-5 text-slate-400">Tactics &amp; Communications</td>
+                  <tbody className="divide-y divide-white/5 font-sans">
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-[#d0fe1d] font-mono font-bold">Team Captain</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.captainName}</td>
+                      <td className="py-3 px-5 text-neutral-400">Tactics &amp; Communications</td>
                     </tr>
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Striker Pilot</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.strikerPilot}</td>
-                      <td className="py-3 px-5 text-slate-400">Primary Goal Scorer</td>
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-neutral-300 font-mono">Striker Pilot</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.strikerPilot}</td>
+                      <td className="py-3 px-5 text-neutral-400">Primary Goal Scorer</td>
                     </tr>
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Goalkeeper</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.goalkeeper}</td>
-                      <td className="py-3 px-5 text-slate-400">Hoop Defense</td>
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-neutral-300 font-mono">Goalkeeper</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.goalkeeper}</td>
+                      <td className="py-3 px-5 text-neutral-400">Hoop Defense</td>
                     </tr>
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Defender 1</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.defender1}</td>
-                      <td className="py-3 px-5 text-slate-400">Midfield Blocker</td>
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-neutral-300 font-mono">Defender 1</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.defender1}</td>
+                      <td className="py-3 px-5 text-neutral-400">Midfield Blocker</td>
                     </tr>
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Defender 2</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.defender2}</td>
-                      <td className="py-3 px-5 text-slate-400">Zone Sweeper</td>
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-neutral-300 font-mono">Defender 2</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.defender2}</td>
+                      <td className="py-3 px-5 text-neutral-400">Zone Sweeper</td>
                     </tr>
-                    <tr>
-                      <td className="py-3 px-5 text-slate-300">Pit Mechanic</td>
-                      <td className="py-3 px-5 font-medium text-white">{team.pitMechanic}</td>
-                      <td className="py-3 px-5 text-slate-400">Battery &amp; Airframe Maintenance</td>
+                    <tr className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3 px-5 text-neutral-300 font-mono">Pit Mechanic</td>
+                      <td className="py-3 px-5 font-bold text-white">{team.pitMechanic}</td>
+                      <td className="py-3 px-5 text-neutral-400">Battery &amp; Airframe Maintenance</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            <div className="bg-slate-800 border border-slate-700 rounded-lg p-5">
-              <h3 className="font-semibold text-white text-sm border-b border-slate-700 pb-3 mb-4">
+            <div className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 shadow-2xl">
+              <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider border-b border-white/10 pb-3 mb-4">
                 Hardware &amp; Pit Specifications
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                <div>
-                  <span className="text-slate-400 block">Drone Model</span>
-                  <span className="font-medium text-slate-100 mt-0.5 block">{team.droneModel}</span>
+                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Drone Model</span>
+                  <span className="font-orbitron font-bold text-white mt-1 block">{team.droneModel}</span>
                 </div>
-                <div>
-                  <span className="text-slate-400 block">Radio Protocol</span>
-                  <span className="font-medium text-slate-100 mt-0.5 block">{team.controlProtocol}</span>
+                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Radio Protocol</span>
+                  <span className="font-orbitron font-bold text-white mt-1 block">{team.controlProtocol}</span>
                 </div>
-                <div>
-                  <span className="text-slate-400 block">VTX Band</span>
-                  <span className="font-mono font-medium text-slate-100 mt-0.5 block">{team.vtxBand}</span>
+                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">VTX Band</span>
+                  <span className="font-mono font-bold text-[#d0fe1d] mt-1 block">{team.vtxBand}</span>
                 </div>
-                <div>
-                  <span className="text-slate-400 block">Pit Bay</span>
-                  <span className="font-medium text-slate-100 mt-0.5 block">
+                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Pit Bay</span>
+                  <span className="font-orbitron font-bold text-[#d0fe1d] mt-1 block">
                     {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
                   </span>
                 </div>
@@ -1497,45 +1502,45 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* TAB 6: MATCH SCHEDULE                                     */}
         {/* ========================================================= */}
         {activeTab === 'schedule' && (
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 text-left space-y-5">
-            <div className="border-b border-slate-700 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 sm:p-8 text-left space-y-6 shadow-2xl">
+            <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-xl font-orbitron font-black text-white uppercase tracking-wider">
                   Tournament Fixtures &amp; Match Schedule
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-neutral-400 mt-1 font-sans">
                   Pool stage draws and match timings will be published after technical scrutineering.
                 </p>
               </div>
-              <span className="text-xs font-medium text-amber-400">
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30">
                 Seeding Pending
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs">
-              <div className="flex justify-between py-2 border-b border-slate-700/70">
-                <span className="text-slate-400">Event Dates</span>
-                <span className="font-medium text-slate-200 tabular-nums">{GDSL_TOURNAMENT_INFO.dates}</span>
+              <div className="flex justify-between py-2.5 border-b border-white/10">
+                <span className="text-neutral-400 font-mono">Event Dates</span>
+                <span className="font-orbitron font-bold text-white tabular-nums">{GDSL_TOURNAMENT_INFO.dates}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-slate-700/70">
-                <span className="text-slate-400">Fixture Release</span>
-                <span className="font-medium text-slate-200 tabular-nums">Dec 01, 2026 · 7:00 PM IST</span>
+              <div className="flex justify-between py-2.5 border-b border-white/10">
+                <span className="text-neutral-400 font-mono">Fixture Release</span>
+                <span className="font-orbitron font-bold text-[#d0fe1d] tabular-nums">Dec 01, 2026 · 7:00 PM IST</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-slate-700/70">
-                <span className="text-slate-400">Allocated Pit Bay</span>
-                <span className="font-medium text-slate-200">
+              <div className="flex justify-between py-2.5 border-b border-white/10">
+                <span className="text-neutral-400 font-mono">Allocated Pit Bay</span>
+                <span className="font-orbitron font-bold text-[#d0fe1d]">
                   {isPaymentCompleted ? team.allocatedPit : 'Assigned Upon Payment'}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-slate-700/70">
-                <span className="text-slate-400">Division</span>
-                <span className="font-medium text-slate-200">{team.division}</span>
+              <div className="flex justify-between py-2.5 border-b border-white/10">
+                <span className="text-neutral-400 font-mono">Division</span>
+                <span className="font-medium text-white">{team.division}</span>
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between flex-wrap gap-3">
-              <span className="text-xs text-slate-400">
-                Notification recipient: <strong className="text-slate-200">{team.captainEmail}</strong>
+            <div className="pt-3 flex items-center justify-between flex-wrap gap-4 border-t border-white/10">
+              <span className="text-xs text-neutral-400">
+                Notification recipient: <strong className="text-white font-mono">{team.captainEmail}</strong>
               </span>
               <button
                 type="button"
@@ -1543,9 +1548,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   setScheduleAlert(true);
                   setTimeout(() => setScheduleAlert(false), 3000);
                 }}
-                className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold uppercase text-xs transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
               >
-                {scheduleAlert ? 'Notification Enabled' : 'Notify When Fixtures Release'}
+                {scheduleAlert ? 'Notification Enabled ✓' : 'Notify When Fixtures Release'}
               </button>
             </div>
           </div>
