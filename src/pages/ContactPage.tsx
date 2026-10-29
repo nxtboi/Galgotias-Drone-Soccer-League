@@ -38,9 +38,6 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
             </h1>
           </div>
         </div>
-        <p className="text-neutral-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-          Questions regarding squad eligibility, FAI drone cage scrutineering, travel accommodation for outstation teams, or tournament sponsorship? Our organizing committee is here to assist.
-        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
@@ -182,10 +179,10 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                 <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">EMERGENCY PILOT HELPLINES</span>
                 <span className="mt-2.5 block space-y-2">
                   {[
-                    { label: 'Pilot Helpdesk 1', number: '9411053011', display: '+91 94110 53011' },
-                    { label: 'Pilot Helpdesk 2', number: '9798693029', display: '+91 97986 93029' },
-                    { label: 'Safety & Scrutineering', number: '9569696140', display: '+91 95696 96140' },
-                    { label: 'Telemetry & Ref Desk', number: '7626040216', display: '+91 76260 40216' },
+                    { label: 'EVENT COORDINATOR', number: '9411053011', display: '+91 94110 53011' },
+                    { label: 'EVENT COORDINATOR', number: '9798693029', display: '+91 97986 93029' },
+                    { label: 'EVENT COORDINATOR', number: '9569696140', display: '+91 95696 96140' },
+                    { label: 'EVENT COORDINATOR', number: '7626040216', display: '+91 76260 40216' },
                   ].map((item, idx) => (
                     <a
                       key={idx}
@@ -212,15 +209,6 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               <div>
                 <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">SUPPORT EMAIL</span>
                 <span className="text-sm font-mono font-bold text-neutral-200 mt-0.5 block">{GDSL_TOURNAMENT_INFO.supportEmail}</span>
-              </div>
-
-              <div>
-                <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">HOST FACILITY</span>
-                <p className="text-neutral-300 mt-1 leading-relaxed">
-                  Galgotias Centre for Drone Intelligence &amp; Simulation (GCDIS)<br />
-                  Galgotias University, Sector 17A, Yamuna Expressway<br />
-                  Greater Noida, Gautam Buddha Nagar, UP – 203201
-                </p>
               </div>
 
               <div>
