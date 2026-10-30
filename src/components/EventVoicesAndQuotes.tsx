@@ -74,7 +74,7 @@ export const EVENT_QUOTES: TestimonialQuote[] = [
       phone: '+91 120 4370000',
       email: 'ceo@galgotiasuniversity.edu.in',
       linkedin: 'https://www.linkedin.com/school/galgotias-university/',
-      image: '/assets/aistudio/dhruv_sir_26c46d2d.jpg',
+      image: '/assets/aistudio/Galgotias_University_Corporate_Portrait_25e37b2b.png',
       bio: 'Chief Executive Officer spearheading global academic alliances, frontier technology hubs, and futuristic robotics and aerial sports ecosystems at Galgotias University.'
     }
   },
