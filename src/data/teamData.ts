@@ -192,17 +192,15 @@ export const TEAM_MEMBERS: TeamMember[] = [
   // 4. SOCIAL MEDIA & DIGITAL MEDIA
   // ==========================================
   {
-    id: 'zoya-khan',
-    name: 'Zoya Khan',
-    role: 'Head of Social Media & Community',
+    id: 'surya-pratap',
+    name: 'Surya Pratap',
+    role: 'Lead Social Media & Digital Communications',
     department: 'Digital Media & Communications',
     category: 'social_media',
     categoryLabel: 'SOCIAL LEAD',
-    phone: '+91 98114 62091',
-    email: 'social@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    phone: '+91 91610 32135',
+    email: 'suryapratap11900@gmail.com',
+    image: '/assets/aistudio/Professional_South_Asian_Business_Headshot_72dece95.png',
     bio: 'Directing social media campaigns, viral reels, drone pilot spotlights, and tournament countdown engagement.',
   },
   {
