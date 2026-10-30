@@ -75,7 +75,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
   const renderMemberCard = (member: TeamMember) => {
     const isFlipped = !!flippedCards[member.id];
     return (
-      <div key={member.id} className="techkriti-card-perspective h-[480px] lg:h-[500px] w-full">
+      <div key={member.id} className="techkriti-card-perspective h-[380px] sm:h-[395px] w-full max-w-[310px] mx-auto">
         <div
           className={`techkriti-card-inner ${
             isFlipped ? 'is-flipped' : ''
@@ -100,19 +100,19 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             aria-label={`${member.name}. Click to view contact details`}
           >
             {/* High-tech Top Bar */}
-            <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/85 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
+            <div className="absolute top-2.5 inset-x-2.5 z-20 flex items-center justify-between pointer-events-none">
+              <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/85 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
                 {member.categoryLabel}
               </span>
 
               <button
                 type="button"
                 onClick={(e) => toggleFlip(member.id, e)}
-                className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] text-[10px] font-rajdhani font-bold uppercase tracking-wider transition-all duration-200 shadow-md cursor-pointer"
+                className="pointer-events-auto flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] text-[9px] font-rajdhani font-bold uppercase tracking-wider transition-all duration-200 shadow-md cursor-pointer"
                 title="Flip to contacts"
               >
                 <span>Contacts</span>
-                <RotateCw className="w-3 h-3 text-[#d0fe1d] group-hover:rotate-180 transition-transform duration-500" />
+                <RotateCw className="w-2.5 h-2.5 text-[#d0fe1d] group-hover:rotate-180 transition-transform duration-500" />
               </button>
             </div>
 
@@ -132,27 +132,27 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Front Bottom Card Info */}
-            <div className="absolute bottom-0 inset-x-0 z-20 p-5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-10 text-left space-y-3">
-              <div className="space-y-1">
-                <h3 className="font-orbitron font-bold text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-tight">
+            <div className="absolute bottom-0 inset-x-0 z-20 p-3.5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-7 text-left space-y-1.5">
+              <div className="space-y-0.5">
+                <h3 className="font-orbitron font-bold text-base text-white group-hover:text-[#d0fe1d] transition-colors leading-tight truncate">
                   {member.name}
                 </h3>
-                <div className="font-rajdhani text-xs sm:text-sm font-bold text-[#d0fe1d] tracking-wide uppercase">
+                <div className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-wide uppercase truncate">
                   {member.role}
                 </div>
-                <div className="text-[11px] text-neutral-400 font-sans truncate">
+                <div className="text-[10px] text-neutral-400 font-sans truncate">
                   {member.department}
                 </div>
               </div>
 
               {/* Flip Prompt */}
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-neutral-400 text-[11px] font-mono group-hover:text-white transition-colors">
-                <span className="flex items-center gap-1.5 text-neutral-400 group-hover:text-[#d0fe1d] transition-colors">
-                  <RotateCw className="w-3 h-3 text-[#d0fe1d]" />
+              <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-neutral-400 text-[10px] font-mono group-hover:text-white transition-colors">
+                <span className="flex items-center gap-1 text-neutral-400 group-hover:text-[#d0fe1d] transition-colors">
+                  <RotateCw className="w-2.5 h-2.5 text-[#d0fe1d]" />
                   <span>Click to flip card</span>
                 </span>
-                <span className="text-[10px] text-neutral-500 font-mono">
-                  DIRECT COMM ↵
+                <span className="text-[9px] text-neutral-500 font-mono">
+                  CONTACT ↵
                 </span>
               </div>
             </div>
@@ -162,15 +162,15 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               BACK FACE: Direct Contact Channels & Bio
               ========================================= */}
           <div 
-            className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-4 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
+            className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-3.5 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
               isFlipped ? 'pointer-events-auto' : 'pointer-events-none'
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-28 h-28 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
 
             {/* Back Header: Member summary & Flip back trigger */}
-            <div className="relative z-10 flex items-start justify-between gap-2 border-b border-white/15 pb-2">
+            <div className="relative z-10 flex items-start justify-between gap-2 border-b border-white/15 pb-1.5">
               <div className="space-y-0.5 min-w-0">
                 <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-[#d0fe1d] block">
                   {member.categoryLabel}
@@ -178,7 +178,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <h4 className="font-orbitron font-bold text-xs sm:text-sm text-white leading-snug truncate">
                   {member.name}
                 </h4>
-                <p className="font-rajdhani text-[11px] font-bold text-[#d0fe1d] uppercase leading-snug line-clamp-2">
+                <p className="font-rajdhani text-[10px] font-bold text-[#d0fe1d] uppercase leading-snug line-clamp-1">
                   {member.role}
                 </p>
               </div>
@@ -196,18 +196,18 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Back Center: Scope & Bio */}
-            <div className="relative z-10 space-y-2 py-1.5 flex-1 flex flex-col justify-center select-text min-h-0">
-              <div className="text-[11px] text-neutral-300 font-sans leading-snug">
-                <span className="text-neutral-500 block text-[9px] font-mono uppercase tracking-wider mb-0.5">Department / Unit:</span>
+            <div className="relative z-10 space-y-1.5 py-1 flex-1 flex flex-col justify-center select-text min-h-0">
+              <div className="text-[10px] text-neutral-300 font-sans leading-snug">
+                <span className="text-neutral-500 block text-[8px] font-mono uppercase tracking-wider">Department:</span>
                 <span className="text-white font-medium select-text line-clamp-1">{member.department}</span>
               </div>
 
               {member.bio && (
-                <div className="p-2 bg-[#0e100d]/90 border border-white/10 rounded-xl select-text">
-                  <span className="text-[9px] font-mono text-[#d0fe1d] uppercase tracking-wider block mb-0.5">
-                    Operational Scope:
+                <div className="p-1.5 bg-[#0e100d]/90 border border-white/10 rounded-lg select-text">
+                  <span className="text-[8px] font-mono text-[#d0fe1d] uppercase tracking-wider block mb-0.5">
+                    Scope:
                   </span>
-                  <p className="text-[11px] text-neutral-300 font-sans leading-relaxed select-text line-clamp-3">
+                  <p className="text-[10px] text-neutral-300 font-sans leading-relaxed select-text line-clamp-2">
                     {member.bio}
                   </p>
                 </div>
@@ -215,35 +215,35 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Back Contacts List (Click to Call & Mail + 1-Tap Copy) */}
-            <div className="relative z-10 space-y-1.5 pt-2 border-t border-white/15">
+            <div className="relative z-10 space-y-1 pt-1.5 border-t border-white/15">
               {/* Phone Channel */}
               <div 
-                className="flex items-center justify-between gap-2 p-1.5 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
+                className="flex items-center justify-between gap-1.5 p-1 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-lg transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
                 <a
                   href={`tel:${member.phone.replace(/\s+/g, '')}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors min-w-0 flex-1"
+                  className="flex items-center gap-1.5 text-neutral-200 hover:text-[#d0fe1d] transition-colors min-w-0 flex-1"
                   title="Direct Phone Dial"
                 >
-                  <div className="w-5 h-5 rounded-md bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
                     <Phone className="w-2.5 h-2.5 text-[#d0fe1d]" />
                   </div>
-                  <span className="font-mono text-[11px] truncate tracking-wider font-semibold select-text">
+                  <span className="font-mono text-[10px] truncate tracking-wider font-semibold select-text">
                     {member.phone}
                   </span>
                 </a>
                 <button
                   type="button"
                   onClick={(e) => copyToClipboard(member.phone, `phone-${member.id}`, e)}
-                  className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
+                  className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-0.5 rounded hover:bg-white/5 cursor-pointer shrink-0"
                   title="Copy Phone Number"
                 >
                   {copiedId === `phone-${member.id}` ? (
-                    <Check className="w-3 h-3 text-[#d0fe1d]" />
+                    <Check className="w-2.5 h-2.5 text-[#d0fe1d]" />
                   ) : (
-                    <Copy className="w-3 h-3" />
+                    <Copy className="w-2.5 h-2.5" />
                   )}
                 </button>
               </div>
@@ -251,32 +251,32 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
               {/* Email Channel */}
               {member.email && (
                 <div 
-                  className="flex items-center justify-between gap-2 p-1.5 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-xl transition-all"
+                  className="flex items-center justify-between gap-1.5 p-1 bg-[#0e100d] border border-white/15 hover:border-[#d0fe1d]/60 rounded-lg transition-all"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <a
                     href={`mailto:${member.email}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-2 text-neutral-200 hover:text-[#d0fe1d] transition-colors min-w-0 flex-1"
+                    className="flex items-center gap-1.5 text-neutral-200 hover:text-[#d0fe1d] transition-colors min-w-0 flex-1"
                     title="Send Email"
                   >
-                    <div className="w-5 h-5 rounded-md bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
+                    <div className="w-4 h-4 rounded bg-[#d0fe1d]/10 flex items-center justify-center shrink-0">
                       <Mail className="w-2.5 h-2.5 text-[#d0fe1d]" />
                     </div>
-                    <span className="font-mono text-[10px] truncate tracking-wide font-semibold select-text">
+                    <span className="font-mono text-[9px] truncate tracking-wide font-semibold select-text">
                       {member.email}
                     </span>
                   </a>
                   <button
                     type="button"
                     onClick={(e) => copyToClipboard(member.email!, `email-${member.id}`, e)}
-                    className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-1 rounded-md hover:bg-white/5 cursor-pointer shrink-0"
+                    className="text-neutral-400 hover:text-[#d0fe1d] transition-colors p-0.5 rounded hover:bg-white/5 cursor-pointer shrink-0"
                     title="Copy Email"
                   >
                     {copiedId === `email-${member.id}` ? (
-                      <Check className="w-3 h-3 text-[#d0fe1d]" />
+                      <Check className="w-2.5 h-2.5 text-[#d0fe1d]" />
                     ) : (
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-2.5 h-2.5" />
                     )}
                   </button>
                 </div>
@@ -287,17 +287,17 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 className="flex items-center justify-between pt-1"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {member.linkedin && (
                     <a
                       href={member.linkedin.startsWith('http') ? member.linkedin : `https://${member.linkedin}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
+                      className="w-6 h-6 rounded-md bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
                       title="LinkedIn Profile"
                     >
-                      <Linkedin className="w-3.5 h-3.5" />
+                      <Linkedin className="w-3 h-3" />
                     </a>
                   )}
                   {member.github && (
@@ -306,10 +306,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
+                      className="w-6 h-6 rounded-md bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
                       title="GitHub Profile"
                     >
-                      <Github className="w-3.5 h-3.5" />
+                      <Github className="w-3 h-3" />
                     </a>
                   )}
                   {member.instagram && (
@@ -318,10 +318,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="w-7 h-7 rounded-lg bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
+                      className="w-6 h-6 rounded-md bg-[#0e100d] border border-white/20 flex items-center justify-center text-neutral-300 hover:text-black hover:bg-[#d0fe1d] hover:border-[#d0fe1d] transition-all cursor-pointer"
                       title="Instagram Handle"
                     >
-                      <Instagram className="w-3.5 h-3.5" />
+                      <Instagram className="w-3 h-3" />
                     </a>
                   )}
                 </div>
@@ -329,10 +329,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <button
                   type="button"
                   onClick={(e) => toggleFlip(member.id, e)}
-                  className="inline-flex items-center gap-1 text-[10px] font-rajdhani font-bold uppercase text-neutral-300 hover:text-black hover:bg-[#d0fe1d] bg-white/5 px-2 py-1 rounded-lg border border-white/20 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1 text-[9px] font-rajdhani font-bold uppercase text-neutral-300 hover:text-black hover:bg-[#d0fe1d] bg-white/5 px-2 py-0.5 rounded border border-white/20 transition-all cursor-pointer"
                 >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Flip to Photo</span>
+                  <RotateCcw className="w-2.5 h-2.5" />
+                  <span>Photo</span>
                 </button>
               </div>
             </div>
@@ -428,7 +428,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 </div>
 
                 {/* Section Grid of 3D Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
                   {members.map(renderMemberCard)}
                 </div>
               </section>
