@@ -83,9 +83,9 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   };
 
   return (
-    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-10 flex items-center justify-center">
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-12 flex items-center justify-center">
       {/* Main Split-Format Login Container (Static, No Parallax) */}
-      <div className="w-full max-w-5xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden">
+      <div className="w-full max-w-7xl rounded-3xl bg-[#141612]/95 backdrop-blur-2xl border border-white/15 shadow-[0_28px_80px_rgba(0,0,0,0.85)] p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-0 overflow-hidden">
         {/* Left Visual Showcase Card */}
         <div className="lg:col-span-5 relative rounded-2xl overflow-hidden min-h-[300px] sm:min-h-[360px] lg:min-h-[620px] flex flex-col justify-between p-6 sm:p-7 border border-white/10 bg-[#0d0e0b]">
           {/* Background Cyberspace Imagery (Static) */}

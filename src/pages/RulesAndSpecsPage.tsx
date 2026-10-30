@@ -48,7 +48,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
 
   return (
     <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-white/80">
-      <div className="max-w-6xl mx-auto space-y-12">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Header with GCDIS 5th Revision Accreditation */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-900 px-4 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">

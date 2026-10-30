@@ -65,8 +65,8 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   };
 
   return (
-    <div className="relative w-full flex-1 flex flex-col pt-1.5 sm:pt-2 pb-3 sm:pb-5 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 text-white">
-      <div className="w-full max-w-[1536px] flex-1 flex flex-col mx-auto">
+    <div className="relative w-full flex-1 flex flex-col pt-1.5 sm:pt-2 pb-3 sm:pb-5 px-4 sm:px-6 lg:px-12 text-white">
+      <div className="w-full max-w-7xl flex-1 flex flex-col mx-auto">
         {/* XOTC Chamfered Technical Hero Frame - Full-screen adaptive video presentation */}
         <div
           className="relative w-full flex-1 min-h-[calc(100dvh-4.5rem)] sm:min-h-[calc(100dvh-5.25rem)] border border-white/25 bg-black p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"

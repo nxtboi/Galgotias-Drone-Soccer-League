@@ -81,23 +81,6 @@
   }
 }
 
-/* Scale up micro pixel font classes site-wide */
-.text-\[7px\] {
-  font-size: 0.575rem !important;
-}
-.text-\[8px\] {
-  font-size: 0.625rem !important;
-}
-.text-\[9px\] {
-  font-size: 0.6875rem !important;
-}
-.text-\[10px\] {
-  font-size: 0.75rem !important;
-}
-.text-\[11px\] {
-  font-size: 0.8125rem !important;
-}
-
 .font-orbitron {
   font-family: 'Orbitron', sans-serif;
 }

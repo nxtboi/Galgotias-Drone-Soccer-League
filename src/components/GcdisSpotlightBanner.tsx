@@ -13,10 +13,10 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
   };
 
   return (
-    <div className="relative z-20 w-full px-4 sm:px-8 lg:px-16 my-20 space-y-20 pointer-events-auto text-white">
+    <div className="relative z-20 w-full px-4 sm:px-6 lg:px-12 my-20 space-y-20 pointer-events-auto text-white">
       {/* Banner 1: Host Institution & Proving Arena (Interchanged from Overview Section) */}
       <Parallax3DSection offsetY={45} rotateXRange={[6, 0, -5]} scaleRange={[0.96, 1, 0.97]}>
-        <Tilt3DCard maxTilt={4} scrollOffsetY={25} className="max-w-6xl mx-auto">
+        <Tilt3DCard maxTilt={4} scrollOffsetY={25} className="max-w-7xl mx-auto">
           <section className="bg-[#161814] border border-[#d0fe1d]/50 p-6 sm:p-10 md:p-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 text-left shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <GcdisLogo size="lg" showWordmark={false} />
@@ -50,7 +50,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
 
       {/* Grid: 4 Tournament Pillars with 3D Parallax & Tilt */}
       <Parallax3DSection offsetY={50} rotateXRange={[7, 0, -5]} scaleRange={[0.95, 1, 0.96]}>
-        <div className="max-w-6xl mx-auto space-y-8 text-left">
+        <div className="max-w-7xl mx-auto space-y-8 text-left">
           <div className="text-center space-y-2">
             <span className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
               TOURNAMENT DIRECTORY

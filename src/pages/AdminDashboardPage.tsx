@@ -209,7 +209,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const sheetId = sheetData.spreadsheetId || getStoredSheetInfo().spreadsheetId;
 
   return (
-    <div className="relative z-20 min-h-screen pt-24 pb-24 px-4 sm:px-6 lg:px-10 text-white font-sans">
+    <div className="relative z-20 min-h-screen pt-24 pb-24 px-4 sm:px-6 lg:px-12 text-white font-sans">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Top Admin Header Bar */}
         <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl">

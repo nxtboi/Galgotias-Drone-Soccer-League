@@ -58,17 +58,16 @@ export const TEAM_MEMBERS: TeamMember[] = [
   // 1. MANAGEMENT & SECRETARIAT
   // ==========================================
   {
-    id: 'arjun-singhania',
-    name: 'Arjun Singhania',
+    id: 'rajat-thakur',
+    name: 'Rajat Thakur',
     role: 'Overall Festival Coordinator (GDSL 2026)',
     department: 'Robotics & Autonomous Systems, Final Year',
     category: 'management',
     categoryLabel: 'CONVENER',
-    phone: '+91 99580 43210',
-    email: 'coordinator@gdsl2026.org',
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+    phone: '+91 94110 53011',
+    email: 'rajatchauhan889457@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/rajat-chauhan-134880328',
+    image: '/assets/aistudio/WhatsApp_Image_2026-10-29_at_4.25.46_PM_70fe915e.jpeg',
     bio: 'Chief convenor steering overall tournament architecture, collegiate registration quotas, and nationwide squad outreach.',
   },
   {

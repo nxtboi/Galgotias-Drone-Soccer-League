@@ -32,12 +32,12 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
     <div className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-transparent text-white">
       <div className="max-w-7xl mx-auto space-y-24">
         {/* ABOUT: GCDIS (Galgotias Centre of Drone Intelligence & Simulation) */}
-        <section className="max-w-5xl mx-auto text-left space-y-4">
+        <section className="w-full text-left space-y-4">
           <h2 className="text-2xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
             About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence & Simulation (GCDIS)</span>
           </h2>
 
-          <p className="text-neutral-300 text-base sm:text-lg md:text-xl leading-relaxed font-sans max-w-4xl text-justify">
+          <p className="text-neutral-300 text-base sm:text-lg md:text-xl leading-relaxed font-sans w-full text-justify">
             The Galgotias Centre for Drone Intelligence & Simulation (GCDIS) stands as a premier hub of innovation, research, and training dedicated to advancing the frontiers of unmanned aerial systems and intelligent flight technologies. Established at Galgotias University, the Centre embodies the institution’s vision to create a transformative platform for nurturing next generation engineers, innovators, and entrepreneurs in the field of drones and autonomous aerial systems.
           </p>
         </section>
@@ -45,7 +45,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
         {/* SECTION 1: WHAT IS DRONE SOCCER? (3D Scroll Perspective) */}
         <Parallax3DSection offsetY={65} rotateXRange={[8, 0, -6]} scaleRange={[0.94, 1, 0.95]}>
           <section className="space-y-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left w-full">
               <ParallaxDepthLayer speed={0.18} translateZ={28} className="lg:col-span-6">
                 <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block mb-2">
                   OFFICIAL LEAGUE EXPLAINER

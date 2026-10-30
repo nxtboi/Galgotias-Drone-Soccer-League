@@ -174,7 +174,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
           >
             {/* LEFT: Card like ones in our team page */}
             <div className="lg:col-span-4 flex flex-col justify-center">
-              <div className="techkriti-card-perspective h-[480px] lg:h-[500px] w-full max-w-sm mx-auto">
+              <div className="techkriti-card-perspective h-[480px] lg:h-[500px] w-full">
                 <div
                   className={`techkriti-card-inner ${
                     isCardFlipped ? 'is-flipped' : ''

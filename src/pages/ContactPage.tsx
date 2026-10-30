@@ -24,7 +24,8 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
   };
 
   return (
-    <div className="relative z-20 w-full min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-12 max-w-6xl mx-auto space-y-12 text-white">
+    <div className="relative z-20 w-full min-h-screen pt-28 pb-20 px-4 sm:px-6 lg:px-12 text-white">
+      <div className="max-w-7xl mx-auto space-y-12">
       {/* Header Banner */}
       <div className="bg-[#161814] border border-white/20 p-8 sm:p-12 text-left space-y-4">
         <div className="flex items-center gap-4">
@@ -238,6 +239,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
             </a>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenShare }) => {
   };
 
   return (
-    <footer className="relative z-30 w-full px-4 sm:px-8 md:px-16 lg:px-24 border-t border-white/15 pt-14 sm:pt-20 pb-12 bg-[#0d0e0c] text-white pointer-events-auto">
+    <footer className="relative z-30 w-full px-4 sm:px-6 lg:px-12 border-t border-white/15 pt-14 sm:pt-20 pb-12 bg-[#0d0e0c] text-white pointer-events-auto">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Top Grid: XOTC Style Brand on Left & Neon-Lime Header Columns on Right */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-left">

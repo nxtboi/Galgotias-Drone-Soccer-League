@@ -11,7 +11,7 @@ export const TournamentBracketPage: React.FC<TournamentBracketPageProps> = ({
 }) => {
   return (
     <div className="relative z-20 min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-12 bg-transparent text-white">
-      <div className="max-w-5xl mx-auto space-y-12 text-center">
+      <div className="max-w-7xl mx-auto space-y-12 text-center">
         {/* Header Banner */}
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">

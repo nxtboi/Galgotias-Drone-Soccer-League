@@ -452,8 +452,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   ];
 
   return (
-    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 text-white font-sans">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="relative z-20 min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-12 text-white font-sans">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Status Notifications */}
         {sheetSyncSuccess && (
           <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs flex items-center justify-between shadow-lg">

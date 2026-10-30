@@ -18,7 +18,7 @@ export const SponsorsDivisionSection: React.FC<SponsorsDivisionSectionProps> = (
         aria-hidden="true" 
       />
 
-      <div className="max-w-6xl mx-auto space-y-10 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-10 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
