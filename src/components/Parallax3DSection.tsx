@@ -53,7 +53,7 @@ export const Tilt3DCard: React.FC<Tilt3DCardProps> = ({
   onClick,
 }) => {
   return (
-    <div onClick={onClick} className={className}>
+    <div onClick={onClick} className={`h-full ${className}`.trim()}>
       <div className="w-full h-full">{children}</div>
     </div>
   );

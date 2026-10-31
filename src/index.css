@@ -53,12 +53,24 @@
   }
 
   html {
-    font-size: 92%;
+    font-size: 88%;
   }
 
   @media (min-width: 640px) {
     html {
+      font-size: 91%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
       font-size: 94%;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    html {
+      font-size: 98%;
     }
   }
 

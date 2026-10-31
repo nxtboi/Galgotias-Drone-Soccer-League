@@ -147,34 +147,34 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
   const currentMember: TeamMember = currentQuote.member;
 
   return (
-    <section className="relative z-20 w-full py-20 px-4 sm:px-6 lg:px-12 bg-[#141612] text-white overflow-hidden border-y border-white/15">
+    <section className="relative z-20 w-full py-12 sm:py-16 md:py-20 lg:py-24 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 bg-[#141612] text-white overflow-hidden border-y border-white/15">
       <Parallax3DSection
         offsetY={60}
         rotateXRange={[8, 0, -7]}
         scaleRange={[0.95, 1, 0.96]}
-        className="max-w-7xl mx-auto space-y-14 relative z-10"
+        className="w-full max-w-[1440px] 2xl:max-w-[1600px] mx-auto space-y-10 sm:space-y-12 lg:space-y-14 relative z-10"
       >
-        <div className="space-y-14">
+        <div className="space-y-10 sm:space-y-12 lg:space-y-14">
           {/* Section Title */}
-          <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 px-2">
             <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase tracking-[0.22em]">
               CHAMPIONSHIP VOICES &amp; ENDORSEMENTS
             </span>
 
-            <h2 className="text-3xl sm:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
               VOICES OF THE <span className="text-[#d0fe1d]">LEAGUE</span>
             </h2>
           </div>
 
           {/* Interactive Division: Team Member Card on Left + Quote Division on Right */}
           <div 
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-7xl w-full mx-auto"
+            className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 xl:gap-10 items-stretch w-full mx-auto"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            {/* LEFT: Card like ones in our team page */}
-            <div className="lg:col-span-4 flex flex-col justify-center">
-              <div className="techkriti-card-perspective h-[480px] lg:h-[500px] w-full">
+            {/* LEFT: Leadership Portrait Card — Responsive aspect ratio & height matched to Quote Division */}
+            <div className="md:col-span-5 lg:col-span-4 xl:col-span-4 flex flex-col justify-center items-center">
+              <div className="techkriti-card-perspective w-full max-w-[330px] sm:max-w-[360px] md:max-w-none h-[380px] sm:h-[410px] md:h-full md:min-h-[410px] lg:min-h-[440px] xl:min-h-[460px]">
                 <div
                   className={`techkriti-card-inner ${
                     isCardFlipped ? 'is-flipped' : ''
@@ -233,9 +233,9 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                     </div>
 
                     {/* Front Bottom Card Info */}
-                    <div className="absolute bottom-0 inset-x-0 z-20 p-5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-10 text-left space-y-3">
-                      <div className="space-y-1">
-                        <h3 className="font-orbitron font-bold text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-tight">
+                    <div className="absolute bottom-0 inset-x-0 z-20 p-4 sm:p-5 bg-gradient-to-t from-[#0e100d] via-[#0e100d]/90 to-transparent pt-8 sm:pt-10 text-left space-y-2.5 sm:space-y-3">
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <h3 className="font-orbitron font-bold text-base sm:text-lg text-white group-hover:text-[#d0fe1d] transition-colors leading-tight">
                           {currentMember.name}
                         </h3>
                         <div className="font-rajdhani text-xs sm:text-sm font-bold text-[#d0fe1d] tracking-wide uppercase">
@@ -261,7 +261,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
 
                   {/* BACK FACE: Direct Contact Channels & Bio */}
                   <div
-                    className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
+                    className={`techkriti-card-face techkriti-card-back bg-[#141612] border-2 border-[#d0fe1d]/50 p-4 sm:p-5 flex flex-col justify-between shadow-2xl text-left overflow-hidden select-text cursor-default ${
                       isCardFlipped ? 'pointer-events-auto' : 'pointer-events-none'
                     }`}
                     onClick={(e) => e.stopPropagation()}
@@ -269,12 +269,12 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#d0fe1d]/10 blur-2xl rounded-full pointer-events-none" />
 
                     {/* Back Header */}
-                    <div className="relative z-10 flex items-start justify-between gap-3 border-b border-white/15 pb-3">
+                    <div className="relative z-10 flex items-start justify-between gap-3 border-b border-white/15 pb-2.5 sm:pb-3">
                       <div className="space-y-0.5">
                         <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#d0fe1d]">
                           {currentMember.categoryLabel}
                         </span>
-                        <h4 className="font-orbitron font-bold text-base text-white leading-tight">
+                        <h4 className="font-orbitron font-bold text-sm sm:text-base text-white leading-tight">
                           {currentMember.name}
                         </h4>
                         <p className="font-rajdhani text-xs font-bold text-[#d0fe1d] uppercase">
@@ -295,7 +295,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                     </div>
 
                     {/* Back Center: Scope & Bio */}
-                    <div className="relative z-10 space-y-3 py-2 select-text">
+                    <div className="relative z-10 space-y-2.5 py-2 select-text">
                       <div className="text-[11px] text-neutral-400 font-sans leading-relaxed">
                         <span className="text-neutral-500 block text-[10px] font-mono uppercase tracking-wider">
                           Department / Unit:
@@ -413,11 +413,11 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
               </div>
             </div>
 
-            {/* RIGHT: Featured Interactive Quote Card (This division) */}
-            <div className="lg:col-span-8 flex flex-col justify-center w-full">
+            {/* RIGHT: Featured Interactive Quote Card — Fluidly scaled to match portrait card height */}
+            <div className="md:col-span-7 lg:col-span-8 xl:col-span-8 flex flex-col justify-center w-full">
               <Tilt3DCard maxTilt={5} scrollOffsetY={30} className="w-full h-full">
-                <div className="relative w-full bg-[#111210] border border-[#d0fe1d]/40 p-6 sm:p-10 md:p-12 shadow-[0_24px_60px_rgba(0,0,0,0.65)] text-left overflow-hidden h-full flex flex-col justify-between">
-                  <Quote className="absolute top-6 right-6 w-20 h-20 text-[#d0fe1d]/10 pointer-events-none" />
+                <div className="relative w-full bg-[#111210] border border-[#d0fe1d]/40 p-5 sm:p-8 md:p-9 lg:p-11 xl:p-12 shadow-[0_24px_60px_rgba(0,0,0,0.65)] text-left overflow-hidden h-full md:min-h-[410px] lg:min-h-[440px] xl:min-h-[460px] flex flex-col justify-between">
+                  <Quote className="absolute top-4 right-4 sm:top-6 sm:right-6 w-14 h-14 sm:w-20 sm:h-20 text-[#d0fe1d]/10 pointer-events-none" />
 
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -426,7 +426,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -14 }}
                       transition={{ duration: 0.28 }}
-                      className="space-y-6"
+                      className="space-y-4 sm:space-y-6"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#d0fe1d]">
@@ -437,26 +437,26 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                         </span>
                       </div>
 
-                      <blockquote className="text-base sm:text-xl md:text-2xl font-sans font-bold leading-relaxed text-white">
+                      <blockquote className="text-sm sm:text-lg md:text-xl lg:text-2xl font-sans font-bold leading-relaxed text-white">
                         &ldquo;{currentQuote.quote}&rdquo;
                       </blockquote>
 
-                      <div className="flex items-center gap-4 pt-4 border-t border-white/15">
+                      <div className="flex items-center gap-3.5 sm:gap-4 pt-3.5 sm:pt-4 border-t border-white/15">
                         <img
                           src={currentMember.image}
                           alt={currentMember.name}
-                          className="w-12 h-12 rounded-full object-cover object-top border-2 border-[#d0fe1d]/50 shrink-0"
+                          className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover object-top border-2 border-[#d0fe1d]/50 shrink-0"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src =
                               'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
                           }}
                         />
-                        <div>
-                          <div className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                        <div className="min-w-0">
+                          <div className="font-orbitron font-black text-xs sm:text-sm md:text-base text-white uppercase tracking-wider truncate">
                             {currentQuote.author}
                           </div>
-                          <div className="text-xs font-mono text-[#d0fe1d]">
+                          <div className="text-xs font-mono text-[#d0fe1d] truncate">
                             {currentQuote.role} · <span className="text-neutral-400">{currentQuote.organization}</span>
                           </div>
                         </div>
@@ -465,7 +465,7 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                   </AnimatePresence>
 
                   {/* Navigation Controls */}
-                  <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10">
+                  <div className="flex items-center justify-between pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-white/10">
                     <div className="flex items-center gap-2">
                       {EVENT_QUOTES.map((_, idx) => (
                         <button
@@ -495,14 +495,14 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handlePrev}
-                        className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                        className="p-2 sm:p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
                         aria-label="Previous quote"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       <button
                         onClick={handleNext}
-                        className="p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
+                        className="p-2 sm:p-2.5 bg-[#171915] hover:border-[#d0fe1d] text-white hover:text-[#d0fe1d] transition-colors cursor-pointer border border-white/20"
                         aria-label="Next quote"
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -514,47 +514,53 @@ export const EventVoicesAndQuotes: React.FC<EventVoicesAndQuotesProps> = () => {
             </div>
           </div>
 
-          {/* 3-Pillar Event Value Cards with Staggered 3D Parallax */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left">
+          {/* 3-Pillar Event Value Cards with Responsive Grid Sizing */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 pt-2 text-left items-stretch">
             <Tilt3DCard maxTilt={7} scrollOffsetY={20}>
-              <div className="xotc-card p-6 h-full">
-                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-5 h-5" />
+              <div className="xotc-card p-5 sm:p-6 lg:p-7 h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                    GDSL CLASS REGULATIONS
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
+                    Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.
+                  </p>
                 </div>
-                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  GDSL CLASS REGULATIONS
-                </h3>
-                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                  Full adherence to international 5th Revision standards for 400mm and 200mm protective sphere multirotors, fail-safe cutoffs, and frequency hopping.
-                </p>
               </div>
             </Tilt3DCard>
 
             <Tilt3DCard maxTilt={7} scrollOffsetY={38}>
-              <div className="xotc-card p-6 h-full">
-                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-                  <Award className="w-5 h-5" />
+              <div className="xotc-card p-5 sm:p-6 lg:p-7 h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                    ₹2,00,000 Total Purse
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
+                    Dedicated cash prizes, trophies, medals, official certificates, and national ranking points for all top-performing squads.
+                  </p>
                 </div>
-                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  ₹2,00,000 Total Purse
-                </h3>
-                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                  Dedicated cash prizes, trophies, medals, official certificates, and national ranking points for all top-performing squads.
-                </p>
               </div>
             </Tilt3DCard>
 
-            <Tilt3DCard maxTilt={7} scrollOffsetY={24}>
-              <div className="xotc-card p-6 h-full">
-                <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
-                  <Ticket className="w-5 h-5" />
+            <Tilt3DCard maxTilt={7} scrollOffsetY={24} className="sm:col-span-2 lg:col-span-1">
+              <div className="xotc-card p-5 sm:p-6 lg:p-7 h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 xotc-icon-box flex items-center justify-center mb-4">
+                    <Ticket className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-orbitron font-black text-sm sm:text-base text-white uppercase tracking-wider">
+                    Free Spectator Access
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
+                    Open to all university students, school robotics clubs, faculty, and tech enthusiasts. Experience live arena matches and pit-stop technical action.
+                  </p>
                 </div>
-                <h3 className="font-orbitron font-black text-base text-white uppercase tracking-wider">
-                  Free Spectator Access
-                </h3>
-                <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
-                  Open to all university students, school robotics clubs, faculty, and tech enthusiasts. Experience live arena matches and pit-stop technical action.
-                </p>
               </div>
             </Tilt3DCard>
           </div>
