@@ -60,7 +60,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'rajat-thakur',
     name: 'Rajat Thakur',
-    role: 'Head Event Coordinator',
+    role: 'Head of Event Management',
     department: 'Computer Science Engineering, 3rd Year',
     category: 'management',
     categoryLabel: 'CONVENER',
@@ -73,7 +73,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'ayush-sinha',
     name: 'Ayush Sinha',
-    role: 'Chief Secretariat Lead',
+    role: 'Event Management & Secretariat',
     department: 'School of Computing Sciences',
     category: 'management',
     categoryLabel: 'SECRETARIAT',
@@ -87,8 +87,8 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'shubh-gupta',
     name: 'Shubh Gupta',
-    role: 'Event Management',
-    department: 'Electronics and communication engineering (Artificial intelligence and machine learning)',
+    role: 'Event Management & Secretariat',
+    department: 'B.Tech ECE (AI & ML), 3rd Year',
     category: 'management',
     categoryLabel: 'ARENA MARSHALL',
     phone: '+91 63886 13348',
@@ -132,7 +132,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'ayush-pandey',
     name: 'Ayush Pandey',
-    role: 'Ballistic Sphere & Safety Marshall',
+    role: 'Technical Scrutineering & Safety Lead',
     department: 'Materials & Mechanical Dynamics Lab',
     category: 'technical',
     categoryLabel: 'SAFETY MARSHALL',
@@ -176,7 +176,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'akshit-choudhary',
     name: 'Akshit Choudhary',
-    role: 'National Campus Ambassador Lead',
+    role: 'Graphic Design & Intercollegiate Outreach Lead',
     department: 'Outreach & Intercollegiate Affairs',
     category: 'marketing',
     categoryLabel: 'AMBASSADOR LEAD',
@@ -218,7 +218,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'nikhil-kumar',
     name: 'Nikhil Kumar',
-    role: 'Head of Esports Broadcast & Live Stream',
+    role: 'Social Media & Digital Media Lead',
     department: 'BSc. Artificial Intelligence',
     category: 'social_media',
     categoryLabel: 'BROADCAST LEAD',
