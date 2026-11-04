@@ -60,7 +60,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'rajat-thakur',
     name: 'Rajat Thakur',
-    role: 'Head Event Coordinator (GDSL 2026)',
+    role: 'Head Event Coordinator',
     department: 'Computer Science Engineering, 3rd Year',
     category: 'management',
     categoryLabel: 'CONVENER',
