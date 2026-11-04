@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="100%" height="100%">
+  <!-- RadioMaster Red Wing Symbol -->
+  <g transform="translate(20, 15)">
+    <path d="M6 35 L26 5 L40 5 L28 25 L48 25 L40 45 L14 45 Z" fill="#d90429"/>
+    <path d="M26 5 L44 5 L36 17 L22 17 Z" fill="#ef233c"/>
+    <circle cx="16" cy="38" r="4" fill="#111111"/>
+    <!-- Signal Waveform Bars -->
+    <rect x="52" y="30" width="4" height="15" fill="#111111" rx="1"/>
+    <rect x="58" y="22" width="4" height="23" fill="#111111" rx="1"/>
+    <rect x="64" y="14" width="4" height="31" fill="#d90429" rx="1"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="98" y="39" font-family="Arial Black, sans-serif" font-size="21" font-weight="900" fill="#111111" letter-spacing="1">Radio<tspan fill="#d90429">Master</tspan></text>
+  <text x="99" y="55" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#555555" letter-spacing="2.8">RADIO SYSTEMS &amp; AVIONICS</text>
+</svg>

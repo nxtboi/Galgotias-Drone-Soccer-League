@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="100%" height="100%">
+  <!-- ExpressLRS Logo -->
+  <g transform="translate(20, 14)">
+    <polygon points="12,10 44,26 12,42 22,26" fill="#00b4d8"/>
+    <polygon points="26,10 52,26 26,42 34,26" fill="#10b981"/>
+    <circle cx="44" cy="26" r="4" fill="#ffffff" stroke="#00b4d8" stroke-width="1.5"/>
+  </g>
+  <text x="90" y="38" font-family="Arial Black, Impact, sans-serif" font-size="22" font-weight="900" fill="#0f172a" letter-spacing="1.5">Express<tspan fill="#10b981">LRS</tspan></text>
+  <text x="91" y="53" font-family="Arial, sans-serif" font-size="8" font-weight="800" fill="#00b4d8" letter-spacing="2">SUB-GHZ &amp; 2.4GHZ RC LINK</text>
+</svg>
