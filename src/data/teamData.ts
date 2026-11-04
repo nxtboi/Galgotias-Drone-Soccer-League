@@ -61,7 +61,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'rajat-thakur',
     name: 'Rajat Thakur',
     role: 'Head of Event Management',
-    department: 'Computer Science Engineering, 3rd Year',
+    department: 'Computer Science Engineering',
     category: 'management',
     categoryLabel: 'CONVENER',
     phone: '+91 94110 53011',
