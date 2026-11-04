@@ -118,8 +118,8 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'vijay-prasad',
     name: 'Vijay Prasad',
-    role: 'Lead Electronic Referee & Telemetry Engineer',
-    department: 'Sensors & Digital Systems Laboratory',
+    role: 'Technical Scrutineering & Telemetry Lead',
+    department: 'Computer Science Engineering (Artificial Intelligence & Machine Learning)',
     category: 'technical',
     categoryLabel: 'TELEMETRY LEAD',
     phone: '+91 76260 40216',
