@@ -183,7 +183,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     phone: '+91 90393 52287',
     email: 'akshitchoudhary2024@gmail.com',
     linkedin: 'https://www.linkedin.com/in/akshit-choudhary-3b937a434/',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+    image: '/assets/aistudio/akshit.jpeg',
     bio: 'Connecting with 80+ university robotics societies and aviation clubs across India for squad registrations.',
   },
 
