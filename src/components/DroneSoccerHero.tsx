@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import { GALGOTIAS_UNIVERSITY_LOGO_DATA_URL, getHeroVideoBlobUrl } from '../data/logoAssets';
 
-const HERO_VIDEO_SOURCE = '/assets/aistudio/hero-drone-soccer_0e9cca22.mp4?v=3';
+const HERO_VIDEO_SOURCE = '/assets/aistudio/hero-drone-soccer_0e9cca22.mp4';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -16,9 +17,17 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoSrc, setVideoSrc] = useState<string>(() => getHeroVideoBlobUrl());
 
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
+
+  const handleVideoError = () => {
+    const blobUrl = getHeroVideoBlobUrl();
+    if (blobUrl && blobUrl !== videoSrc) {
+      setVideoSrc(blobUrl);
+    }
+  };
 
   useEffect(() => {
     // Clear any legacy IndexedDB database
@@ -36,7 +45,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
       vid.load();
       vid.play().catch(() => {});
     }
-  }, []);
+  }, [videoSrc]);
 
   useEffect(() => {
     const targetDate = new Date('2026-12-08T09:00:00+05:30').getTime();
@@ -75,8 +84,9 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
           {/* Max Quality Drone Soccer Video - Seamless Continuous Looping, No Controls, No Reloading */}
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 select-none">
             <video
-              key={HERO_VIDEO_SOURCE}
+              key={videoSrc}
               ref={videoRef}
+              src={videoSrc}
               autoPlay
               loop
               muted
@@ -85,13 +95,14 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               disablePictureInPicture
               disableRemotePlayback
               controls={false}
+              onError={handleVideoError}
               onCanPlay={(e) => {
                 e.currentTarget.muted = true;
                 e.currentTarget.play().catch(() => {});
               }}
               className="w-full h-full object-cover object-center pointer-events-none"
             >
-              <source src={HERO_VIDEO_SOURCE} type="video/mp4" />
+              <source src={videoSrc} type="video/mp4" onError={handleVideoError} />
             </video>
           </div>
 
@@ -112,11 +123,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
           <div
             className="hidden sm:flex absolute bottom-5 right-5 items-center justify-center w-8 h-8 pointer-events-none"
             aria-hidden="true"
-          >
-            <div className="w-4 h-4 rounded-full border border-[#d0fe1d]/80" />
-            <div className="absolute w-8 h-[1px] bg-[#d0fe1d]/80" />
-            <div className="absolute h-8 w-[1px] bg-[#d0fe1d]/80" />
-          </div>
+          />
 
           {/* Top Bar Accreditation & Live Countdown */}
           <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3.5 pb-3.5 sm:pb-5 border-b border-white/20">
@@ -124,7 +131,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               <GcdisLogo
                 size="sm"
                 showWordmark={false}
-                logoSrc="/assets/aistudio/Galgotias-University-Logo_6fa7e960.jpg"
+                logoSrc={GALGOTIAS_UNIVERSITY_LOGO_DATA_URL}
                 logoAlt="Galgotias University Official Logo"
               />
               <div className="text-left min-w-0">

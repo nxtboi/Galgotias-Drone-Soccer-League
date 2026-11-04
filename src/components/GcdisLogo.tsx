@@ -1,4 +1,5 @@
 import React from 'react';
+import { GCDIS_LOGO_DATA_URL, resolveLogoSrc } from '../data/logoAssets';
 
 export interface GcdisLogoProps {
   className?: string;
@@ -16,9 +17,10 @@ export const GcdisLogo: React.FC<GcdisLogoProps> = ({
   size = 'md',
   variant = 'light',
   badgeOnly = false,
-  logoSrc = '/assets/aistudio/GCDIS_HD_Logo_aeb80099.png',
+  logoSrc = GCDIS_LOGO_DATA_URL,
   logoAlt = 'Galgotias Centre for Drone Intelligence & Simulation (GCDIS) Logo',
 }) => {
+  const resolvedLogoSrc = resolveLogoSrc(logoSrc);
   const iconDimensions = {
     xs: 'w-8 h-8',
     sm: 'w-10 h-10',
@@ -58,7 +60,7 @@ export const GcdisLogo: React.FC<GcdisLogoProps> = ({
         title="Galgotias University · GCDIS"
       >
         <img
-          src={logoSrc}
+          src={resolvedLogoSrc}
           alt={logoAlt}
           className="w-full h-full rounded-full object-contain object-center block p-0.5"
           loading="eager"
