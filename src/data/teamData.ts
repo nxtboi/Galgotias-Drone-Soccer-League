@@ -186,6 +186,18 @@ export const TEAM_MEMBERS: TeamMember[] = [
     image: '/assets/aistudio/akshit.jpeg',
     bio: 'Connecting with 80+ university robotics societies and aviation clubs across India for squad registrations.',
   },
+  {
+    id: 'parth-jaiswal',
+    name: 'Parth Jaiswal',
+    role: 'Management & Student Engagement Coordinator',
+    department: 'Campus Relations & University Outreach',
+    category: 'management',
+    categoryLabel: 'OUTREACH COORDINATOR',
+    phone: '+91 63872 67650',
+    email: 'Parthjaiswal0506@gmail.com',
+    image: '/assets/aistudio/parth.png',
+    bio: 'Supporting campus outreach, student engagement, and community participation for GDSL 2026 activity.'
+  },
 
 
   // ==========================================
