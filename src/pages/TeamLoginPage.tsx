@@ -16,9 +16,6 @@ import { GcdisLogo } from '../components/GcdisLogo';
 import {
   authenticateTeam,
   RegisteredTeamProfile,
-  TEST_USER_PROFILE,
-  setCurrentSession,
-  getRegisteredTeams,
 } from '../data/teamAuthData';
 import { fetchLiveSheetData } from '../services/googleSheetsService';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
@@ -53,37 +50,6 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     setErrorMessage(null);
     setIdentifier('');
     setAccessCode('');
-  };
-
-  const handleQuickTestLogin = async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-    try {
-      await fetchLiveSheetData();
-    } catch {
-      // ignore offline error
-    }
-    const teams = getRegisteredTeams();
-    const liveTestProfile =
-      teams.find((t) => t.teamId.toLowerCase() === TEST_USER_PROFILE.teamId.toLowerCase()) ||
-      TEST_USER_PROFILE;
-    setCurrentSession(liveTestProfile);
-    setIsLoading(false);
-    onLoginSuccess(liveTestProfile);
-  };
-
-  const handleFillTestCredentials = () => {
-    setLoginMode('squad');
-    setIdentifier('test@gdsl.in');
-    setAccessCode('test123');
-    setErrorMessage(null);
-  };
-
-  const handleFillAdminCredentials = () => {
-    setLoginMode('admin');
-    setIdentifier('admin');
-    setAccessCode('gdsl@147896');
-    setErrorMessage(null);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -337,60 +303,6 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Test User Login Quick Access Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#171b12] via-[#141710] to-[#161a12] border border-[#d0fe1d]/40 shadow-[0_0_24px_rgba(208,254,29,0.08)] space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-ping" />
-                  <span className="text-xs font-mono font-bold text-[#d0fe1d] uppercase tracking-wider">
-                    TEST USER DEMO CREDENTIALS
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/60 text-[#d0fe1d] border border-[#d0fe1d]/30 font-bold uppercase">
-                  Verified Test Squad
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono bg-black/60 p-2.5 rounded-xl border border-white/10">
-                <div>
-                  <span className="text-neutral-400 block text-[10px] uppercase">Test Login / Email:</span>
-                  <span className="text-[#d0fe1d] font-bold select-all">test@gdsl.in</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block text-[10px] uppercase">Passcode:</span>
-                  <span className="text-white font-bold select-all">test123</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleQuickTestLogin}
-                  disabled={isLoading}
-                  className="flex-1 min-w-[150px] py-2 px-3.5 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-rajdhani font-black text-xs uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_15px_rgba(208,254,29,0.3)]"
-                >
-                  <span>⚡ 1-Click Test User Login</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFillTestCredentials}
-                  className="py-2 px-3 bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white font-mono text-[11px] rounded-lg border border-white/20 transition-all cursor-pointer"
-                  title="Auto-fill squad form inputs"
-                >
-                  Auto-Fill
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFillAdminCredentials}
-                  className="py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-[11px] rounded-lg transition-all cursor-pointer"
-                  title="Auto-fill Tournament Admin Credentials"
-                >
-                  Admin Key
-                </button>
-              </div>
-            </div>
 
             {/* Login Form */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
