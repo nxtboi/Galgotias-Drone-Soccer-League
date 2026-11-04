@@ -87,8 +87,8 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'shubh-gupta',
     name: 'Shubh Gupta',
-    role: 'Arena Operations & Field Marshall',
-    department: 'Industrial & Mechanical Engineering',
+    role: 'Event Management',
+    department: 'Electronics and communication engineering (Artificial intelligence and machine learning)',
     category: 'management',
     categoryLabel: 'ARENA MARSHALL',
     phone: '+91 63886 13348',
