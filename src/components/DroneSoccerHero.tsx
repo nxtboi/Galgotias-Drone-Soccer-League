@@ -3,7 +3,7 @@ import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 import { GALGOTIAS_UNIVERSITY_LOGO_DATA_URL, getHeroVideoBlobUrl } from '../data/logoAssets';
 
-const HERO_VIDEO_SOURCE = '/assets/aistudio/hero-drone-soccer_0e9cca22.mp4';
+const HERO_VIDEO_SOURCE = '/assets/aistudio/hero-drone-soccer_5297df9b.mp4';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -17,7 +17,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoSrc, setVideoSrc] = useState<string>(() => getHeroVideoBlobUrl());
+  const [videoSrc, setVideoSrc] = useState<string>(HERO_VIDEO_SOURCE);
 
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
@@ -42,7 +42,6 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
       vid.defaultMuted = true;
       vid.muted = true;
       vid.playsInline = true;
-      vid.load();
       vid.play().catch(() => {});
     }
   }, [videoSrc]);
@@ -96,14 +95,16 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               disableRemotePlayback
               controls={false}
               onError={handleVideoError}
+              onLoadedData={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
               onCanPlay={(e) => {
                 e.currentTarget.muted = true;
                 e.currentTarget.play().catch(() => {});
               }}
               className="w-full h-full object-cover object-center pointer-events-none"
-            >
-              <source src={videoSrc} type="video/mp4" onError={handleVideoError} />
-            </video>
+            />
           </div>
 
 
