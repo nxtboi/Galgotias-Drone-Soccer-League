@@ -207,7 +207,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'surya-pratap',
     name: 'Surya Pratap',
     role: 'Head of Social Media & Digital Communications',
-    department: 'B.Tech CSE Core, 3rd Year',
+    department: 'B.Tech CSE Core',
     category: 'social_media',
     categoryLabel: 'SOCIAL LEAD',
     phone: '+91 91610 32135',
