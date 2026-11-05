@@ -250,10 +250,10 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             {/* Live Tournament Countdown Timer */}
             <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl self-stretch min-h-[68px] sm:min-h-[74px]">
               <div className="text-left">
-                <div className="text-[10px] sm:text-[11px] font-rajdhani font-bold tracking-[0.2em] uppercase text-[#d0fe1d]">
+                <div className="text-xs sm:text-sm md:text-base xl:text-lg font-rajdhani font-bold tracking-[0.18em] sm:tracking-[0.2em] uppercase text-[#d0fe1d] leading-tight">
                   KICKOFF COUNTDOWN
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-mono text-neutral-300">
+                <div className="text-xs sm:text-sm md:text-base xl:text-lg font-mono text-neutral-300 leading-tight">
                   {GDSL_TOURNAMENT_INFO.dates}
                 </div>
               </div>
