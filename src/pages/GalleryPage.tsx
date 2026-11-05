@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { 
   Camera, 
-  Video, 
   X, 
   ChevronLeft, 
   ChevronRight, 
@@ -304,49 +303,15 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Hero Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
-          <div className="text-left space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
-              <Camera className="w-4 h-4" />
-              <span>OFFICIAL LEAGUE PHOTO ARCHIVE</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-              LEAGUE GALLERY: <span className="text-[#d0fe1d]">LAB &amp; ARENA</span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-sans">
-              Explore authentic photographs from the Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS) research facilities, avionics workshops, flight simulation laboratories, and caged drone soccer tournament clashes.
-            </p>
+        <div className="pb-6 border-b border-white/10 text-left space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
+            <Camera className="w-4 h-4" />
+            <span>OFFICIAL LEAGUE PHOTO ARCHIVE</span>
           </div>
 
-          {/* Quick Counter Badges */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="px-3.5 py-2 bg-[#171915] border border-[#d0fe1d]/30 rounded-lg text-center">
-              <span className="block font-orbitron font-bold text-lg sm:text-xl text-[#d0fe1d]">
-                {LAB_PHOTOS.length}
-              </span>
-              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
-                Lab Photos
-              </span>
-            </div>
-            <div className="px-3.5 py-2 bg-[#171915] border border-white/15 rounded-lg text-center">
-              <span className="block font-orbitron font-bold text-lg sm:text-xl text-white">
-                {ARENA_PHOTOS.length}
-              </span>
-              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
-                Arena Shots
-              </span>
-            </div>
-            <div className="px-3.5 py-2 bg-[#171915] border border-white/15 rounded-lg text-center">
-              <span className="block font-orbitron font-bold text-lg sm:text-xl text-red-400">
-                {realMatchVideos.length}
-              </span>
-              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
-                Match Reels
-              </span>
-            </div>
-          </div>
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+            LEAGUE GALLERY: <span className="text-[#d0fe1d]">LAB &amp; ARENA</span>
+          </h1>
         </div>
 
         {/* ========================================================
@@ -400,33 +365,6 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
               </span>
             </button>
           </div>
-
-          {/* Arena Sub-Toggle (Photos vs Match Videos) */}
-          {(activeSection === 'arena' || activeSection === 'all') && (
-            <div className="flex items-center gap-1.5 bg-[#0e100d] p-1 rounded-xl border border-white/10 shrink-0 self-start sm:self-auto">
-              <button
-                onClick={() => setArenaSubView('photos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all cursor-pointer ${
-                  arenaSubView === 'photos'
-                    ? 'bg-white/15 text-white font-bold'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                Photos
-              </button>
-              <button
-                onClick={() => setArenaSubView('videos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                  arenaSubView === 'videos'
-                    ? 'bg-red-500/20 text-red-400 border border-red-500/40 font-bold'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <Video className="w-3 h-3 text-red-400" />
-                <span>Match Videos</span>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ========================================================
@@ -438,7 +376,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#171b13] via-[#141612] to-[#161a12] border border-[#d0fe1d]/50 shadow-[0_0_40px_rgba(208,254,29,0.06)] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-[#d0fe1d]/5 blur-3xl pointer-events-none" />
               
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="relative z-10">
                 <div className="space-y-2 max-w-3xl">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#d0fe1d] text-black">
@@ -453,15 +391,6 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
                     GCDIS <span className="text-[#d0fe1d]">DRONE LAB</span>
                   </h2>
-
-                  <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-sans">
-                    Galgotias Centre of Drone Intelligence &amp; Simulation facilities: advanced avionics soldering benches, hardware-in-the-loop pilot simulator suites, drone soccer airframe assemblies, and long-endurance hybrid VTOL field proving grounds.
-                  </p>
-                </div>
-
-                <div className="shrink-0 px-4 py-2.5 bg-black/60 border border-[#d0fe1d]/40 rounded-xl text-left md:text-right">
-                  <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block">Collection</span>
-                  <span className="text-lg font-orbitron font-black text-[#d0fe1d]">{LAB_PHOTOS.length} Authentic Photos</span>
                 </div>
               </div>
             </div>
@@ -515,7 +444,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#171614] via-[#141612] to-[#1c1a14] border border-white/20 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="relative z-10">
                 <div className="space-y-2 max-w-3xl">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#d0fe1d] text-black">
@@ -530,34 +459,6 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
                     GALGOTIAS <span className="text-[#d0fe1d]">PRO ARENA</span>
                   </h2>
-
-                  <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-sans">
-                    Action inside the Galgotias Drone Soccer Pro Arena cage: spherical striker quadrotors in flight, collegiate pilot squad lineups in the center circle, pre-flight technical inspections, and live transmitter flight execution.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => setArenaSubView('photos')}
-                    className={`px-3.5 py-2 rounded-lg font-rajdhani font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                      arenaSubView === 'photos'
-                        ? 'bg-[#d0fe1d] text-black shadow-md'
-                        : 'bg-[#1b1d18] text-neutral-300 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    Arena Photos ({ARENA_PHOTOS.length})
-                  </button>
-                  <button
-                    onClick={() => setArenaSubView('videos')}
-                    className={`px-3.5 py-2 rounded-lg font-rajdhani font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                      arenaSubView === 'videos'
-                        ? 'bg-red-500 text-white shadow-md'
-                        : 'bg-[#1b1d18] text-neutral-300 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    <Video className="w-3.5 h-3.5" />
-                    <span>Videos ({realMatchVideos.length})</span>
-                  </button>
                 </div>
               </div>
             </div>
