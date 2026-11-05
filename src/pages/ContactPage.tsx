@@ -180,7 +180,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                 <span className="font-rajdhani font-bold text-[#d0fe1d] tracking-widest block uppercase">EMERGENCY PILOT HELPLINES</span>
                 <span className="mt-2.5 block space-y-2">
                   {[
-                    { label: 'EVENT COORDINATOR', number: '9411053011', display: '+91 94110 53011' },
+                    { label: 'Rajat Thakur', number: '9411053011', display: '+91 94110 53011' },
                     { label: 'EVENT COORDINATOR', number: '9798693029', display: '+91 97986 93029' },
                     { label: 'EVENT COORDINATOR', number: '9569696140', display: '+91 95696 96140' },
                     { label: 'EVENT COORDINATOR', number: '7626040216', display: '+91 76260 40216' },
