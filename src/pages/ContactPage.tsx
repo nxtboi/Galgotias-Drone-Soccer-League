@@ -224,7 +224,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               WHATSAPP PILOT COMMUNITY
             </span>
             <h4 className="font-orbitron font-black text-sm text-white uppercase tracking-wider">
-              JOIN GDSL 2026 PILOT DISCORD &amp; CHAT
+              Join GDSL 2026 PILOT WHATSAPP Chat
             </h4>
             <p className="text-xs text-neutral-300 leading-relaxed">
               Connect with fellow team captains, arrange practice scrimmages in the indoor cage, and receive instant weather and schedule updates.
