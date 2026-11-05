@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+:root {
+  /* Frame of Reference Text Size (Anchored to Navbar Brand Element) */
+  --ref-font-size: 14pt;
+  --font-size-larger: calc(var(--ref-font-size) + 4pt);
+  --font-size-smaller: calc(var(--ref-font-size) - 2pt);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --ref-font-size: 15pt;
+  }
+}
+
 @theme {
   --color-white: #ffffff;
   --color-black: #0b0c0a;
@@ -7,29 +20,34 @@
   --font-sans: 'Rajdhani', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Decreased Site-Wide Typography Scale */
-  --text-xs: 0.725rem;
-  --text-xs--line-height: 1.35;
-  --text-sm: 0.825rem;
+  /* Typography Scale Pegged to Frame of Reference */
+  /* Smaller than Reference (-2 points) */
+  --text-xs: var(--font-size-smaller);
+  --text-xs--line-height: 1.45;
+  --text-sm: var(--font-size-smaller);
   --text-sm--line-height: 1.45;
-  --text-base: 0.925rem;
-  --text-base--line-height: 1.55;
-  --text-lg: 1.025rem;
-  --text-lg--line-height: 1.5;
-  --text-xl: 1.15rem;
-  --text-xl--line-height: 1.4;
-  --text-2xl: 1.35rem;
-  --text-2xl--line-height: 1.3;
-  --text-3xl: 1.65rem;
-  --text-3xl--line-height: 1.22;
-  --text-4xl: 2.05rem;
-  --text-4xl--line-height: 1.16;
-  --text-5xl: 2.5rem;
+  --text-base: var(--font-size-smaller);
+  --text-base--line-height: 1.5;
+
+  /* Frame of Reference Size */
+  --text-lg: var(--ref-font-size);
+  --text-lg--line-height: 1.35;
+  --text-xl: var(--ref-font-size);
+  --text-xl--line-height: 1.3;
+
+  /* Greater than Reference (+4 points) */
+  --text-2xl: var(--font-size-larger);
+  --text-2xl--line-height: 1.25;
+  --text-3xl: var(--font-size-larger);
+  --text-3xl--line-height: 1.2;
+  --text-4xl: var(--font-size-larger);
+  --text-4xl--line-height: 1.15;
+  --text-5xl: var(--font-size-larger);
   --text-5xl--line-height: 1.1;
-  --text-6xl: 3.15rem;
-  --text-6xl--line-height: 1.06;
-  --text-7xl: 3.75rem;
-  --text-7xl--line-height: 1.04;
+  --text-6xl: var(--font-size-larger);
+  --text-6xl--line-height: 1.05;
+  --text-7xl: var(--font-size-larger);
+  --text-7xl--line-height: 1.02;
 
   /* XOTC Obsidian & Electric Acid Lime Theme Tokens */
   --color-lime-300: #e2ff66;
@@ -78,8 +96,31 @@
     color: #e5e7eb;
     background-color: #111210;
     font-family: var(--font-sans);
-    font-size: 0.925rem;
+    font-size: var(--font-size-smaller);
     line-height: 1.55;
+  }
+
+  /* Micro text classes (< reference size) normalized to reference - 2 points */
+  [class*="text-[7px]"],
+  [class*="text-[8px]"],
+  [class*="text-[9px]"],
+  [class*="text-[10px]"],
+  [class*="text-[11px]"],
+  [class*="text-[12px]"],
+  [class*="text-[13px]"] {
+    font-size: var(--font-size-smaller) !important;
+  }
+
+  /* Large arbitrary text classes (> reference size) normalized to reference + 4 points */
+  [class*="text-[2"],
+  [class*="text-[3"],
+  [class*="text-[4"],
+  [class*="text-[5"],
+  [class*="text-[6"],
+  [class*="text-[7"],
+  [class*="text-[8"],
+  [class*="text-[9"] {
+    font-size: var(--font-size-larger) !important;
   }
 
   h1, h2, h3, h4, h5, h6 {

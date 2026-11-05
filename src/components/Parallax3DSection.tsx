@@ -24,6 +24,7 @@ export interface ParallaxLayerProps {
   className?: string;
   speed?: number;
   translateZ?: number;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -32,8 +33,9 @@ export interface ParallaxLayerProps {
 export const ParallaxDepthLayer: React.FC<ParallaxLayerProps> = ({
   children,
   className = '',
+  style,
 }) => {
-  return <div className={className}>{children}</div>;
+  return <div className={className} style={style}>{children}</div>;
 };
 
 export interface Tilt3DCardProps {
