@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
@@ -21,6 +21,13 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  // Default to uncropped 'contain' on mobile / tablets so the drone soccer match is 100% visible
+  const [videoFit, setVideoFit] = useState<'contain' | 'cover'>(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return 'contain';
+    }
+    return 'cover';
+  });
 
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
@@ -137,6 +144,11 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
     }
   };
 
+  const toggleVideoFit = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setVideoFit((prev) => (prev === 'contain' ? 'cover' : 'contain'));
+  };
+
   useEffect(() => {
     const targetDate = new Date('2026-12-08T09:00:00+05:30').getTime();
 
@@ -167,15 +179,18 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   return (
     <div className="relative w-full flex-1 flex flex-col pt-1.5 sm:pt-2 pb-3 sm:pb-5 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 text-white">
       <div className="w-full max-w-[1440px] 2xl:max-w-[1600px] flex-1 flex flex-col mx-auto">
-        {/* XOTC Chamfered Technical Hero Frame - Responsive aspect & height across screen sizes */}
+        {/* XOTC Chamfered Technical Hero Frame - Uncropped on Mobile, Fully Responsive across screen sizes */}
         <div
           onClick={() => {
             if (videoRef.current?.paused) togglePlay();
           }}
-          className="relative w-full flex-1 min-h-[460px] sm:min-h-[520px] md:min-h-[600px] lg:min-h-[calc(100dvh-5.25rem)] border border-white/25 bg-black p-3.5 sm:p-5 md:p-7 lg:p-9 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
+          className="relative w-full flex-1 min-h-[440px] sm:min-h-[500px] md:min-h-[580px] lg:min-h-[calc(100dvh-5.25rem)] border border-white/25 bg-[#0b0d09] p-3 sm:p-5 md:p-7 lg:p-9 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.85)] flex flex-col justify-between transition-all"
         >
-          {/* Cross-Device Video Player - Faststart, Web-Optimized, Looping, Full Coverage */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden select-none">
+          {/* Cross-Device Video Player - Uncropped on Mobile, Faststart, Web-Optimized, Looping */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden select-none flex items-center justify-center bg-[#090b07]">
+            {/* Subtle background arena grid pattern for letterbox zones */}
+            <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#d0fe1d_1px,transparent_1px)] [background-size:20px_20px]" />
+
             <video
               ref={videoRef}
               autoPlay
@@ -187,7 +202,9 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               disablePictureInPicture
               disableRemotePlayback
               controls={false}
-              className="w-full h-full object-cover object-center pointer-events-none"
+              className={`w-full h-full object-center pointer-events-none transition-all duration-300 ${
+                videoFit === 'contain' ? 'object-contain' : 'object-cover'
+              }`}
             >
               {/* High-speed mobile 720p faststart stream for phones & tablets */}
               <source src={HERO_VIDEO_MOBILE} type="video/mp4" media="(max-width: 768px)" />
@@ -195,15 +212,15 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               <source src={HERO_VIDEO_HD} type="video/mp4" />
             </video>
 
-            {/* Subtle atmospheric overlay for crystal-clear readability across all devices */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/60 pointer-events-none" />
+            {/* Subtle atmospheric vignette gradient overlay for clean contrast without dimming center video */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/65 pointer-events-none" />
           </div>
 
           {/* Top-Left & Top-Right Corner Accent Lines */}
-          <div className="absolute top-0 left-0 w-10 sm:w-16 h-[2px] bg-[#d0fe1d]" />
-          <div className="absolute top-0 left-0 w-[2px] h-10 sm:h-16 bg-[#d0fe1d]" />
-          <div className="absolute top-0 right-0 w-10 sm:w-16 h-[2px] bg-[#d0fe1d]" />
-          <div className="absolute top-0 right-0 w-[2px] h-10 sm:h-16 bg-[#d0fe1d]" />
+          <div className="absolute top-0 left-0 w-8 sm:w-16 h-[2px] bg-[#d0fe1d]" />
+          <div className="absolute top-0 left-0 w-[2px] h-8 sm:h-16 bg-[#d0fe1d]" />
+          <div className="absolute top-0 right-0 w-8 sm:w-16 h-[2px] bg-[#d0fe1d]" />
+          <div className="absolute top-0 right-0 w-[2px] h-8 sm:h-16 bg-[#d0fe1d]" />
 
           {/* Bottom-Left Vertical Dot Matrix Pattern */}
           <div
@@ -213,7 +230,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
 
           {/* Top Bar Accreditation & Live Countdown */}
           <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3.5 pb-3.5 sm:pb-5 border-b border-white/20">
-            <div className="flex items-center gap-2.5 sm:gap-3.5 bg-black/65 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 shadow-xl">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 shadow-xl">
               <GcdisLogo
                 size="sm"
                 showWordmark={false}
@@ -236,7 +253,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             </div>
 
             {/* Live Tournament Countdown Timer */}
-            <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/70 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl">
+            <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl">
               <div className="text-left">
                 <div className="text-[9px] sm:text-[10px] font-rajdhani font-bold tracking-[0.2em] uppercase text-[#d0fe1d]">
                   KICKOFF COUNTDOWN
@@ -301,13 +318,37 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               </button>
             </div>
 
-            {/* Cross-Device Video Feed Control Badge */}
-            <div className="flex items-center gap-2 bg-black/75 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full shadow-lg">
+            {/* Cross-Device Video Feed Control Badge with Fit/Crop toggle */}
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/80 backdrop-blur-md border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-full shadow-lg">
               <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold tracking-wider text-neutral-300">
                 <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#d0fe1d] animate-pulse' : 'bg-amber-400'}`} />
                 <span className="hidden xs:inline sm:inline">ARENA CAM</span>
               </div>
               <div className="w-[1px] h-3.5 bg-white/20" />
+
+              {/* Fit / Cover toggle button */}
+              <button
+                type="button"
+                onClick={toggleVideoFit}
+                className="p-1 rounded text-neutral-300 hover:text-[#d0fe1d] hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1"
+                title={videoFit === 'contain' ? 'Full 16:9 Uncropped View (click to switch to Fill)' : 'Fill Screen View (click to switch to Uncropped 16:9)'}
+                aria-label="Toggle video framing mode"
+              >
+                {videoFit === 'contain' ? (
+                  <>
+                    <Maximize2 className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                    <span className="text-[9px] font-mono font-bold text-[#d0fe1d]">UNCROPPED</span>
+                  </>
+                ) : (
+                  <>
+                    <Minimize2 className="w-3.5 h-3.5 text-neutral-300" />
+                    <span className="text-[9px] font-mono font-bold text-neutral-300">FILL</span>
+                  </>
+                )}
+              </button>
+              <div className="w-[1px] h-3.5 bg-white/20" />
+
+              {/* Play / Pause toggle */}
               <button
                 type="button"
                 onClick={togglePlay}
@@ -317,6 +358,8 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               >
                 {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 text-[#d0fe1d]" />}
               </button>
+
+              {/* Mute / Unmute toggle */}
               <button
                 type="button"
                 onClick={toggleSound}
