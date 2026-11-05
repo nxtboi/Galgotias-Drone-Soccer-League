@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
@@ -142,11 +142,6 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
     if (!nextMuted && video.paused) {
       video.play().catch(() => {});
     }
-  };
-
-  const toggleVideoFit = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setVideoFit((prev) => (prev === 'contain' ? 'cover' : 'contain'));
   };
 
   useEffect(() => {
@@ -318,58 +313,20 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               </button>
             </div>
 
-            {/* Cross-Device Video Feed Control Badge with Fit/Crop toggle */}
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/80 backdrop-blur-md border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-full shadow-lg">
-              <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold tracking-wider text-neutral-300">
-                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#d0fe1d] animate-pulse' : 'bg-amber-400'}`} />
-                <span className="hidden xs:inline sm:inline">ARENA CAM</span>
-              </div>
-              <div className="w-[1px] h-3.5 bg-white/20" />
-
-              {/* Fit / Cover toggle button */}
-              <button
-                type="button"
-                onClick={toggleVideoFit}
-                className="p-1 rounded text-neutral-300 hover:text-[#d0fe1d] hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1"
-                title={videoFit === 'contain' ? 'Full 16:9 Uncropped View (click to switch to Fill)' : 'Fill Screen View (click to switch to Uncropped 16:9)'}
-                aria-label="Toggle video framing mode"
-              >
-                {videoFit === 'contain' ? (
-                  <>
-                    <Maximize2 className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                    <span className="text-[9px] font-mono font-bold text-[#d0fe1d]">UNCROPPED</span>
-                  </>
-                ) : (
-                  <>
-                    <Minimize2 className="w-3.5 h-3.5 text-neutral-300" />
-                    <span className="text-[9px] font-mono font-bold text-neutral-300">FILL</span>
-                  </>
-                )}
-              </button>
-              <div className="w-[1px] h-3.5 bg-white/20" />
-
-              {/* Play / Pause toggle */}
-              <button
-                type="button"
-                onClick={togglePlay}
-                className="p-1 rounded text-neutral-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title={isPlaying ? 'Pause arena video feed' : 'Play arena video feed'}
-                aria-label={isPlaying ? 'Pause arena video feed' : 'Play arena video feed'}
-              >
-                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 text-[#d0fe1d]" />}
-              </button>
-
-              {/* Mute / Unmute toggle */}
-              <button
-                type="button"
-                onClick={toggleSound}
-                className="p-1 rounded text-neutral-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title={isMuted ? 'Unmute video audio' : 'Mute video audio'}
-                aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
-              >
-                {isMuted ? <VolumeX className="w-3.5 h-3.5 text-neutral-400" /> : <Volume2 className="w-3.5 h-3.5 text-[#d0fe1d]" />}
-              </button>
-            </div>
+            {/* Mute / Unmute Button */}
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="p-2 sm:p-2.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-white hover:border-[#d0fe1d]/60 hover:bg-black transition-all cursor-pointer shadow-lg flex items-center justify-center group"
+              title={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+              aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-[#d0fe1d]" />
+              )}
+            </button>
           </div>
         </div>
       </div>
