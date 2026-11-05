@@ -62,10 +62,6 @@ export const GcdisLogo: React.FC<GcdisLogoProps> = ({
           alt={logoAlt}
           className="w-full h-full rounded-full object-contain object-center block p-0.5"
           loading="eager"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = '/assets/aistudio/GCDIS_HD_Logo_aeb80099.png';
-          }}
         />
       </div>
 
