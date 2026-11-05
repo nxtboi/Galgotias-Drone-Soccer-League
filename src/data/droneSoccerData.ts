@@ -110,7 +110,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹41,000',
         title: 'Champion',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
         highlight: true,
@@ -120,7 +119,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹31,000',
         title: '1st Runner-Up',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
       },
@@ -129,7 +127,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹11,000',
         title: '2nd Runner-Up',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
       },
@@ -148,7 +145,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹31,000',
         title: 'Champion',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
         highlight: true,
@@ -158,7 +154,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹21,000',
         title: '1st Runner-Up',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
       },
@@ -167,7 +162,6 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         amount: '₹11,000',
         title: '2nd Runner-Up',
         perks: [
-          'Trophy and Medals',
           'Cash Prize and Certificate',
         ],
       },

@@ -61,13 +61,13 @@ export function getDivisionFee(division: string): {
 } {
   const isD20 = division.includes('20');
   return isD20
-    ? { numeric: 1400, formatted: '₹1,400', code: 'D-20' }
+    ? { numeric: 1500, formatted: '₹1,500', code: 'D-20' }
     : { numeric: 4000, formatted: '₹4,000', code: 'D-40' };
 }
 
 function normalizeTeamFee(team: RegisteredTeamProfile): RegisteredTeamProfile {
   const expectedFee = getDivisionFee(team.division).formatted;
-  if (team.paymentInfo.amount === '₹2,500' || !team.paymentInfo.amount) {
+  if (team.paymentInfo.amount === '₹2,500' || team.paymentInfo.amount === '₹1,400' || !team.paymentInfo.amount) {
     return {
       ...team,
       paymentInfo: {
@@ -284,7 +284,7 @@ export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
     scrutineeringStatus: 'PRE_APPROVED',
     paymentInfo: {
       receiptNo: 'GDSL-REC-2026-904',
-      amount: '₹1,400',
+      amount: '₹1,500',
       status: 'VERIFIED',
       transactionId: 'UPI-PAYTM-671029384',
       paymentMode: 'UPI',

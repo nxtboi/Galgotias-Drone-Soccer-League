@@ -314,7 +314,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                     Class 40 / D-40 (400mm Sphere · ₹4,000 Registration Fee · ₹94,000 Pool)
                   </option>
                   <option value="Class 20 (200mm Varsity Sphere)">
-                    Class 20 / D-20 (200mm Sphere · ₹1,400 Registration Fee · ₹74,000 Pool)
+                    Class 20 / D-20 (200mm Sphere · ₹1,500 Registration Fee · ₹74,000 Pool)
                   </option>
                 </select>
               </div>

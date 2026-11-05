@@ -48,7 +48,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
         { value: '150 g', label: 'Max drone weight' },
         { value: '3 × 3 min', label: 'Sets per game' },
         { value: '5 min', label: 'Repair between sets' },
-        { value: '₹2,000', label: 'Registration fee' },
+        { value: '₹1,500', label: 'Registration fee' },
       ]
     : [
         { value: '2–3', label: 'Members per team' },

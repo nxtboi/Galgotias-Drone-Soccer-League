@@ -128,9 +128,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                         Class D40 Division (Ø 40 cm Sphere)
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-neutral-300 mt-1">
-                      Teams of 2–3 members · 16m × 7m × 4.5m standard cage · ≤ 1.2 kg drone weight · Ø 60 cm hoop
-                    </p>
                   </div>
                   <div className="text-left sm:text-right shrink-0 bg-black/60 px-4 py-2 border border-amber-400/40">
                     <span className="text-[10px] sm:text-[11px] font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">
@@ -213,9 +210,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                         Class D20 Division (Ø 20 cm Sphere)
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-neutral-300 mt-1">
-                      Teams of 2–5 members · 8m × 4m × 3m standard cage · ≤ 150 g drone weight · Ø 30 cm hoop
-                    </p>
                   </div>
                   <div className="text-left sm:text-right shrink-0 bg-black/60 px-4 py-2 border border-[#d0fe1d]/40">
                     <span className="text-[10px] sm:text-[11px] font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">
@@ -344,27 +338,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Official Disbursement & Honors Guarantee Banner */}
-            <div className="mt-10 sm:mt-12 p-4 sm:p-6 bg-black/75 border border-amber-400/50 flex flex-col md:flex-row items-center justify-between gap-4 text-left">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-amber-300 font-orbitron text-xs sm:text-sm font-black uppercase">
-                  <span>🎖️ DISBURSEMENT GUARANTEE</span>
-                  <span>·</span>
-                  <span className="text-neutral-300 font-normal">GALGOTIAS UNIVERSITY VERIFIED</span>
-                </div>
-                <p className="text-xs text-neutral-300 max-w-3xl">
-                  Cash prize amounts are disbursed directly to team captains upon tournament grand finale completion. All podium pilots receive official medals, tournament merit certificates, and lifetime pilot ranking points under the Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS).
-                </p>
-              </div>
-              <button
-                onClick={onRegisterClick}
-                className="xotc-btn-lime px-6 py-3 text-xs sm:text-sm whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(208,254,29,0.4)]"
-              >
-                <span>ENTER CHAMPIONSHIP</span>
-                <span>→</span>
-              </button>
             </div>
           </section>
         </Parallax3DSection>
