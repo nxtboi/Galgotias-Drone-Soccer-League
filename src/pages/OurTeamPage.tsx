@@ -448,10 +448,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <p className="text-xs text-neutral-400">Brand sponsorships, tech booth exhibits &amp; prize partnerships.</p>
               </div>
               <a
-                href="mailto:sponsorships@gdsl2026.org"
+                href="mailto:gdsl@galgotiasuniversity.edu.in?subject=Sponsorship%20Inquiry"
                 className="text-xs font-mono text-[#d0fe1d] hover:underline flex items-center gap-1.5"
               >
-                <span>sponsorships@gdsl2026.org</span>
+                <span>gdsl@galgotiasuniversity.edu.in</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
@@ -466,10 +466,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <p className="text-xs text-neutral-400">Sphere diameter tolerances, motor kv scrutiny &amp; fail-safe queries.</p>
               </div>
               <a
-                href="mailto:scrutineering@gdsl2026.org"
+                href="mailto:gdsl@galgotiasuniversity.edu.in?subject=Technical%20Inquiry"
                 className="text-xs font-mono text-[#d0fe1d] hover:underline flex items-center gap-1.5"
               >
-                <span>scrutineering@gdsl2026.org</span>
+                <span>gdsl@galgotiasuniversity.edu.in</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
@@ -484,10 +484,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <p className="text-xs text-neutral-400">Esports 4K broadcast feeds, press accreditations &amp; interview desk.</p>
               </div>
               <a
-                href="mailto:broadcast@gdsl2026.org"
+                href="mailto:gdsl@galgotiasuniversity.edu.in?subject=Media%20Broadcast%20Inquiry"
                 className="text-xs font-mono text-[#d0fe1d] hover:underline flex items-center gap-1.5"
               >
-                <span>broadcast@gdsl2026.org</span>
+                <span>gdsl@galgotiasuniversity.edu.in</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
@@ -502,10 +502,10 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <p className="text-xs text-neutral-400">Collegiate registrations, certificate validation &amp; event schedule.</p>
               </div>
               <a
-                href="mailto:coordinator@gdsl2026.org"
+                href="mailto:gdsl@galgotiasuniversity.edu.in?subject=Secretariat%20Inquiry"
                 className="text-xs font-mono text-[#d0fe1d] hover:underline flex items-center gap-1.5"
               >
-                <span>coordinator@gdsl2026.org</span>
+                <span>gdsl@galgotiasuniversity.edu.in</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             </div>

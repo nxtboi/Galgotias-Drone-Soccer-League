@@ -81,7 +81,7 @@ export const GDSL_TOURNAMENT_INFO = {
     { label: 'Safety & Scrutineering', number: '+91 95696 96140', tel: '+919569696140' },
     { label: 'Telemetry & Ref Desk', number: '+91 76260 40216', tel: '+917626040216' },
   ],
-  supportEmail: 'gcdis.dronesoccer@galgotiasuniversity.edu.in',
+  supportEmail: 'gdsl@galgotiasuniversity.edu.in',
   whatsappCommunityLink: 'https://chat.whatsapp.com/CX88lPqupkrGFjlq2VbWQ0',
   governingStandard: 'GCDIS (Galgotias Centre of Drone Intelligence & Simulation) 5th Revision',
 };

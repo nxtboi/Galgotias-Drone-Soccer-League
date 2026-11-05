@@ -79,11 +79,11 @@ export const SponsorsDivisionSection: React.FC<SponsorsDivisionSectionProps> = (
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <a
-                  href="mailto:sponsorships@gdsl2026.org"
+                  href="mailto:gdsl@galgotiasuniversity.edu.in?subject=GDSL%202026%20Sponsorship%20Inquiry"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 text-neutral-300 border border-white/15 hover:border-white/40 hover:text-white font-rajdhani font-bold text-xs uppercase tracking-wider transition-colors"
                 >
                   <Mail className="w-3.5 h-3.5 text-[#d0fe1d] shrink-0" />
-                  <span>sponsorships@gdsl2026.org</span>
+                  <span>gdsl@galgotiasuniversity.edu.in</span>
                 </a>
               </div>
             </div>

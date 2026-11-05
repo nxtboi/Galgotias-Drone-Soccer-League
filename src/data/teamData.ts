@@ -123,7 +123,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     category: 'technical',
     categoryLabel: 'TELEMETRY LEAD',
     phone: '+91 76260 40216',
-    email: 'vk16122001@gmail.com',
+    email: 'gdsl@galgotiasuniversity.edu.in',
     linkedin: 'https://www.linkedin.com/in/nxtboi',
     github: 'https://github.com/nxtboi',
     image: '/assets/aistudio/Professional_Indian_Office_Headshot_5d8fc5d1.png',
