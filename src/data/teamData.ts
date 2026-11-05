@@ -190,7 +190,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     id: 'parth-jaiswal',
     name: 'Parth Jaiswal',
     role: 'Management & Student Engagement Coordinator',
-    department: 'Campus Relations & University Outreach',
+    department: 'B.Tech Biomedical Engineering',
     category: 'management',
     categoryLabel: 'OUTREACH COORDINATOR',
     phone: '+91 63872 67650',
