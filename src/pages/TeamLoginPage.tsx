@@ -6,8 +6,6 @@ import {
   EyeOff,
   ArrowRight,
   ShieldCheck,
-  UserCheck,
-  Terminal,
   HelpCircle,
   LogOut,
   ExternalLink,
@@ -37,20 +35,12 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
   isAdminLoggedIn = false,
   onLogout,
 }) => {
-  const [loginMode, setLoginMode] = useState<'squad' | 'admin'>('squad');
   const [identifier, setIdentifier] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberSession, setRememberSession] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleModeSwitch = (mode: 'squad' | 'admin') => {
-    setLoginMode(mode);
-    setErrorMessage(null);
-    setIdentifier('');
-    setAccessCode('');
-  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,9 +50,13 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     const idClean = identifier.trim().toLowerCase();
     const passClean = accessCode.trim();
 
-    // Administrator Authentication
+    // 1. Administrator Authentication check
     if (
-      (idClean === 'admin' || idClean === 'admin@gdsl.in') &&
+      (idClean === 'admin' ||
+        idClean === 'admin@gdsl.in' ||
+        idClean === 'admin@galgotiasuniversity.edu.in' ||
+        idClean === 'gdsl@galgotiasuniversity.edu.in' ||
+        idClean === 'gdsladmin') &&
       (passClean === 'gdsl@147896' || passClean === 'admin2026' || passClean === 'gdsladmin')
     ) {
       setTimeout(() => {
@@ -74,6 +68,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
       return;
     }
 
+    // 2. Fetch live sheet data & authenticate squad team
     try {
       await fetchLiveSheetData();
     } catch {
@@ -86,7 +81,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     if (result.success && result.team) {
       onLoginSuccess(result.team);
     } else {
-      setErrorMessage(result.error || 'Authentication failed. Please check your Team ID and Passcode.');
+      setErrorMessage(result.error || 'Authentication failed. Please verify your Team ID or Passcode.');
     }
   };
 
@@ -208,34 +203,6 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
               </p>
             </div>
 
-            {/* Role Switcher Tabs (Squad vs Admin) */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-[#0d0e0b] border border-white/10">
-              <button
-                type="button"
-                onClick={() => handleModeSwitch('squad')}
-                className={`py-2 px-3 rounded-lg text-xs font-rajdhani font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  loginMode === 'squad'
-                    ? 'bg-[#d0fe1d] text-[#0b0c0a] shadow-sm font-black'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>Squad Captain</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleModeSwitch('admin')}
-                className={`py-2 px-3 rounded-lg text-xs font-rajdhani font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  loginMode === 'admin'
-                    ? 'bg-[#d0fe1d] text-[#0b0c0a] shadow-sm font-black'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
-              >
-                <Terminal className="w-3.5 h-3.5" />
-                <span>Tournament Admin</span>
-              </button>
-            </div>
-
             {/* Active Session Banners */}
             {loggedInTeam && (
               <div className="p-3.5 rounded-xl bg-[#1c2017] border border-[#d0fe1d]/40 text-xs text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -308,7 +275,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-xs font-rajdhani font-bold uppercase tracking-wider text-neutral-300">
-                  {loginMode === 'admin' ? 'Administrator Username' : 'Team ID or Captain Email'}
+                  Team ID, Email or Admin Username
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -320,11 +287,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                       setIdentifier(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
-                    placeholder={
-                      loginMode === 'admin'
-                        ? 'Enter administrator username'
-                        : 'e.g. GDSL-26-T101 or captain@university.edu'
-                    }
+                    placeholder="e.g. GDSL-26-T101, captain@university.edu or admin"
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#0d0e0b] border border-white/15 focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/40 outline-none text-sm text-white placeholder:text-neutral-500 transition-all"
                   />
                 </div>
@@ -332,7 +295,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-rajdhani font-bold uppercase tracking-wider text-neutral-300">
-                  {loginMode === 'admin' ? 'Admin Security Key' : 'Squad Access Passcode'}
+                  Passcode or Security Key
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -344,7 +307,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                       setAccessCode(e.target.value);
                       if (errorMessage) setErrorMessage(null);
                     }}
-                    placeholder="Enter access passcode"
+                    placeholder="Enter access passcode or admin security key"
                     className="w-full pl-10 pr-11 py-3 rounded-xl bg-[#0d0e0b] border border-white/15 focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/40 outline-none text-sm text-white placeholder:text-neutral-500 transition-all"
                   />
                   <button
@@ -392,7 +355,7 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                   </>
                 ) : (
                   <>
-                    <span>{loginMode === 'admin' ? 'ENTER ADMIN CONTROL HUB' : 'ENTER SQUAD DASHBOARD'}</span>
+                    <span>ENTER DASHBOARD</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
