@@ -69,105 +69,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
           </Parallax3DSection>
         </div>
 
-        {/* SECTION 2: THE RULES OF 3D AERIAL SOCCER (Responsive 1 -> 2 -> 4 Column Grid) */}
-        <Parallax3DSection offsetY={70} rotateXRange={[9, 0, -7]} scaleRange={[0.94, 1, 0.95]}>
-          <section className="space-y-8 sm:space-y-10 lg:space-y-12 relative">
-            {/* Ambient green underglow behind the 4 cards */}
-            <div className="absolute inset-x-6 sm:inset-x-12 bottom-8 h-36 sm:h-48 bg-[#d0fe1d]/10 blur-[100px] rounded-full pointer-events-none" />
-
-            <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3 px-2">
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-orbitron font-black text-white uppercase tracking-wider">
-                THE RULES OF 3D AERIAL SOCCER
-              </h2>
-              <div className="text-[#d0fe1d] font-mono text-xl sm:text-2xl leading-none">↓</div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 xl:gap-7 relative z-10 items-stretch">
-              {[
-                {
-                  num: '01',
-                  title: 'DRONE BALL & EXOSKELETON',
-                  desc: 'Each pilot flies one round exoskeleton drone ball: Ø 20 ± 1 cm (max 150 g, open surface ≤ 70 cm²) in Class D20, and Ø 40 ± 2 cm (max 1.2 kg, open surface ≤ 150 cm²) in Class D40, lit with red or blue team LED rings.',
-                  icon: (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="9" strokeWidth={2.2} />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: '02',
-                  title: 'STRIKER & FRONT-TO-BACK GOAL',
-                  desc: 'Only the Striker carrying a green tag and LED can score by passing completely through the opponent’s goal ring from front to back (1 Striker per team in Class D40; max 2 Strikers per team in Class D20).',
-                  icon: (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: '03',
-                  title: 'OFFSIDE & REVERSE ENTRY',
-                  desc: 'After a Striker passes through the opponent’s goal, all team balls in the opponent’s half must return behind the half line before scoring again. Defenders may pass through their own goal front-to-back only—reverse entry awards a penalty kick.',
-                  icon: (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: '04',
-                  title: '3 SETS × 3 MIN & PENALTY KICKS',
-                  desc: 'Games are 3 sets of 3 minutes with no time-outs and at least 5 minutes of repair time between sets. Penalty kicks are 1-on-1 (Striker vs Keeper) for 5 seconds from the half line.',
-                  icon: (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="9" strokeWidth={2.2} />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 7v5l3 3" />
-                    </svg>
-                  ),
-                },
-              ].map((item) => (
-                <Tilt3DCard
-                  key={item.num}
-                  className="h-full"
-                >
-                  <div
-                    className="xotc-card p-5 sm:p-6 lg:p-7 flex flex-col items-center text-center justify-between min-h-[220px] sm:min-h-[250px] lg:min-h-[275px] h-full"
-                  >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 xotc-icon-box flex items-center justify-center mb-4 sm:mb-5 mt-1">
-                      {item.icon}
-                    </div>
-                    <div className="space-y-2.5 sm:space-y-3">
-                      <div className="text-[10px] sm:text-[11px] font-mono text-[#d0fe1d] tracking-widest uppercase">
-                        {item.num} · OFFICIAL RULE
-                      </div>
-                      <h3 className="text-xs sm:text-sm font-orbitron font-black text-white uppercase tracking-wider">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-sans">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                </Tilt3DCard>
-              ))}
-            </div>
-
-            <p className="text-center text-neutral-300 text-xs sm:text-sm max-w-xl mx-auto pt-2 px-2">
-              University flight squads, pilot captains, and robotics engineers compete head-to-head under official GCDIS Class D20 and Class D40 Rule Book specifications.
-            </p>
-
-            {/* Center Crosshair Divider */}
-            <div className="flex justify-center pt-1" aria-hidden="true">
-              <div className="relative flex items-center justify-center w-8 h-8">
-                <div className="w-3.5 h-3.5 rounded-full border border-[#d0fe1d]/80" />
-                <div className="absolute w-8 h-[1px] bg-[#d0fe1d]/80" />
-                <div className="absolute h-8 w-[1px] bg-[#d0fe1d]/80" />
-              </div>
-            </div>
-          </section>
-        </Parallax3DSection>
-
         {/* SECTION 3: DUAL DIVISION PRIZE POOL BREAKDOWN - HIGHLY HIGHLIGHTED */}
         <Parallax3DSection offsetY={60} rotateXRange={[7, 0, -6]} scaleRange={[0.95, 1, 0.96]}>
           <section
@@ -200,9 +101,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 <h2 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-[#d0fe1d] leading-none">
                   ₹2,00,000 <span className="text-white">TOTAL PRIZE POOL</span>
                 </h2>
-                <p className="mt-3 text-neutral-200 text-xs sm:text-sm md:text-base leading-relaxed">
-                  The grand collegiate aerial robotics prize purse in India. Over <strong className="text-amber-300">₹2,00,000</strong> in cash rewards, national championship rolling trophies, gold medals, and individual excellence bursaries allocated across <strong className="text-[#d0fe1d]">Class D-40 (₹94,000)</strong>, <strong className="text-[#d0fe1d]">Class D-20 (₹74,000)</strong>, and <strong className="text-cyan-300">Tactical Honors (₹33,000)</strong>.
-                </p>
               </div>
 
               <div className="shrink-0 flex flex-wrap gap-2.5">
