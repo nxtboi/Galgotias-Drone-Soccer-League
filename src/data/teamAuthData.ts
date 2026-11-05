@@ -31,7 +31,7 @@ export interface RegisteredTeamProfile {
   paymentInfo: {
     receiptNo: string;
     amount: string;
-    status: 'PENDING' | 'PAID' | 'VERIFIED';
+    status: 'PENDING' | 'PAYMENT REQUESTED' | 'PAID' | 'VERIFIED' | string;
     transactionId: string;
     paymentMode: string;
     paidAt: string;

@@ -128,28 +128,31 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Instant update of registration payment status for any team
   const handleQuickUpdatePaymentStatus = async (
     teamId: string,
-    newStatus: 'PENDING' | 'PAID' | 'VERIFIED'
+    newStatus: 'PENDING' | 'PAYMENT REQUESTED' | 'PAID' | 'VERIFIED' | string
   ) => {
     const currentTeams = getRegisteredTeams();
     const targetIndex = currentTeams.findIndex((t) => t.teamId === teamId);
     if (targetIndex >= 0) {
       const targetTeam = currentTeams[targetIndex];
       const feeFormatted = getDivisionFee(targetTeam.division).formatted;
+      const isPendingLike = newStatus === 'PENDING' || newStatus === 'PAYMENT REQUESTED';
       const updatedTeam: RegisteredTeamProfile = {
         ...targetTeam,
-        scrutineeringStatus: newStatus === 'PENDING' ? 'PENDING_ON_SITE' : 'PRE_APPROVED',
+        scrutineeringStatus: isPendingLike ? 'PENDING_ON_SITE' : 'PRE_APPROVED',
         paymentInfo: {
           ...targetTeam.paymentInfo,
           amount: targetTeam.paymentInfo?.amount || feeFormatted,
-          status: newStatus,
+          status: newStatus as any,
           receiptNo:
-            newStatus === 'PENDING'
+            isPendingLike
               ? 'PENDING'
               : targetTeam.paymentInfo.receiptNo === 'PENDING' || !targetTeam.paymentInfo.receiptNo
               ? `GDSL-REC-2026-${Math.floor(100 + Math.random() * 900)}`
               : targetTeam.paymentInfo.receiptNo,
           paidAt:
-            newStatus === 'PENDING'
+            newStatus === 'PAYMENT REQUESTED'
+              ? 'Payment Requested (Awaiting Remittance)'
+              : newStatus === 'PENDING'
               ? 'Awaiting Fee Payment'
               : targetTeam.paymentInfo.paidAt === 'Awaiting Fee Payment'
               ? new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -874,11 +877,13 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                             onChange={(e) =>
                               handleQuickUpdatePaymentStatus(
                                 t.teamId,
-                                e.target.value as 'PENDING' | 'PAID' | 'VERIFIED'
+                                e.target.value
                               )
                             }
                             className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold border cursor-pointer outline-none transition-all ${
-                              (t.paymentInfo?.status || 'VERIFIED') === 'PENDING'
+                              (t.paymentInfo?.status || 'VERIFIED') === 'PAYMENT REQUESTED'
+                                ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/60 hover:border-cyan-400'
+                                : (t.paymentInfo?.status || 'VERIFIED') === 'PENDING'
                                 ? 'bg-amber-950/80 text-amber-300 border-amber-500/60 hover:border-amber-400'
                                 : (t.paymentInfo?.status || 'VERIFIED') === 'PAID'
                                 ? 'bg-blue-950/80 text-blue-300 border-blue-500/60 hover:border-blue-400'
@@ -886,6 +891,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                             }`}
                             title="Click to update registration payment status"
                           >
+                            <option value="PAYMENT REQUESTED" className="bg-[#141612] text-cyan-300">
+                              📩 PAYMENT REQUESTED
+                            </option>
                             <option value="PENDING" className="bg-[#141612] text-amber-300">
                               ⏳ PENDING
                             </option>
@@ -980,17 +988,20 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         onChange={(e) =>
                           handleQuickUpdatePaymentStatus(
                             t.teamId,
-                            e.target.value as 'PENDING' | 'PAID' | 'VERIFIED'
+                            e.target.value
                           )
                         }
                         className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border cursor-pointer outline-none ${
-                          (t.paymentInfo?.status || 'VERIFIED') === 'PENDING'
+                          (t.paymentInfo?.status || 'VERIFIED') === 'PAYMENT REQUESTED'
+                            ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/60'
+                            : (t.paymentInfo?.status || 'VERIFIED') === 'PENDING'
                             ? 'bg-amber-950/80 text-amber-300 border-amber-500/60'
                             : (t.paymentInfo?.status || 'VERIFIED') === 'PAID'
                             ? 'bg-blue-950/80 text-blue-300 border-blue-500/60'
                             : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/60'
                         }`}
                       >
+                        <option value="PAYMENT REQUESTED" className="bg-[#141612] text-cyan-300">📩 PAYMENT REQUESTED</option>
                         <option value="PENDING" className="bg-[#141612] text-amber-300">⏳ PENDING</option>
                         <option value="PAID" className="bg-[#141612] text-blue-300">✓ PAID</option>
                         <option value="VERIFIED" className="bg-[#141612] text-emerald-300">✓ VERIFIED</option>
@@ -1366,7 +1377,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                             ...editTeamForm,
                             paymentInfo: {
                               ...editTeamForm.paymentInfo,
-                              status: e.target.value as 'PENDING' | 'PAID' | 'VERIFIED',
+                              status: e.target.value as any,
                             },
                           })
                         }
@@ -1374,6 +1385,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                       >
                         <option value="VERIFIED">VERIFIED</option>
                         <option value="PAID">PAID</option>
+                        <option value="PAYMENT REQUESTED">PAYMENT REQUESTED</option>
                         <option value="PENDING">PENDING</option>
                       </select>
                     </div>

@@ -56,6 +56,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [isSendingEmailDetails, setIsSendingEmailDetails] = useState(false);
   const [emailDetailsSentSuccess, setEmailDetailsSentSuccess] = useState(false);
   const [copiedBankField, setCopiedBankField] = useState<string | null>(null);
+  const [paymentRequestMessageModal, setPaymentRequestMessageModal] = useState(false);
 
   // Upload Payment Details Modal State
   const [isUploadPaymentModalOpen, setIsUploadPaymentModalOpen] = useState(false);
@@ -295,9 +296,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setTimeout(() => setCopiedBankField(null), 2000);
   };
 
-  const handleRequestPaymentDetailsEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const targetEmail = emailForPaymentDetails.trim() || team.captainEmail;
+  const handleRequestPaymentDetailsEmail = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const targetEmail = emailForPaymentDetails.trim() || team.paymentInfo.emailRequestedTo || team.captainEmail;
     setIsSendingEmailDetails(true);
 
     const now = new Date();
@@ -316,6 +317,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         ...team,
         paymentInfo: {
           ...team.paymentInfo,
+          status: 'PAYMENT REQUESTED',
           emailRequestedTo: targetEmail,
           emailRequestedAt: timestamp,
         },
@@ -326,17 +328,55 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
       if (onUpdateTeam) onUpdateTeam(updatedTeam);
       setIsSendingEmailDetails(false);
       setEmailDetailsSentSuccess(true);
-      setSheetSyncSuccess(
-        `Official GDSL 2026 Fee Payment Details (${fee.formatted} for ${team.division}) sent to ${targetEmail}.`
-      );
-      setTimeout(() => setSheetSyncSuccess(null), 6000);
+      setPaymentRequestMessageModal(true);
+      setSheetSyncSuccess('Payment details will be sent on your email in next 24 hours');
+      setTimeout(() => setSheetSyncSuccess(null), 8000);
 
       try {
         await syncTeamToSheet(updatedTeam);
       } catch (err) {
         console.warn('Email request sheet sync notice:', err);
       }
-    }, 600);
+    }, 400);
+  };
+
+  const handleDirectRequestPaymentDetails = async () => {
+    const targetEmail = team.paymentInfo.emailRequestedTo || team.captainEmail;
+    const now = new Date();
+    const timestamp = `${now.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })} · ${now.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })} IST`;
+
+    const updatedTeam: RegisteredTeamProfile = {
+      ...team,
+      paymentInfo: {
+        ...team.paymentInfo,
+        status: 'PAYMENT REQUESTED',
+        emailRequestedTo: targetEmail,
+        emailRequestedAt: timestamp,
+      },
+    };
+
+    saveRegisteredTeam(updatedTeam);
+    setCurrentSession(updatedTeam);
+    if (onUpdateTeam) onUpdateTeam(updatedTeam);
+    setEmailForPaymentDetails(targetEmail);
+    setEmailDetailsSentSuccess(true);
+    setPaymentRequestMessageModal(true);
+    setSheetSyncSuccess('Payment details will be sent on your email in next 24 hours');
+    setTimeout(() => setSheetSyncSuccess(null), 8000);
+
+    try {
+      await syncTeamToSheet(updatedTeam);
+    } catch (err) {
+      console.warn('Email request sheet sync notice:', err);
+    }
   };
 
   const handleOpenUploadModal = () => {
@@ -776,23 +816,35 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             <div className="space-y-1.5">
               <div className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
-                <span>Action Required · Registration Fee Pending ({fee.code}: {fee.formatted})</span>
+                <span>
+                  {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                    ? `Status: Payment Requested · Remittance in Process (${fee.code}: ${fee.formatted})`
+                    : `Action Required · Registration Fee Pending (${fee.code}: ${fee.formatted})`}
+                </span>
               </div>
               <h2 className="text-base sm:text-lg font-orbitron font-bold text-white uppercase tracking-wider">
-                Complete Your {fee.formatted} Entry Fee or Upload Payment Details
+                {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                  ? `Payment Details Requested for ${fee.formatted} Entry Fee`
+                  : `Complete Your ${fee.formatted} Entry Fee or Upload Payment Details`}
               </h2>
               <p className="text-xs text-neutral-300 max-w-2xl font-sans">
-                Request official bank/UPI payment details on your email, pay via UPI/NEFT, and upload your transaction details &amp; screenshot to unlock your Event Pass and Receipt.
+                {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid via UPI/NEFT, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
+                  : `Request official bank/UPI payment details on your email, pay via UPI/NEFT, and upload your transaction details & screenshot to unlock your Event Pass and Receipt.`}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <button
                 type="button"
-                onClick={handleOpenEmailDetailsModal}
+                onClick={handleDirectRequestPaymentDetails}
                 className="px-4 py-2.5 rounded-xl border border-[#d0fe1d]/50 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d]/20 text-[#d0fe1d] text-xs font-rajdhani font-bold uppercase tracking-wider whitespace-nowrap flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Mail className="w-4 h-4" />
-                <span>Request Payment Details on Email</span>
+                <span>
+                  {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                    ? 'Payment Requested · Resend Email'
+                    : 'Request Payment Details on Email'}
+                </span>
               </button>
               <button
                 type="button"
@@ -838,7 +890,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <button
                 type="button"
-                onClick={handleOpenEmailDetailsModal}
+                onClick={handleDirectRequestPaymentDetails}
                 className="px-3.5 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
                 title="Receive official bank account & UPI fee payment details on email"
               >
@@ -2676,12 +2728,13 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-xs space-y-2">
                   <div className="flex items-center gap-2 text-emerald-300 font-orbitron font-bold uppercase">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    Payment Instructions Dispatched!
+                    Payment Details Request Received!
                   </div>
-                  <p className="text-neutral-300 leading-relaxed">
-                    Official fee payment instructions for <strong className="text-white">{team.teamId}</strong> ({fee.formatted}.00) have been dispatched to{' '}
-                    <span className="text-[#d0fe1d] font-mono font-bold">{emailForPaymentDetails}</span>. Once you complete the transfer, click{' '}
-                    <strong className="text-white">Upload Payment Details</strong> to submit your UTR / transaction reference.
+                  <p className="text-[#d0fe1d] font-bold text-sm leading-relaxed">
+                    Payment details will be sent on your email in next 24 hours
+                  </p>
+                  <p className="text-neutral-300 leading-relaxed text-xs">
+                    Target Email: <span className="text-white font-mono font-bold">{emailForPaymentDetails || team.captainEmail}</span> · Status in Admin Panel &amp; Excel Sheet is now <strong className="text-cyan-300 font-mono">PAYMENT REQUESTED</strong>.
                   </p>
                 </div>
               )}
@@ -2728,6 +2781,43 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog: Payment details will be sent on your email in next 24 hours */}
+      {paymentRequestMessageModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <div className="relative w-full max-w-md bg-[#141612] border-2 border-[#d0fe1d] rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-[0_0_50px_rgba(208,254,29,0.3)]">
+            <div className="w-14 h-14 rounded-2xl bg-[#d0fe1d]/15 border border-[#d0fe1d]/40 flex items-center justify-center mx-auto text-[#d0fe1d]">
+              <Mail className="w-7 h-7" />
+            </div>
+            <div className="space-y-2.5">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#d0fe1d] block">
+                GCDIS Payment Secretariat
+              </span>
+              <h3 className="text-lg sm:text-xl font-orbitron font-black text-white uppercase tracking-wider">
+                Payment Request Recorded
+              </h3>
+              <div className="p-4 rounded-2xl bg-[#1b1c15] border border-[#d0fe1d]/40 space-y-1.5">
+                <p className="text-sm sm:text-base font-sans font-bold text-[#d0fe1d] leading-relaxed">
+                  &ldquo;Payment details will be sent on your email in next 24 hours&rdquo;
+                </p>
+                <p className="text-xs text-neutral-300 font-mono">
+                  Recipient: <strong className="text-white">{team.paymentInfo.emailRequestedTo || team.captainEmail}</strong>
+                </p>
+              </div>
+              <div className="text-[11px] font-mono text-neutral-400 bg-white/5 border border-white/10 rounded-xl p-2.5">
+                Admin Panel &amp; Excel Sheet status updated to: <span className="text-cyan-300 font-bold uppercase">Payment Requested</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPaymentRequestMessageModal(false)}
+              className="xotc-btn-lime w-full py-3 text-xs uppercase font-orbitron font-black cursor-pointer shadow-[0_0_25px_rgba(208,254,29,0.35)]"
+            >
+              OK, Got It
+            </button>
           </div>
         </div>
       )}
