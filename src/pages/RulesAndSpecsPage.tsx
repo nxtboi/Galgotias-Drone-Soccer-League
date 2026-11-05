@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   GCDIS_CLASS_SPECS,
-  GCDIS_7_COLORS,
 } from '../data/droneSoccerData';
 import { GcdisLogo } from '../components/GcdisLogo';
 

@@ -410,6 +410,10 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                       alt={photo.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/assets/aistudio/DSC00054_28c3e8bf.JPG';
+                      }}
                     />
 
                     {/* Expand Icon */}
@@ -478,6 +482,10 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                         alt={photo.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-95 group-hover:opacity-100"
                         loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/assets/aistudio/DSC00054_28c3e8bf.JPG';
+                        }}
                       />
 
                       <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -571,6 +579,10 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                   src={activePhoto.imageUrl}
                   alt={activePhoto.title}
                   className="w-full h-full object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/assets/aistudio/DSC00054_28c3e8bf.JPG';
+                  }}
                 />
 
                 {/* Close Button */}
