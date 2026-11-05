@@ -250,7 +250,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             {/* Live Tournament Countdown Timer */}
             <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl">
               <div className="text-left">
-                <div className="text-[9px] sm:text-[10px] font-rajdhani font-bold tracking-[0.2em] uppercase text-[#d0fe1d]">
+                <div className="text-[10px] sm:text-[11px] font-rajdhani font-bold tracking-[0.2em] uppercase text-[#d0fe1d]">
                   KICKOFF COUNTDOWN
                 </div>
                 <div className="text-[10px] sm:text-[11px] font-mono text-neutral-300">
@@ -258,32 +258,32 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5 font-orbitron tabular-nums text-center">
-                <div className="bg-[#1a1d17] border border-white/15 px-1.5 sm:px-2.5 py-1 min-w-[34px] sm:min-w-[40px]">
-                  <span className="block text-xs sm:text-sm font-black text-[#d0fe1d] leading-none">
+                <div className="bg-[#1a1d17] border border-white/15 px-2 sm:px-2.5 py-1 sm:py-1.5 min-w-[36px] sm:min-w-[42px] md:min-w-[46px] xl:min-w-[50px]">
+                  <span className="block text-xs sm:text-sm md:text-base xl:text-lg font-black text-[#d0fe1d] leading-none">
                     {timeLeft.days}
                   </span>
-                  <span className="text-[7px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">DAYS</span>
+                  <span className="text-[8px] sm:text-[9px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">DAYS</span>
                 </div>
-                <span className="text-[#d0fe1d] font-black text-xs">:</span>
-                <div className="bg-[#1a1d17] border border-white/15 px-1.5 sm:px-2.5 py-1 min-w-[34px] sm:min-w-[40px]">
-                  <span className="block text-xs sm:text-sm font-black text-white leading-none">
+                <span className="text-[#d0fe1d] font-black text-xs sm:text-sm md:text-base xl:text-lg">:</span>
+                <div className="bg-[#1a1d17] border border-white/15 px-2 sm:px-2.5 py-1 sm:py-1.5 min-w-[36px] sm:min-w-[42px] md:min-w-[46px] xl:min-w-[50px]">
+                  <span className="block text-xs sm:text-sm md:text-base xl:text-lg font-black text-white leading-none">
                     {String(timeLeft.hours).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">HRS</span>
+                  <span className="text-[8px] sm:text-[9px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">HRS</span>
                 </div>
-                <span className="text-[#d0fe1d] font-black text-xs">:</span>
-                <div className="bg-[#1a1d17] border border-white/15 px-1.5 sm:px-2.5 py-1 min-w-[34px] sm:min-w-[40px]">
-                  <span className="block text-xs sm:text-sm font-black text-white leading-none">
+                <span className="text-[#d0fe1d] font-black text-xs sm:text-sm md:text-base xl:text-lg">:</span>
+                <div className="bg-[#1a1d17] border border-white/15 px-2 sm:px-2.5 py-1 sm:py-1.5 min-w-[36px] sm:min-w-[42px] md:min-w-[46px] xl:min-w-[50px]">
+                  <span className="block text-xs sm:text-sm md:text-base xl:text-lg font-black text-white leading-none">
                     {String(timeLeft.minutes).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">MIN</span>
+                  <span className="text-[8px] sm:text-[9px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">MIN</span>
                 </div>
-                <span className="text-[#d0fe1d] font-black text-xs">:</span>
-                <div className="bg-[#1a1d17] border border-white/15 px-1.5 sm:px-2.5 py-1 min-w-[34px] sm:min-w-[40px]">
-                  <span className="block text-xs sm:text-sm font-black text-[#d0fe1d] leading-none">
+                <span className="text-[#d0fe1d] font-black text-xs sm:text-sm md:text-base xl:text-lg">:</span>
+                <div className="bg-[#1a1d17] border border-white/15 px-2 sm:px-2.5 py-1 sm:py-1.5 min-w-[36px] sm:min-w-[42px] md:min-w-[46px] xl:min-w-[50px]">
+                  <span className="block text-xs sm:text-sm md:text-base xl:text-lg font-black text-[#d0fe1d] leading-none">
                     {String(timeLeft.seconds).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">SEC</span>
+                  <span className="text-[8px] sm:text-[9px] font-rajdhani font-bold text-neutral-400 uppercase tracking-wider">SEC</span>
                 </div>
               </div>
             </div>

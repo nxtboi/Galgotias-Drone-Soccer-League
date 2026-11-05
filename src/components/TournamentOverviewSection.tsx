@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { PRIZE_POOLS, SPECIAL_PRIZE_CATEGORIES } from '../data/droneSoccerData';
 import { GcdisLogo } from './GcdisLogo';
@@ -19,36 +19,37 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
   onBracketClick,
   onRulesClick,
 }) => {
-  const leftHeaderRef = React.useRef<HTMLDivElement>(null);
-  const [headerMinHeight, setHeaderMinHeight] = React.useState<number | undefined>(undefined);
+  const leftHeaderInnerRef = useRef<HTMLDivElement>(null);
+  const rightHeaderInnerRef = useRef<HTMLDivElement>(null);
+  const [syncedHeaderHeight, setSyncedHeaderHeight] = useState<number | undefined>(undefined);
 
-  React.useEffect(() => {
-    const updateHeight = () => {
-      if (typeof window !== 'undefined' && window.innerWidth >= 1280 && leftHeaderRef.current) {
-        setHeaderMinHeight(leftHeaderRef.current.offsetHeight);
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (window.innerWidth >= 1280) {
+        const leftH = leftHeaderInnerRef.current?.offsetHeight || 0;
+        const rightH = rightHeaderInnerRef.current?.offsetHeight || 0;
+        const maxH = Math.max(leftH, rightH);
+        if (maxH > 0) {
+          setSyncedHeaderHeight(maxH);
+        }
       } else {
-        setHeaderMinHeight(undefined);
+        setSyncedHeaderHeight(undefined);
       }
     };
 
-    updateHeight();
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
 
-    let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined' && leftHeaderRef.current) {
-      ro = new ResizeObserver(() => {
-        updateHeight();
-      });
-      ro.observe(leftHeaderRef.current);
-    }
-
-    window.addEventListener('resize', updateHeight);
-    if (document.fonts) {
-      document.fonts.ready.then(updateHeight);
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(updateHeaderHeight);
+      if (leftHeaderInnerRef.current) observer.observe(leftHeaderInnerRef.current);
+      if (rightHeaderInnerRef.current) observer.observe(rightHeaderInnerRef.current);
     }
 
     return () => {
-      window.removeEventListener('resize', updateHeight);
-      if (ro) ro.disconnect();
+      window.removeEventListener('resize', updateHeaderHeight);
+      if (observer) observer.disconnect();
     };
   }, []);
 
@@ -67,43 +68,46 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
         {/* ABOUT: GCDIS & WHAT IS DRONE SOCCER — Responsive Dual/Stacked Architectural Divisions */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-stretch">
           {/* Division 1: About GCDIS */}
-          <section className="xl:col-span-6 xotc-card p-5 sm:p-7 md:p-9 lg:p-10 text-left flex flex-col justify-start h-full">
+          <section className="xl:col-span-6 xotc-card p-5 sm:p-7 md:p-9 lg:p-10 text-left flex flex-col justify-start space-y-4 h-full">
             <div
-              ref={leftHeaderRef}
-              style={{ minHeight: headerMinHeight ? `${headerMinHeight}px` : undefined }}
-              className="space-y-3 xl:min-h-[175px] 2xl:min-h-[150px] flex flex-col justify-start"
+              className="space-y-3 flex flex-col justify-start xl:min-h-[190px] 2xl:min-h-[165px]"
+              style={{ minHeight: syncedHeaderHeight ? `${syncedHeaderHeight}px` : undefined }}
             >
-              <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
-                HOST RESEARCH &amp; INNOVATION HUB
-              </span>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-                About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS)</span>
-              </h2>
+              <div ref={leftHeaderInnerRef} className="space-y-3">
+                <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
+                  HOST RESEARCH &amp; INNOVATION HUB
+                </span>
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+                  About: <span className="text-[#d0fe1d]">Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS)</span>
+                </h2>
+              </div>
             </div>
 
-            <p className="text-neutral-300 text-sm sm:text-base lg:text-lg leading-relaxed font-sans w-full text-left sm:text-justify mt-4 sm:mt-6">
+            <p className="text-neutral-300 text-sm sm:text-base lg:text-lg leading-relaxed font-sans w-full text-left sm:text-justify flex-1">
               The Galgotias Centre for Drone Intelligence &amp; Simulation (GCDIS) stands as a premier hub of innovation, research, and training dedicated to advancing the frontiers of unmanned aerial systems and intelligent flight technologies. Established at Galgotias University, the Centre embodies the institution’s vision to create a transformative platform for nurturing next generation engineers, innovators, and entrepreneurs in the field of drones and autonomous aerial systems.
             </p>
           </section>
 
           {/* Division 2: What Is Drone Soccer? */}
           <Parallax3DSection offsetY={65} rotateXRange={[8, 0, -6]} scaleRange={[0.94, 1, 0.95]} className="xl:col-span-6 h-full">
-            <section className="xotc-card p-5 sm:p-7 md:p-9 lg:p-10 text-left flex flex-col justify-start h-full">
+            <section className="xotc-card p-5 sm:p-7 md:p-9 lg:p-10 text-left flex flex-col justify-start space-y-4 h-full">
               <ParallaxDepthLayer
                 speed={0.18}
                 translateZ={28}
-                style={{ minHeight: headerMinHeight ? `${headerMinHeight}px` : undefined }}
-                className="space-y-3 xl:min-h-[175px] 2xl:min-h-[150px] flex flex-col justify-start"
+                className="space-y-3 flex flex-col justify-start xl:min-h-[190px] 2xl:min-h-[165px]"
+                style={{ minHeight: syncedHeaderHeight ? `${syncedHeaderHeight}px` : undefined }}
               >
-                <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
-                  OFFICIAL LEAGUE EXPLAINER
-                </span>
-                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-                  WHAT IS <span className="text-[#d0fe1d]">DRONE SOCCER?</span>
-                </h2>
+                <div ref={rightHeaderInnerRef} className="space-y-3">
+                  <span className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-[0.22em] uppercase block">
+                    OFFICIAL LEAGUE EXPLAINER
+                  </span>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+                    WHAT IS <span className="text-[#d0fe1d]">DRONE SOCCER?</span>
+                  </h2>
+                </div>
               </ParallaxDepthLayer>
-              <ParallaxDepthLayer speed={-0.12} translateZ={16}>
-                <p className="text-neutral-300 text-sm sm:text-base lg:text-lg leading-relaxed font-sans text-left sm:text-justify mt-4 sm:mt-6">
+              <ParallaxDepthLayer speed={-0.12} translateZ={16} className="flex-1">
+                <p className="text-neutral-300 text-sm sm:text-base lg:text-lg leading-relaxed font-sans text-left sm:text-justify">
                   Drone Soccer is a game in which 3-5 players from each team control the drone in the shape of a soccer ball to score in a round goal of the opponent team inside a Netted play Zone called the Arena. Two teams of five players compete in a netted arena. Roles include a designated Striker (the only drone allowed to score points by flying through the opponent's suspended hoop) alongside blockers, midfielders, and defenders.
                 </p>
               </ParallaxDepthLayer>

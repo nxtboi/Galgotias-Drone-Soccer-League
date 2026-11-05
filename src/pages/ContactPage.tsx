@@ -181,9 +181,9 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                 <span className="mt-2.5 block space-y-2">
                   {[
                     { label: 'Rajat Thakur', number: '9411053011', display: '+91 94110 53011' },
-                    { label: 'EVENT COORDINATOR', number: '9798693029', display: '+91 97986 93029' },
-                    { label: 'EVENT COORDINATOR', number: '9569696140', display: '+91 95696 96140' },
-                    { label: 'EVENT COORDINATOR', number: '7626040216', display: '+91 76260 40216' },
+                    { label: 'Ayush Sinha', number: '9798693029', display: '+91 97986 93029' },
+                    { label: 'Ayush Pandey', number: '9569696140', display: '+91 95696 96140' },
+                    { label: 'Vijay Prasad', number: '7626040216', display: '+91 76260 40216' },
                   ].map((item, idx) => (
                     <a
                       key={idx}
