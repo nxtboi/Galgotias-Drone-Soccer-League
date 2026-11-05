@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
-const HERO_VIDEO_SOURCE = '/hero-drone-soccer.mp4';
-const HERO_VIDEO_FALLBACK = '/assets/aistudio/hero-drone-soccer_5297df9b.mp4';
+const HERO_VIDEO_HD = '/hero-drone-soccer.mp4';
+const HERO_VIDEO_MOBILE = '/hero-drone-soccer-mobile.mp4';
+const HERO_POSTER = '/hero-drone-soccer-poster.jpg';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -17,25 +19,123 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
   onRegisterClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   // Live Tournament Countdown to Dec 08, 2026
   const [timeLeft, setTimeLeft] = useState({ days: 41, hours: 6, minutes: 15, seconds: 30 });
 
   useEffect(() => {
-    // Clear any legacy IndexedDB database
+    // Clear legacy IndexedDB if present
     try {
       indexedDB.deleteDatabase('gdsl_hero_media_db');
     } catch {
       // Ignore
     }
 
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      videoRef.current.playsInline = true;
-      videoRef.current.play().catch(() => {});
-    }
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Hard-set HTML attributes and properties for cross-device mobile autoplay compatibility
+    video.defaultMuted = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', 'true');
+    video.setAttribute('x5-playsinline', 'true');
+    video.setAttribute('x5-video-player-type', 'h5');
+
+    const attemptPlay = () => {
+      if (!video) return;
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(() => {
+            // Browser autoplay restricted (e.g. iOS low-power mode or user gesture requirement)
+            setIsPlaying(false);
+          });
+      }
+    };
+
+    attemptPlay();
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => {
+      video.currentTime = 0;
+      attemptPlay();
+    };
+    const onCanPlay = () => {
+      if (video.paused) {
+        attemptPlay();
+      }
+    };
+
+    video.addEventListener('play', onPlay);
+    video.addEventListener('pause', onPause);
+    video.addEventListener('ended', onEnded);
+    video.addEventListener('canplay', onCanPlay);
+
+    // Global listener on first user interaction to unlock autoplay on restricted mobile devices (iOS/Android)
+    const handleFirstGesture = () => {
+      if (video && video.paused) {
+        attemptPlay();
+      }
+    };
+
+    window.addEventListener('touchstart', handleFirstGesture, { passive: true, once: true });
+    window.addEventListener('click', handleFirstGesture, { passive: true, once: true });
+    window.addEventListener('scroll', handleFirstGesture, { passive: true, once: true });
+
+    // Handle tab visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && video.paused) {
+        attemptPlay();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      video.removeEventListener('play', onPlay);
+      video.removeEventListener('pause', onPause);
+      video.removeEventListener('ended', onEnded);
+      video.removeEventListener('canplay', onCanPlay);
+      window.removeEventListener('touchstart', handleFirstGesture);
+      window.removeEventListener('click', handleFirstGesture);
+      window.removeEventListener('scroll', handleFirstGesture);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
+
+  const togglePlay = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleSound = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+
+    const nextMuted = !video.muted;
+    video.muted = nextMuted;
+    setIsMuted(nextMuted);
+    if (!nextMuted && video.paused) {
+      video.play().catch(() => {});
+    }
+  };
 
   useEffect(() => {
     const targetDate = new Date('2026-12-08T09:00:00+05:30').getTime();
@@ -69,29 +169,35 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
       <div className="w-full max-w-[1440px] 2xl:max-w-[1600px] flex-1 flex flex-col mx-auto">
         {/* XOTC Chamfered Technical Hero Frame - Responsive aspect & height across screen sizes */}
         <div
-          className="relative w-full flex-1 min-h-[420px] sm:min-h-[520px] md:min-h-[600px] lg:min-h-[calc(100dvh-5.25rem)] border border-white/25 bg-black p-3.5 sm:p-5 md:p-7 lg:p-9 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
+          onClick={() => {
+            if (videoRef.current?.paused) togglePlay();
+          }}
+          className="relative w-full flex-1 min-h-[460px] sm:min-h-[520px] md:min-h-[600px] lg:min-h-[calc(100dvh-5.25rem)] border border-white/25 bg-black p-3.5 sm:p-5 md:p-7 lg:p-9 xl:p-12 overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.75)] flex flex-col justify-between transition-all"
         >
-          {/* Max Quality Drone Soccer Video - Seamless Continuous Looping, No Controls, No Reloading */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 select-none">
+          {/* Cross-Device Video Player - Faststart, Web-Optimized, Looping, Full Coverage */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden select-none">
             <video
               ref={videoRef}
-              key={HERO_VIDEO_SOURCE}
               autoPlay
               loop
               muted
               playsInline
               preload="auto"
+              poster={HERO_POSTER}
               disablePictureInPicture
               disableRemotePlayback
               controls={false}
               className="w-full h-full object-cover object-center pointer-events-none"
             >
-              <source src={HERO_VIDEO_SOURCE} type="video/mp4" />
-              <source src={HERO_VIDEO_FALLBACK} type="video/mp4" />
-              <source src="/assets/aistudio/hero-drone-soccer_0e9cca22.mp4" type="video/mp4" />
+              {/* High-speed mobile 720p faststart stream for phones & tablets */}
+              <source src={HERO_VIDEO_MOBILE} type="video/mp4" media="(max-width: 768px)" />
+              {/* Full 1080p faststart stream for desktop */}
+              <source src={HERO_VIDEO_HD} type="video/mp4" />
             </video>
-          </div>
 
+            {/* Subtle atmospheric overlay for crystal-clear readability across all devices */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/60 pointer-events-none" />
+          </div>
 
           {/* Top-Left & Top-Right Corner Accent Lines */}
           <div className="absolute top-0 left-0 w-10 sm:w-16 h-[2px] bg-[#d0fe1d]" />
@@ -104,16 +210,6 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             className="hidden sm:block absolute bottom-6 left-3 w-4 h-24 xotc-dots opacity-75 pointer-events-none"
             aria-hidden="true"
           />
-
-          {/* Bottom-Right Glowing Acid-Lime Crosshair Reticle */}
-          <div
-            className="hidden sm:flex absolute bottom-5 right-5 items-center justify-center w-8 h-8 pointer-events-none"
-            aria-hidden="true"
-          >
-            <div className="w-4 h-4 rounded-full border border-[#d0fe1d]/80" />
-            <div className="absolute w-8 h-[1px] bg-[#d0fe1d]/80" />
-            <div className="absolute h-8 w-[1px] bg-[#d0fe1d]/80" />
-          </div>
 
           {/* Top Bar Accreditation & Live Countdown */}
           <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3.5 pb-3.5 sm:pb-5 border-b border-white/20">
@@ -181,7 +277,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             </div>
           </div>
 
-          {/* Bottom Action Controls */}
+          {/* Bottom Action Controls & Video Playback Hub */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-4">
             <div className="flex flex-col xs:flex-row sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
               <button
@@ -202,6 +298,33 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
                   ₹2,00,000 PRIZE POOL
                 </span>
                 <span className="text-xs font-bold text-white group-hover:text-black drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-transform group-hover:translate-y-0.5">↓</span>
+              </button>
+            </div>
+
+            {/* Cross-Device Video Feed Control Badge */}
+            <div className="flex items-center gap-2 bg-black/75 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full shadow-lg">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold tracking-wider text-neutral-300">
+                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#d0fe1d] animate-pulse' : 'bg-amber-400'}`} />
+                <span className="hidden xs:inline sm:inline">ARENA CAM</span>
+              </div>
+              <div className="w-[1px] h-3.5 bg-white/20" />
+              <button
+                type="button"
+                onClick={togglePlay}
+                className="p-1 rounded text-neutral-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title={isPlaying ? 'Pause arena video feed' : 'Play arena video feed'}
+                aria-label={isPlaying ? 'Pause arena video feed' : 'Play arena video feed'}
+              >
+                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 text-[#d0fe1d]" />}
+              </button>
+              <button
+                type="button"
+                onClick={toggleSound}
+                className="p-1 rounded text-neutral-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+                aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+              >
+                {isMuted ? <VolumeX className="w-3.5 h-3.5 text-neutral-400" /> : <Volume2 className="w-3.5 h-3.5 text-[#d0fe1d]" />}
               </button>
             </div>
           </div>
