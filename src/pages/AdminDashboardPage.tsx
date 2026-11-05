@@ -14,7 +14,21 @@ import {
   syncTeamToSheet,
   downloadServerExcelWorkbook,
   HEADERS,
+  getGoogleSheetsConfig,
+  saveGoogleSheetsConfig,
+  createGoogleSpreadsheet,
+  syncAllTeamsToGoogleSheet,
+  extractSpreadsheetId,
+  GoogleSheetsConfig,
 } from '../services/googleSheetsService';
+import {
+  initAuth,
+  googleSignIn,
+  logoutGoogle,
+  getCurrentGoogleUser,
+  getAccessToken,
+} from '../services/googleAuthService';
+import type { User } from 'firebase/auth';
 
 export interface AdminDashboardPageProps {
   onLogout: () => void;
@@ -50,6 +64,21 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     rowCount: 0,
   });
 
+  // Google Account & Google Sheets state
+  const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const [googleToken, setGoogleToken] = useState<string | null>(null);
+  const [sheetsConfig, setSheetsConfig] = useState<GoogleSheetsConfig>({
+    spreadsheetId: null,
+    spreadsheetUrl: null,
+    spreadsheetTitle: 'Galgotias Drone Soccer League (GDSL 2026) - Registered Teams Roster',
+    lastSyncedAt: null,
+    autoSyncEnabled: true,
+  });
+  const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
+  const [isCreatingSheet, setIsCreatingSheet] = useState(false);
+  const [sheetInputUrl, setSheetInputUrl] = useState('');
+  const [autoSyncTimer, setAutoSyncTimer] = useState<number>(30);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
@@ -58,7 +87,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<string>('ALL');
-  const [activeView, setActiveView] = useState<'sheet' | 'cards'>('sheet');
+  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet'>('sheet');
   const [selectedTeam, setSelectedTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
   const [editTeamForm, setEditTeamForm] = useState<RegisteredTeamProfile | null>(null);
@@ -152,10 +181,12 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   };
 
   // Load team data and server Excel info
-  const loadData = async () => {
+  const loadData = async (explicitToken?: string) => {
     setIsLoading(true);
     try {
-      const liveData = await fetchLiveSheetData();
+      const cfg = await getGoogleSheetsConfig();
+      setSheetsConfig(cfg);
+      const liveData = await fetchLiveSheetData(explicitToken);
       setSheetData(liveData);
       const currentTeams = getRegisteredTeams();
       setTeams(currentTeams);
@@ -168,23 +199,195 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
 
   useEffect(() => {
     loadData();
+
+    // Listen to Google Auth changes
+    const unsubscribe = initAuth(
+      (user, token) => {
+        setGoogleUser(user);
+        setGoogleToken(token);
+      },
+      () => {
+        setGoogleUser(null);
+        setGoogleToken(null);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  // Save / Sync all teams to Server Excel Workbook
+  // 30-Second Auto-Sync Loop to keep Google Sheet and Admin Panel continuously updated
+  useEffect(() => {
+    if (!sheetsConfig.autoSyncEnabled) return;
+
+    const interval = setInterval(async () => {
+      setAutoSyncTimer((prev) => {
+        if (prev <= 1) {
+          // Trigger background auto-sync
+          (async () => {
+            try {
+              const token = googleToken || (await getAccessToken());
+              const cfg = await getGoogleSheetsConfig();
+              const latestTeams = getRegisteredTeams();
+              setTeams(latestTeams);
+
+              if (token && cfg.spreadsheetId) {
+                await syncAllTeamsToGoogleSheet(token, cfg.spreadsheetId, latestTeams);
+                setSheetsConfig((c) => ({ ...c, lastSyncedAt: new Date().toISOString() }));
+              }
+              const updated = await fetchLiveSheetData(token || undefined);
+              setSheetData(updated);
+            } catch (err) {
+              console.warn('Auto-sync cycle notification:', err);
+            }
+          })();
+          return 30;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sheetsConfig.autoSyncEnabled, sheetsConfig.spreadsheetId, googleToken]);
+
+  // Google Sign-In with official workspace scopes
+  const handleGoogleSignIn = async () => {
+    setIsConnectingGoogle(true);
+    setSyncError(null);
+    try {
+      const res = await googleSignIn();
+      if (res) {
+        setGoogleUser(res.user);
+        setGoogleToken(res.accessToken);
+        setSyncMessage(`Connected to Google as ${res.user.displayName || res.user.email}!`);
+        setTimeout(() => setSyncMessage(null), 5000);
+
+        const currentCfg = await getGoogleSheetsConfig();
+        if (!currentCfg.spreadsheetId) {
+          setIsCreatingSheet(true);
+          const newSheet = await createGoogleSpreadsheet(res.accessToken);
+          setSheetsConfig((prev) => ({
+            ...prev,
+            spreadsheetId: newSheet.spreadsheetId,
+            spreadsheetUrl: newSheet.spreadsheetUrl,
+            spreadsheetTitle: newSheet.title,
+            lastSyncedAt: new Date().toISOString(),
+          }));
+          setSyncMessage(`Created & connected live Google Sheet: "${newSheet.title}"`);
+        } else {
+          await syncAllTeamsToGoogleSheet(res.accessToken, currentCfg.spreadsheetId, teams);
+          setSyncMessage(`Synchronized all teams to Google Sheet (${currentCfg.spreadsheetTitle}).`);
+        }
+        await loadData(res.accessToken);
+      }
+    } catch (err: any) {
+      console.error('Google Sign-In failed:', err);
+      setSyncError(err?.message || 'Failed to connect Google account.');
+      setTimeout(() => setSyncError(null), 6000);
+    } finally {
+      setIsConnectingGoogle(false);
+      setIsCreatingSheet(false);
+    }
+  };
+
+  const handleGoogleSignOut = async () => {
+    await logoutGoogle();
+    setGoogleUser(null);
+    setGoogleToken(null);
+    setSyncMessage('Google Account disconnected.');
+    setTimeout(() => setSyncMessage(null), 4000);
+  };
+
+  // 1-Click Create new Google Sheet in Google Drive
+  const handleCreateNewGoogleSheet = async () => {
+    let token = googleToken || (await getAccessToken());
+    if (!token) {
+      const res = await googleSignIn();
+      if (!res) return;
+      token = res.accessToken;
+      setGoogleUser(res.user);
+      setGoogleToken(token);
+    }
+
+    setIsCreatingSheet(true);
+    setSyncError(null);
+    try {
+      const newSheet = await createGoogleSpreadsheet(token);
+      const updatedCfg: GoogleSheetsConfig = {
+        spreadsheetId: newSheet.spreadsheetId,
+        spreadsheetUrl: newSheet.spreadsheetUrl,
+        spreadsheetTitle: newSheet.title,
+        lastSyncedAt: new Date().toISOString(),
+        autoSyncEnabled: true,
+      };
+      setSheetsConfig(updatedCfg);
+      setSyncMessage(`Live Google Sheet created and populated! Opening ${newSheet.title}...`);
+      await loadData(token);
+      setTimeout(() => setSyncMessage(null), 7000);
+    } catch (err: any) {
+      setSyncError(err?.message || 'Failed to create Google Sheet.');
+      setTimeout(() => setSyncError(null), 6000);
+    } finally {
+      setIsCreatingSheet(false);
+    }
+  };
+
+  // Connect existing Google Sheet by ID or URL
+  const handleConnectExistingSheet = async () => {
+    if (!sheetInputUrl.trim()) return;
+    const extractedId = extractSpreadsheetId(sheetInputUrl.trim());
+    if (!extractedId) {
+      setSyncError('Please enter a valid Google Spreadsheet URL or Spreadsheet ID.');
+      setTimeout(() => setSyncError(null), 5000);
+      return;
+    }
+
+    const fullUrl = `https://docs.google.com/spreadsheets/d/${extractedId}/edit`;
+    const updated = await saveGoogleSheetsConfig({
+      spreadsheetId: extractedId,
+      spreadsheetUrl: fullUrl,
+      lastSyncedAt: new Date().toISOString(),
+    });
+    setSheetsConfig(updated);
+    setSheetInputUrl('');
+    setSyncMessage(`Linked to Google Sheet ID: ${extractedId}. Syncing current roster...`);
+
+    const token = googleToken || (await getAccessToken());
+    if (token) {
+      try {
+        await syncAllTeamsToGoogleSheet(token, extractedId, teams);
+        setSyncMessage(`Connected and synchronized ${teams.length} teams to Google Sheet!`);
+      } catch (err: any) {
+        console.warn('Sync notice:', err);
+      }
+    }
+    await loadData(token || undefined);
+    setTimeout(() => setSyncMessage(null), 6000);
+  };
+
+  // Manual Sync trigger
   const handlePushToSheets = async () => {
     setIsSyncing(true);
     setSyncMessage(null);
     setSyncError(null);
 
     try {
-      const res = await updateAllTournamentDataOnSheets();
-      setSyncMessage(res.message);
-      const updated = await fetchLiveSheetData();
+      const token = googleToken || (await getAccessToken());
+      const currentTeams = getRegisteredTeams();
+      if (token && sheetsConfig.spreadsheetId) {
+        const gsRes = await syncAllTeamsToGoogleSheet(token, sheetsConfig.spreadsheetId, currentTeams);
+        setSyncMessage(gsRes.message);
+      } else {
+        const res = await updateAllTournamentDataOnSheets();
+        setSyncMessage(res.message);
+      }
+      const updated = await fetchLiveSheetData(token || undefined);
       setSheetData(updated);
       setTimeout(() => setSyncMessage(null), 6000);
     } catch (err: any) {
-      console.error('Admin Excel sync error:', err);
-      setSyncError(err.message || 'Failed to update Server Excel sheet.');
+      console.error('Admin sync error:', err);
+      setSyncError(err.message || 'Failed to synchronize teams.');
       setTimeout(() => setSyncError(null), 6000);
     } finally {
       setIsSyncing(false);
@@ -317,15 +520,15 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
             </div>
 
             <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-4 transition-all shadow-lg">
-              <span className="text-xs font-mono font-bold text-neutral-400 block uppercase tracking-wider">EXCEL SERVER STATUS</span>
+              <span className="text-xs font-mono font-bold text-neutral-400 block uppercase tracking-wider">GOOGLE SHEETS SYNC</span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#d0fe1d] animate-pulse" />
+                <span className={`w-2.5 h-2.5 rounded-full ${sheetsConfig.spreadsheetId ? 'bg-[#d0fe1d] animate-pulse' : 'bg-emerald-400'}`} />
                 <span className="text-sm font-orbitron font-bold text-white">
-                  Server .XLSX Active
+                  {sheetsConfig.spreadsheetId ? 'Live Google Sheet' : 'Server Auto-Sync'}
                 </span>
               </div>
               <span className="text-[11px] text-neutral-400 mt-1 block font-mono truncate">
-                {sheetData.filePath || 'data/GDSL_2026_Teams_Roster.xlsx'} ({sheetData.fileSizeKB || 12} KB)
+                {sheetsConfig.spreadsheetId ? `Auto-sync: ${autoSyncTimer}s` : 'Server .XLSX + Sheets ready'}
               </span>
             </div>
           </div>
@@ -362,37 +565,111 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
         )}
 
-        {/* Server Excel Workbook Command Bar */}
-        <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-2xl space-y-5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-1 text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📊</span>
-                <h2 className="text-lg font-orbitron font-black text-white uppercase tracking-wider">
-                  Server Excel Workbook (.XLSX) Storage
+        {/* Google Sheets Live Sync & Command Control Center */}
+        <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-white/10 pb-5">
+            <div className="space-y-1.5 text-left">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-2xl">📑</span>
+                <h2 className="text-lg sm:text-xl font-orbitron font-black text-white uppercase tracking-wider">
+                  Google Sheets Live Auto-Sync
                 </h2>
-              </div>
-              <p className="text-xs text-neutral-400">
-                Server Workbook Path: <span className="font-mono font-semibold text-[#d0fe1d]">{sheetData.filePath || 'data/GDSL_2026_Teams_Roster.xlsx'}</span>
-              </p>
-              <p className="text-[11px] text-neutral-400 font-mono">
-                Worksheet: <span className="text-white">Registered Teams</span> · Rows: <span className="text-[#d0fe1d]">{teams.length}</span> · Last Saved:{' '}
-                <span className="text-white">
-                  {sheetData.lastSyncedAt
-                    ? new Date(sheetData.lastSyncedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST'
-                    : 'Auto-Saved'}
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#d0fe1d]/15 text-[#d0fe1d] border border-[#d0fe1d]/40 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-ping" />
+                  <span>Auto-Update Active</span>
                 </span>
+              </div>
+              <p className="text-xs text-neutral-300">
+                Tournament registrations automatically write and update to your Google Sheet in real-time.
               </p>
+              <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono text-neutral-400">
+                <span>
+                  Connected Sheet:{' '}
+                  <span className="text-white font-semibold">
+                    {sheetsConfig.spreadsheetTitle}
+                  </span>
+                </span>
+                <span>·</span>
+                <span>
+                  Sync Interval:{' '}
+                  <span className="text-[#d0fe1d]">
+                    {sheetsConfig.autoSyncEnabled ? `Every 30s (${autoSyncTimer}s remaining)` : 'Paused'}
+                  </span>
+                </span>
+                <span>·</span>
+                <span>
+                  Last Synced:{' '}
+                  <span className="text-white">
+                    {sheetsConfig.lastSyncedAt
+                      ? new Date(sheetsConfig.lastSyncedAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST'
+                      : 'Just now'}
+                  </span>
+                </span>
+              </div>
             </div>
 
-            {/* Direct Excel Operations */}
+            {/* Google Account Connection Status */}
+            <div className="flex flex-wrap items-center gap-3">
+              {googleUser ? (
+                <div className="flex items-center gap-3 bg-white/5 border border-white/15 rounded-2xl px-3.5 py-2">
+                  {googleUser.photoURL ? (
+                    <img
+                      src={googleUser.photoURL}
+                      alt={googleUser.displayName || 'Google Account'}
+                      className="w-8 h-8 rounded-full border border-[#d0fe1d]/50"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#d0fe1d] text-black font-bold flex items-center justify-center text-xs">
+                      {(googleUser.email || 'G')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-white leading-tight truncate max-w-[150px]">
+                      {googleUser.displayName || 'Google Connected'}
+                    </div>
+                    <div className="text-[10px] text-neutral-400 font-mono truncate max-w-[150px]">
+                      {googleUser.email}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleGoogleSignOut}
+                    className="ml-1 text-[11px] text-neutral-400 hover:text-rose-400 font-mono transition-colors cursor-pointer"
+                    title="Disconnect Google Account"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={isConnectingGoogle}
+                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 text-xs font-bold font-sans flex items-center gap-2.5 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                  </svg>
+                  <span>{isConnectingGoogle ? 'Connecting Google...' : 'Sign in with Google'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Action Row: Actions & Direct Sheet Links */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                onClick={downloadServerExcelWorkbook}
-                className="px-4 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>📥 Download Excel (.xlsx)</span>
-              </button>
+              {sheetsConfig.spreadsheetUrl ? (
+                <a
+                  href={sheetsConfig.spreadsheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] flex items-center gap-2"
+                >
+                  <span>↗ Open Live Google Sheet</span>
+                </a>
+              ) : null}
 
               <button
                 onClick={handlePushToSheets}
@@ -404,15 +681,53 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 ) : (
                   <span>🔄</span>
                 )}
-                <span>Save / Sync All to Server Excel</span>
+                <span>Sync Now</span>
+              </button>
+
+              <button
+                onClick={handleCreateNewGoogleSheet}
+                disabled={isCreatingSheet}
+                className="px-4 py-2.5 rounded-xl border border-[#d0fe1d]/50 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d]/20 text-[#d0fe1d] text-xs font-orbitron font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isCreatingSheet ? (
+                  <span className="w-3.5 h-3.5 border-2 border-[#d0fe1d] border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>+</span>
+                )}
+                <span>Create New Sheet</span>
+              </button>
+
+              <button
+                onClick={downloadServerExcelWorkbook}
+                className="px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:border-white/30 text-neutral-300 text-xs font-rajdhani font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Download backup Excel workbook"
+              >
+                <span>📥 .XLSX</span>
               </button>
 
               <button
                 onClick={handleExportCsv}
-                className="px-4 py-2.5 rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 text-xs font-rajdhani font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:border-white/30 text-neutral-300 text-xs font-rajdhani font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Export CSV text format"
               >
-                <span>📄</span>
-                <span>Export CSV</span>
+                <span>📄 CSV</span>
+              </button>
+            </div>
+
+            {/* Link Existing Sheet Input */}
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <input
+                type="text"
+                value={sheetInputUrl}
+                onChange={(e) => setSheetInputUrl(e.target.value)}
+                placeholder="Paste Google Sheet URL or ID..."
+                className="px-3 py-2 rounded-xl border border-white/15 bg-black/60 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#d0fe1d] w-full md:w-64 font-mono"
+              />
+              <button
+                onClick={handleConnectExistingSheet}
+                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
+              >
+                Link Sheet
               </button>
             </div>
           </div>
@@ -473,6 +788,17 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                   }`}
                 >
                   Squad Dossiers
+                </button>
+                <button
+                  onClick={() => setActiveView('live_google_sheet')}
+                  className={`px-3 py-1 rounded-md text-xs font-rajdhani font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeView === 'live_google_sheet'
+                      ? 'bg-[#d0fe1d] text-black shadow-xs'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <span>Google Sheet (Live)</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 </button>
               </div>
             </div>
@@ -693,6 +1019,103 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Live Google Sheet View (Embedded) */}
+          {activeView === 'live_google_sheet' && (
+            <div className="space-y-4">
+              {sheetsConfig.spreadsheetId ? (
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-black/60 border border-white/10 rounded-2xl">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#d0fe1d] animate-pulse" />
+                      <div className="text-left">
+                        <span className="text-xs font-mono font-bold text-white block">
+                          {sheetsConfig.spreadsheetTitle}
+                        </span>
+                        <span className="text-[11px] font-mono text-neutral-400">
+                          Spreadsheet ID: <code className="text-[#d0fe1d]">{sheetsConfig.spreadsheetId}</code> · Auto-updates on registration
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handlePushToSheets}
+                        disabled={isSyncing}
+                        className="px-3.5 py-1.5 rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        {isSyncing ? (
+                          <span className="w-3 h-3 border-2 border-[#d0fe1d] border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <span>🔄</span>
+                        )}
+                        <span>Sync Sheet</span>
+                      </button>
+                      <a
+                        href={sheetsConfig.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-1.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center gap-1.5"
+                      >
+                        <span>Open in Google Sheets</span>
+                        <span>↗</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full h-[650px] sm:h-[750px] rounded-2xl overflow-hidden border border-white/20 bg-white shadow-2xl">
+                    <iframe
+                      src={`https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit?rm=minimal&widget=true`}
+                      className="w-full h-full border-0"
+                      title="Google Sheet Live View"
+                      allow="clipboard-write"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="py-16 px-6 text-center bg-black/40 border border-white/10 rounded-2xl space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border border-white/15 flex items-center justify-center text-3xl">
+                    📑
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-orbitron font-bold text-lg text-white">No Google Sheet Linked Yet</h3>
+                    <p className="text-xs text-neutral-400 max-w-md mx-auto">
+                      Connect your Google Account to create a live Google Spreadsheet with one click or link an existing Google Sheet to auto-update team registrations.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    {googleUser ? (
+                      <button
+                        onClick={handleCreateNewGoogleSheet}
+                        disabled={isCreatingSheet}
+                        className="px-5 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {isCreatingSheet ? (
+                          <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <span>+</span>
+                        )}
+                        <span>Create Live GDSL Google Sheet</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleGoogleSignIn}
+                        disabled={isConnectingGoogle}
+                        className="px-5 py-2.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-sans font-bold text-xs flex items-center gap-2.5 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                      >
+                        <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
+                          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                        </svg>
+                        <span>{isConnectingGoogle ? 'Connecting...' : 'Sign in with Google to Connect Sheet'}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -802,14 +802,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <Upload className="w-4 h-4 text-[#d0fe1d]" />
                 <span>Upload Payment Details</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setIsPaymentModalOpen(true)}
-                className="px-5 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Pay {fee.formatted} Now</span>
-              </button>
             </div>
           </div>
         )}

@@ -3,7 +3,7 @@ import { GcdisLogo } from './GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
 const HERO_VIDEO_SOURCE = '/hero-drone-soccer.mp4';
-const HERO_VIDEO_FALLBACK = '/assets/aistudio/gemini_generated_video_da0879cf_97babbf2.mp4';
+const HERO_VIDEO_FALLBACK = '/assets/aistudio/hero-drone-soccer_5297df9b.mp4';
 
 export interface DroneSoccerHeroProps {
   onRegisterClick: () => void;
@@ -75,6 +75,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0 select-none">
             <video
               ref={videoRef}
+              key={HERO_VIDEO_SOURCE}
               autoPlay
               loop
               muted
@@ -87,6 +88,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             >
               <source src={HERO_VIDEO_SOURCE} type="video/mp4" />
               <source src={HERO_VIDEO_FALLBACK} type="video/mp4" />
+              <source src="/assets/aistudio/hero-drone-soccer_0e9cca22.mp4" type="video/mp4" />
             </video>
           </div>
 

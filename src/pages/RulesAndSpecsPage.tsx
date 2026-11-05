@@ -94,34 +94,6 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                 Official competition rule books issued by the Galgotias Centre for Drone Intelligence &amp; Simulation (GCDIS), School of Engineering, Galgotias University for <strong className="text-white">Class D20</strong> and <strong className="text-white">Class D40</strong> divisions.
               </p>
             </div>
-
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
-              <a
-                href="/assets/aistudio/Drone_Soccer_League_Rule_Book_D20-1_be50f152.pdf"
-                download="Drone_Soccer_League_Rule_Book_Class_D20.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="xotc-btn-lime px-5 py-3 text-xs flex items-center justify-center gap-2.5 whitespace-nowrap"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span>Download Class D20 Rule Book (PDF)</span>
-              </a>
-
-              <a
-                href="/assets/aistudio/Drone_Soccer_League_Rule_Book_D40_b79d1f34.pdf"
-                download="Drone_Soccer_League_Rule_Book_Class_D40.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="xotc-btn-outline px-5 py-3 text-xs flex items-center justify-center gap-2.5 whitespace-nowrap"
-              >
-                <svg className="w-4 h-4 shrink-0 text-[#d0fe1d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span>Download Class D40 Rule Book (PDF)</span>
-              </a>
-            </div>
           </div>
         </div>
 

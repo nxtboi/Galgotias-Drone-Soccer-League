@@ -18,7 +18,40 @@ const DATA_DIR = path.join(__dirname, 'data');
 const EXCEL_FILE_NAME = 'GDSL_2026_Teams_Roster.xlsx';
 const EXCEL_FILE_PATH = path.join(DATA_DIR, EXCEL_FILE_NAME);
 const TEAMS_JSON_PATH = path.join(DATA_DIR, 'teams_store.json');
+const SHEETS_CONFIG_PATH = path.join(DATA_DIR, 'sheets_config.json');
 const SHEET_NAME = 'Registered Teams';
+
+export interface GoogleSheetsConfig {
+  spreadsheetId: string | null;
+  spreadsheetUrl: string | null;
+  spreadsheetTitle: string;
+  lastSyncedAt: string | null;
+  autoSyncEnabled: boolean;
+}
+
+function readSheetsConfig(): GoogleSheetsConfig {
+  ensureDataDirectory();
+  if (fs.existsSync(SHEETS_CONFIG_PATH)) {
+    try {
+      const raw = fs.readFileSync(SHEETS_CONFIG_PATH, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      // Fallback
+    }
+  }
+  return {
+    spreadsheetId: null,
+    spreadsheetUrl: null,
+    spreadsheetTitle: 'GDSL 2026 - Registered Teams Roster',
+    lastSyncedAt: null,
+    autoSyncEnabled: true,
+  };
+}
+
+function writeSheetsConfig(config: GoogleSheetsConfig) {
+  ensureDataDirectory();
+  fs.writeFileSync(SHEETS_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+}
 
 export const EXCEL_HEADERS = [
   'Team ID',
@@ -314,6 +347,51 @@ async function startServer() {
       });
     }
   });
+
+  // 5. GET /api/sheets/config — Retrieve current Google Sheets integration config
+  app.get('/api/sheets/config', (_req, res) => {
+    try {
+      const config = readSheetsConfig();
+      res.json({ success: true, config });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to read Google Sheets config.' });
+    }
+  });
+
+  // 6. POST /api/sheets/config — Update Google Sheets integration config
+  app.post('/api/sheets/config', (req, res) => {
+    try {
+      const current = readSheetsConfig();
+      const updated: GoogleSheetsConfig = {
+        ...current,
+        ...(req.body || {}),
+      };
+      writeSheetsConfig(updated);
+      res.json({ success: true, config: updated });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to update Google Sheets config.' });
+    }
+  });
+
+  // 7. POST /api/sheets/mark-synced — Update last synced timestamp
+  app.post('/api/sheets/mark-synced', (req, res) => {
+    try {
+      const current = readSheetsConfig();
+      const updated: GoogleSheetsConfig = {
+        ...current,
+        lastSyncedAt: new Date().toISOString(),
+        ...(req.body?.spreadsheetId ? { spreadsheetId: req.body.spreadsheetId } : {}),
+        ...(req.body?.spreadsheetUrl ? { spreadsheetUrl: req.body.spreadsheetUrl } : {}),
+      };
+      writeSheetsConfig(updated);
+      res.json({ success: true, config: updated });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to mark Google Sheet as synced.' });
+    }
+  });
+
+  // Serve static public folder with byte-range support for video streaming & static assets
+  app.use(express.static(path.join(__dirname, 'public')));
 
   // Vite middleware for development or static serving for production
   const distPath = path.join(__dirname, 'dist');
