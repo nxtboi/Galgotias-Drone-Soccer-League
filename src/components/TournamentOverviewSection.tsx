@@ -396,7 +396,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                 CHAMPIONSHIP ROADMAP
               </h2>
               <p className="text-neutral-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto">
-                2-Day Championship Progression at Galgotias Indoor Arena (Dec 08–09, 2026).
+                2-Day Championship Progression at Galgotias Arena (Dec 08–09, 2026).
               </p>
             </div>
 
