@@ -292,9 +292,6 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                         Special Championship Awards
                       </h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-neutral-300 mt-1">
-                      Individual excellence recognition for tournament standouts · Voted by referee panel &amp; telemetry analytics
-                    </p>
                   </div>
                   <div className="text-left sm:text-right shrink-0 bg-black/60 px-4 py-2 border border-cyan-400/40">
                     <span className="text-[10px] sm:text-[11px] font-rajdhani text-neutral-400 block font-bold uppercase tracking-widest">
