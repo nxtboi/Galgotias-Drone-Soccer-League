@@ -221,7 +221,7 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
             Category: <strong className="text-white">{fee.code} ({team.division})</strong>
           </span>
           <span className="font-mono tabular-nums">
-            Registration Fee: <strong className="text-emerald-400">{fee.formatted}</strong> (D-20: ₹1,500 · D-40: ₹4,000)
+            Registration Fee: <strong className="text-emerald-400">{fee.formatted}</strong> (D-20: ₹1,500 · D-40: ₹2,000)
           </span>
         </div>
 
