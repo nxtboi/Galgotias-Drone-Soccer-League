@@ -100,11 +100,7 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             aria-label={`${member.name}. Click to view contact details`}
           >
             {/* High-tech Top Bar */}
-            <div className="absolute top-2.5 inset-x-2.5 z-20 flex items-center justify-between pointer-events-none">
-              <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 bg-black/85 backdrop-blur-md border border-[#d0fe1d]/50 text-[#d0fe1d] rounded">
-                {member.categoryLabel}
-              </span>
-
+            <div className="absolute top-2.5 inset-x-2.5 z-20 flex items-center justify-end pointer-events-none">
               <button
                 type="button"
                 onClick={(e) => toggleFlip(member.id, e)}
@@ -137,9 +133,6 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
                 <h3 className="font-orbitron font-bold text-base text-white group-hover:text-[#d0fe1d] transition-colors leading-tight truncate">
                   {member.name}
                 </h3>
-                <div className="font-rajdhani text-xs font-bold text-[#d0fe1d] tracking-wide uppercase truncate">
-                  {member.role}
-                </div>
                 <div className="text-[10px] text-neutral-400 font-sans truncate">
                   {member.department}
                 </div>
@@ -172,15 +165,9 @@ export const OurTeamPage: React.FC<OurTeamPageProps> = ({ onNavigate }) => {
             {/* Back Header: Member summary & Flip back trigger */}
             <div className="relative z-10 flex items-start justify-between gap-2 border-b border-white/15 pb-1.5">
               <div className="space-y-0.5 min-w-0">
-                <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-[#d0fe1d] block">
-                  {member.categoryLabel}
-                </span>
                 <h4 className="font-orbitron font-bold text-xs sm:text-sm text-white leading-snug truncate">
                   {member.name}
                 </h4>
-                <p className="font-rajdhani text-[10px] font-bold text-[#d0fe1d] uppercase leading-snug line-clamp-1">
-                  {member.role}
-                </p>
               </div>
 
               {/* Flip to Photo button */}
