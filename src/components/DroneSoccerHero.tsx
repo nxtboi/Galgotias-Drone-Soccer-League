@@ -224,8 +224,8 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
           />
 
           {/* Top Bar Accreditation & Live Countdown */}
-          <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3.5 pb-3.5 sm:pb-5 border-b border-white/20">
-            <div className="flex items-center gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 shadow-xl">
+          <div className="relative z-10 flex flex-col lg:flex-row items-stretch justify-between gap-2.5 sm:gap-3.5 pb-3.5 sm:pb-5 border-b border-white/20">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 border border-white/20 shadow-xl self-stretch min-h-[68px] sm:min-h-[74px]">
               <GcdisLogo
                 size="sm"
                 showWordmark={false}
@@ -248,7 +248,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             </div>
 
             {/* Live Tournament Countdown Timer */}
-            <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl">
+            <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 sm:gap-3.5 bg-black/75 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-2 sm:py-2.5 w-full lg:w-auto shadow-xl self-stretch min-h-[68px] sm:min-h-[74px]">
               <div className="text-left">
                 <div className="text-[10px] sm:text-[11px] font-rajdhani font-bold tracking-[0.2em] uppercase text-[#d0fe1d]">
                   KICKOFF COUNTDOWN
