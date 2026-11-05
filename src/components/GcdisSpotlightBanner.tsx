@@ -25,7 +25,7 @@ export const GcdisSpotlightBanner: React.FC<GcdisSpotlightBannerProps> = ({ onNa
                   HOSTED BY GCDIS AT GALGOTIAS UNIVERSITY
                 </span>
                 <h3 className="mt-1 text-lg sm:text-2xl lg:text-3xl font-orbitron font-black text-white uppercase tracking-wider">
-                  GALGOTIAS INDOOR DRONE SOCCER ARENA
+                  GALGOTIAS DRONE SOCCER ARENA
                 </h3>
               </div>
             </div>
