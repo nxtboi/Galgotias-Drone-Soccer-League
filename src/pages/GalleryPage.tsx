@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { 
   Camera, 
+  Video, 
   X, 
   ChevronLeft, 
   ChevronRight, 
@@ -28,6 +29,90 @@ export interface GalleryPhoto {
 
 // -------------------------------------------------------------
 // LAB PHOTOS: ONLY THE 6 AUTHENTIC PHOTOS PROVIDED BY USER
+// -------------------------------------------------------------
+const LAB_PHOTOS: GalleryPhoto[] = [
+  {
+    id: 'lab-1',
+    title: 'GCDIS Autonomous Drone Intelligence & Prototyping Facility',
+    section: 'Lab',
+    category: 'Hardware & Prototyping',
+    date: 'April 2026',
+    location: 'GCDIS Main Prototyping Bay, Galgotias University',
+    imageUrl: '/assets/aistudio/DSC09535_d2c2c91b.JPG',
+    description:
+      'Faculty members and robotics students inspecting the heavy-lift SKY MASTER quadrotor system, drone soccer geodesic carbon airframes, and autonomous payload modules.',
+    droneModel: 'SKY MASTER & Spherical Airframes',
+    tags: ['GCDIS Facility', 'Prototyping Bay', 'Heavy-Lift UAV', 'Geodesic Sphere'],
+  },
+  {
+    id: 'lab-2',
+    title: 'Spherical Drone Soccer Airframe & Propulsion Briefing',
+    section: 'Lab',
+    category: 'Flight Architecture',
+    date: 'April 2026',
+    location: 'GCDIS Flight Workshop, Galgotias University',
+    imageUrl: '/assets/aistudio/DSC00043_154c2d74.JPG',
+    description:
+      'Lead drone instructor presenting quadrotor kinematics, brushless motor thrust-to-weight ratios, and cage impact absorption to student flight teams.',
+    droneModel: 'Class D-40 Competition Quad',
+    tags: ['Faculty Mentorship', 'Class D-40', 'Kinematics', 'Airframe Tech'],
+  },
+  {
+    id: 'lab-3',
+    title: 'Squad Avionics Diagnostics & Multi-Rotor Assembly',
+    section: 'Lab',
+    category: 'Hardware & Prototyping',
+    date: 'April 2026',
+    location: 'GCDIS Fabrication Lab, Galgotias University',
+    imageUrl: '/assets/aistudio/DSC00054_28c3e8bf.JPG',
+    description:
+      'Student flight squads collaborating around modular workbenches, tuning electronic speed controllers, checking carbon motor mounts, and testing telemetry antennas.',
+    droneModel: 'Custom X-Frame Flight Squad Drone',
+    tags: ['Student Squad', 'Bench Assembly', 'ESC Tuning', 'Galgotias Engineers'],
+  },
+  {
+    id: 'lab-4',
+    title: 'Hardware-in-the-Loop Flight Simulation & Transmitter Lab',
+    section: 'Lab',
+    category: 'Simulation & Telemetry',
+    date: 'April 2026',
+    location: 'GCDIS Flight Simulator Suite, Galgotias University',
+    imageUrl: '/assets/aistudio/DSC09528_5e5c6e81.JPG',
+    description:
+      'Pilots honing low-latency hoop entry lines, 3D aerial soccer maneuvers, and defensive positioning using computer simulator stations connected to radio transmitters.',
+    droneModel: 'High-Fidelity Flight Simulator Suite',
+    tags: ['Transmitter Drills', 'Aerodynamic Simulator', 'Hoop Entry', 'Pilot Trainees'],
+  },
+  {
+    id: 'lab-5',
+    title: 'Precision Soldering & Power Distribution Workstation',
+    section: 'Lab',
+    category: 'Avionics & Electronics',
+    date: 'April 2026',
+    location: 'GCDIS Electronics Bay, Galgotias University',
+    imageUrl: '/assets/aistudio/Simulator_Flying_538aba4f.jpeg',
+    description:
+      'Avionics technician soldering high-current ESC battery leads and power distribution boards on an ESD heat-resistant mat for high-vibration cage resilience.',
+    droneModel: 'High-Discharge PDB & 4S Power System',
+    tags: ['Precision Soldering', 'PDB Wiring', 'ESD Mat', 'High-Vibration Rig'],
+  },
+  {
+    id: 'lab-6',
+    title: 'Hybrid Fixed-Wing VTOL Outdoor Proving Ground',
+    section: 'Lab',
+    category: 'Field Operations',
+    date: 'April 2026',
+    location: 'Galgotias Proving Grounds, Flight Arena',
+    imageUrl: '/assets/aistudio/WhatsApp_Image_2026-04-19_at_9.32.41_PM__1__c1905fe6.jpeg',
+    description:
+      'GCDIS aerial research division deployed on the open airfield with a long-endurance hybrid VTOL survey aircraft and high-precision RTK GNSS ground tripod station.',
+    droneModel: 'Hybrid Fixed-Wing VTOL 500',
+    tags: ['Hybrid VTOL', 'RTK Base Station', 'Field Testing', 'Research Division'],
+  },
+];
+
+// -------------------------------------------------------------
+// ARENA PHOTOS: AUTHENTIC DRONE SOCCER ARENA PHOTOS BY USER
 // -------------------------------------------------------------
 const ARENA_PHOTOS: GalleryPhoto[] = [
   {
@@ -219,15 +304,49 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
         </div>
 
         {/* Hero Header */}
-        <div className="pb-6 border-b border-white/10 text-left space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
-            <Camera className="w-4 h-4" />
-            <span>OFFICIAL LEAGUE PHOTO ARCHIVE</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
+          <div className="text-left space-y-3 max-w-3xl">
+            <div className="inline-flex items-center gap-2 text-xs font-rajdhani font-bold uppercase tracking-[0.22em] text-[#d0fe1d]">
+              <Camera className="w-4 h-4" />
+              <span>OFFICIAL LEAGUE PHOTO ARCHIVE</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
+              LEAGUE GALLERY: <span className="text-[#d0fe1d]">LAB &amp; ARENA</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-sans">
+              Explore authentic photographs from the Galgotias Centre of Drone Intelligence &amp; Simulation (GCDIS) research facilities, avionics workshops, flight simulation laboratories, and caged drone soccer tournament clashes.
+            </p>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-orbitron font-black text-white uppercase tracking-wider leading-tight">
-            LEAGUE GALLERY: <span className="text-[#d0fe1d]">LAB &amp; ARENA</span>
-          </h1>
+          {/* Quick Counter Badges */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="px-3.5 py-2 bg-[#171915] border border-[#d0fe1d]/30 rounded-lg text-center">
+              <span className="block font-orbitron font-bold text-lg sm:text-xl text-[#d0fe1d]">
+                {LAB_PHOTOS.length}
+              </span>
+              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
+                Lab Photos
+              </span>
+            </div>
+            <div className="px-3.5 py-2 bg-[#171915] border border-white/15 rounded-lg text-center">
+              <span className="block font-orbitron font-bold text-lg sm:text-xl text-white">
+                {ARENA_PHOTOS.length}
+              </span>
+              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
+                Arena Shots
+              </span>
+            </div>
+            <div className="px-3.5 py-2 bg-[#171915] border border-white/15 rounded-lg text-center">
+              <span className="block font-orbitron font-bold text-lg sm:text-xl text-red-400">
+                {realMatchVideos.length}
+              </span>
+              <span className="block font-mono text-[10px] text-neutral-400 uppercase tracking-widest">
+                Match Reels
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* ========================================================
@@ -281,6 +400,33 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
               </span>
             </button>
           </div>
+
+          {/* Arena Sub-Toggle (Photos vs Match Videos) */}
+          {(activeSection === 'arena' || activeSection === 'all') && (
+            <div className="flex items-center gap-1.5 bg-[#0e100d] p-1 rounded-xl border border-white/10 shrink-0 self-start sm:self-auto">
+              <button
+                onClick={() => setArenaSubView('photos')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  arenaSubView === 'photos'
+                    ? 'bg-white/15 text-white font-bold'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                Photos
+              </button>
+              <button
+                onClick={() => setArenaSubView('videos')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                  arenaSubView === 'videos'
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/40 font-bold'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                <Video className="w-3 h-3 text-red-400" />
+                <span>Match Videos</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -292,7 +438,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#171b13] via-[#141612] to-[#161a12] border border-[#d0fe1d]/50 shadow-[0_0_40px_rgba(208,254,29,0.06)] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-[#d0fe1d]/5 blur-3xl pointer-events-none" />
               
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-2 max-w-3xl">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#d0fe1d] text-black">
@@ -307,6 +453,15 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
                     GCDIS <span className="text-[#d0fe1d]">DRONE LAB</span>
                   </h2>
+
+                  <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-sans">
+                    Galgotias Centre of Drone Intelligence &amp; Simulation facilities: advanced avionics soldering benches, hardware-in-the-loop pilot simulator suites, drone soccer airframe assemblies, and long-endurance hybrid VTOL field proving grounds.
+                  </p>
+                </div>
+
+                <div className="shrink-0 px-4 py-2.5 bg-black/60 border border-[#d0fe1d]/40 rounded-xl text-left md:text-right">
+                  <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block">Collection</span>
+                  <span className="text-lg font-orbitron font-black text-[#d0fe1d]">{LAB_PHOTOS.length} Authentic Photos</span>
                 </div>
               </div>
             </div>
@@ -360,7 +515,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
             <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#171614] via-[#141612] to-[#1c1a14] border border-white/20 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 blur-3xl pointer-events-none" />
 
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-2 max-w-3xl">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-[#d0fe1d] text-black">
@@ -375,6 +530,34 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onNavigate }) => {
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
                     GALGOTIAS <span className="text-[#d0fe1d]">PRO ARENA</span>
                   </h2>
+
+                  <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-sans">
+                    Action inside the Galgotias Drone Soccer Pro Arena cage: spherical striker quadrotors in flight, collegiate pilot squad lineups in the center circle, pre-flight technical inspections, and live transmitter flight execution.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => setArenaSubView('photos')}
+                    className={`px-3.5 py-2 rounded-lg font-rajdhani font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                      arenaSubView === 'photos'
+                        ? 'bg-[#d0fe1d] text-black shadow-md'
+                        : 'bg-[#1b1d18] text-neutral-300 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    Arena Photos ({ARENA_PHOTOS.length})
+                  </button>
+                  <button
+                    onClick={() => setArenaSubView('videos')}
+                    className={`px-3.5 py-2 rounded-lg font-rajdhani font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                      arenaSubView === 'videos'
+                        ? 'bg-red-500 text-white shadow-md'
+                        : 'bg-[#1b1d18] text-neutral-300 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Videos ({realMatchVideos.length})</span>
+                  </button>
                 </div>
               </div>
             </div>
