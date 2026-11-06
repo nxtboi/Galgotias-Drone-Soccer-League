@@ -18,6 +18,8 @@ import {
   saveGoogleSheetsConfig,
   createGoogleSpreadsheet,
   syncAllTeamsToGoogleSheet,
+  appendTeamToGoogleSheet,
+  flushPendingRegistrationsToGoogleSheet,
   extractSpreadsheetId,
   GoogleSheetsConfig,
 } from '../services/googleSheetsService';
@@ -236,6 +238,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
               setTeams(latestTeams);
 
               if (token && cfg.spreadsheetId) {
+                // First flush any pending new registrations from visitors
+                await flushPendingRegistrationsToGoogleSheet(token, cfg.spreadsheetId);
                 await syncAllTeamsToGoogleSheet(token, cfg.spreadsheetId, latestTeams);
                 setSheetsConfig((c) => ({ ...c, lastSyncedAt: new Date().toISOString() }));
               }

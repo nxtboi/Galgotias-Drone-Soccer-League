@@ -53,6 +53,34 @@ function writeSheetsConfig(config: GoogleSheetsConfig) {
   fs.writeFileSync(SHEETS_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
 }
 
+const PENDING_QUEUE_PATH = path.join(DATA_DIR, 'pending_sheets_queue.json');
+
+function readPendingQueue(): RegisteredTeamProfile[] {
+  ensureDataDirectory();
+  if (fs.existsSync(PENDING_QUEUE_PATH)) {
+    try {
+      const raw = fs.readFileSync(PENDING_QUEUE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // Fallback
+    }
+  }
+  return [];
+}
+
+function appendToPendingQueue(team: RegisteredTeamProfile) {
+  ensureDataDirectory();
+  const queue = readPendingQueue();
+  queue.push(team);
+  fs.writeFileSync(PENDING_QUEUE_PATH, JSON.stringify(queue, null, 2), 'utf-8');
+}
+
+function clearPendingQueue() {
+  ensureDataDirectory();
+  fs.writeFileSync(PENDING_QUEUE_PATH, JSON.stringify([], null, 2), 'utf-8');
+}
+
 export const EXCEL_HEADERS = [
   'Team ID',
   'Team Name',
@@ -267,6 +295,7 @@ async function startServer() {
       }
 
       writeTeamsToExcelFile(updatedTeams);
+      appendToPendingQueue(incomingTeam);
       const meta = getExcelMetadata(updatedTeams);
 
       res.json({
@@ -387,6 +416,26 @@ async function startServer() {
       res.json({ success: true, config: updated });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err?.message || 'Failed to mark Google Sheet as synced.' });
+    }
+  });
+
+  // 8. GET /api/sheets/pending — Fetch queued registrations waiting to be appended to Google Sheet
+  app.get('/api/sheets/pending', (_req, res) => {
+    try {
+      const queue = readPendingQueue();
+      res.json({ success: true, pendingTeams: queue });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to read pending queue.' });
+    }
+  });
+
+  // 9. POST /api/sheets/pending/clear — Clear queue once flushed to Google Sheet
+  app.post('/api/sheets/pending/clear', (_req, res) => {
+    try {
+      clearPendingQueue();
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to clear pending queue.' });
     }
   });
 

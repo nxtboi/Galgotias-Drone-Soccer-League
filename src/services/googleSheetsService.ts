@@ -327,6 +327,29 @@ export async function createGoogleSpreadsheet(
 }
 
 /**
+ * Resolves the primary sheet/tab title for the spreadsheet (e.g. 'Registered Teams' or 'Sheet1')
+ */
+export async function getFirstSheetTitle(accessToken: string, spreadsheetId: string): Promise<string> {
+  try {
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties.title`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const sheets = data.sheets;
+      if (Array.isArray(sheets) && sheets.length > 0) {
+        const found = sheets.find((s: any) => s.properties?.title?.toLowerCase() === 'registered teams');
+        if (found?.properties?.title) return found.properties.title;
+        return sheets[0].properties?.title || 'Sheet1';
+      }
+    }
+  } catch (err) {
+    console.warn('Could not determine sheet title, falling back to Registered Teams:', err);
+  }
+  return 'Registered Teams';
+}
+
+/**
  * Pushes all registered teams to a specified Google Spreadsheet
  */
 export async function syncAllTeamsToGoogleSheet(
@@ -335,11 +358,12 @@ export async function syncAllTeamsToGoogleSheet(
   teams?: RegisteredTeamProfile[]
 ): Promise<SheetSyncResult> {
   const squadList = teams && teams.length > 0 ? teams : getRegisteredTeams();
+  const sheetTitle = await getFirstSheetTitle(accessToken, spreadsheetId);
   const headerRow = HEADERS;
   const teamRows = squadList.map((team) => teamToRowValues(team));
   const allRows = [headerRow, ...teamRows];
 
-  const range = `'Registered Teams'!A1:AF${allRows.length}`;
+  const range = `'${sheetTitle}'!A1:AF${allRows.length}`;
   const putUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(
     range
   )}?valueInputOption=USER_ENTERED`;
@@ -395,104 +419,118 @@ export async function syncAllTeamsToGoogleSheet(
 }
 
 /**
- * Appends or updates a single registered team on the connected Google Sheet
+ * Always appends a new row for every registration in the connected Google Sheet
  */
 export async function appendTeamToGoogleSheet(
   accessToken: string,
   spreadsheetId: string,
   team: RegisteredTeamProfile
 ): Promise<SheetSyncResult> {
-  // First, retrieve existing rows to check if team already exists and needs updating
-  const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'Registered Teams'!A:A`;
-  let existingRowIndex = -1;
-
-  try {
-    const getRes = await fetch(getUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    if (getRes.ok) {
-      const data = await getRes.json();
-      const ids: string[][] = data.values || [];
-      const searchId = team.teamId.trim().toUpperCase();
-      for (let i = 0; i < ids.length; i++) {
-        if (ids[i][0] && ids[i][0].toString().trim().toUpperCase() === searchId) {
-          existingRowIndex = i + 1; // 1-indexed row number
-          break;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Could not check existing row in Google Sheet:', err);
-  }
-
+  const sheetTitle = await getFirstSheetTitle(accessToken, spreadsheetId);
   const rowValues = teamToRowValues(team);
   const now = new Date().toISOString();
   const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 
-  if (existingRowIndex > 0) {
-    // Update existing row
-    const range = `'Registered Teams'!A${existingRowIndex}:AF${existingRowIndex}`;
-    const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(
-      range
-    )}?valueInputOption=USER_ENTERED`;
-
-    const updateRes = await fetch(updateUrl, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        range,
-        majorDimension: 'ROWS',
-        values: [rowValues],
-      }),
+  // 1. Check if the sheet is completely blank and needs headers on row 1
+  try {
+    const headerCheckUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetTitle)}!A1:B1`;
+    const checkRes = await fetch(headerCheckUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
+    if (checkRes.ok) {
+      const checkData = await checkRes.json();
+      if (!checkData.values || checkData.values.length === 0 || !checkData.values[0] || checkData.values[0].length === 0) {
+        // Sheet is completely empty; insert header row on row 1 first
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetTitle)}!A1:AF1?valueInputOption=USER_ENTERED`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            range: `'${sheetTitle}'!A1:AF1`,
+            majorDimension: 'ROWS',
+            values: [HEADERS],
+          }),
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Header verification check notice:', err);
+  }
 
-    if (!updateRes.ok) {
-      const errText = await updateRes.text();
-      throw new Error(`Failed to update row in Google Sheet: ${errText}`);
+  // 2. ALWAYS APPEND the registration row at the bottom of the sheet
+  const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(
+    sheetTitle
+  )}!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+
+  const appendRes = await fetch(appendUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      range: `'${sheetTitle}'!A1`,
+      majorDimension: 'ROWS',
+      values: [rowValues],
+    }),
+  });
+
+  if (!appendRes.ok) {
+    const errText = await appendRes.text();
+    throw new Error(`Failed to append row to Google Sheet: ${errText}`);
+  }
+
+  // Update server config with latest synced timestamp
+  await saveGoogleSheetsConfig({
+    spreadsheetId,
+    spreadsheetUrl,
+    lastSyncedAt: now,
+  });
+
+  return {
+    success: true,
+    fromGoogleSheets: true,
+    spreadsheetId,
+    spreadsheetUrl,
+    action: 'inserted',
+    message: `Appended registration for "${team.teamName}" (${team.teamId}) to Google Sheet.`,
+    updatedAt: now,
+  };
+}
+
+/**
+ * Flushes any queued registrations from server to the connected Google Sheet
+ */
+export async function flushPendingRegistrationsToGoogleSheet(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<number> {
+  try {
+    const res = await fetch('/api/sheets/pending');
+    if (!res.ok) return 0;
+    const data = await res.json();
+    const pendingTeams: RegisteredTeamProfile[] = Array.isArray(data.pendingTeams) ? data.pendingTeams : [];
+    if (pendingTeams.length === 0) return 0;
+
+    let appendedCount = 0;
+    for (const team of pendingTeams) {
+      try {
+        await appendTeamToGoogleSheet(accessToken, spreadsheetId, team);
+        appendedCount++;
+      } catch (err) {
+        console.warn(`Could not append queued team ${team.teamId}:`, err);
+      }
     }
 
-    return {
-      success: true,
-      fromGoogleSheets: true,
-      spreadsheetId,
-      spreadsheetUrl,
-      action: 'updated',
-      message: `Updated team "${team.teamName}" (${team.teamId}) on row ${existingRowIndex} in Google Sheet.`,
-      updatedAt: now,
-    };
-  } else {
-    // Append new row
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'Registered Teams'!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
-    const appendRes = await fetch(appendUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        range: "'Registered Teams'!A1",
-        majorDimension: 'ROWS',
-        values: [rowValues],
-      }),
-    });
-
-    if (!appendRes.ok) {
-      const errText = await appendRes.text();
-      throw new Error(`Failed to append row to Google Sheet: ${errText}`);
+    if (appendedCount > 0) {
+      await fetch('/api/sheets/pending/clear', { method: 'POST' });
     }
-
-    return {
-      success: true,
-      fromGoogleSheets: true,
-      spreadsheetId,
-      spreadsheetUrl,
-      action: 'inserted',
-      message: `Appended team "${team.teamName}" (${team.teamId}) to Google Sheet.`,
-      updatedAt: now,
-    };
+    return appendedCount;
+  } catch (err) {
+    console.warn('Error flushing pending registrations queue:', err);
+    return 0;
   }
 }
 
