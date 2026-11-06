@@ -906,24 +906,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <Upload className="w-3.5 h-3.5" />
                 <span>Upload Payment Details</span>
               </button>
-              {!isPaymentCompleted ? (
-                <button
-                  type="button"
-                  onClick={() => setIsPaymentModalOpen(true)}
-                  className="px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer whitespace-nowrap"
-                >
-                  Pay Fee ({fee.formatted})
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleResetToPendingDemo}
-                  className="px-3.5 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-300 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
-                  title="Reset payment status to PENDING to test the payment gateway checkout"
-                >
-                  Test Payment Gateway
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => {
@@ -2730,9 +2712,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   <p className="text-[#d0fe1d] font-bold text-sm leading-relaxed">
                     Payment details will be sent on your email in next 24 hours
                   </p>
-                  <p className="text-neutral-300 leading-relaxed text-xs">
-                    Target Email: <span className="text-white font-mono font-bold">{emailForPaymentDetails || team.captainEmail}</span> · Status in Admin Panel &amp; Excel Sheet is now <strong className="text-cyan-300 font-mono">PAYMENT REQUESTED</strong>.
-                  </p>
                 </div>
               )}
 
@@ -2796,16 +2775,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <h3 className="text-lg sm:text-xl font-orbitron font-black text-white uppercase tracking-wider">
                 Payment Request Recorded
               </h3>
-              <div className="p-4 rounded-2xl bg-[#1b1c15] border border-[#d0fe1d]/40 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-[#1b1c15] border border-[#d0fe1d]/40">
                 <p className="text-sm sm:text-base font-sans font-bold text-[#d0fe1d] leading-relaxed">
                   &ldquo;Payment details will be sent on your email in next 24 hours&rdquo;
                 </p>
-                <p className="text-xs text-neutral-300 font-mono">
-                  Recipient: <strong className="text-white">{team.paymentInfo.emailRequestedTo || team.captainEmail}</strong>
-                </p>
-              </div>
-              <div className="text-[11px] font-mono text-neutral-400 bg-white/5 border border-white/10 rounded-xl p-2.5">
-                Admin Panel &amp; Excel Sheet status updated to: <span className="text-cyan-300 font-bold uppercase">Payment Requested</span>
               </div>
             </div>
             <button

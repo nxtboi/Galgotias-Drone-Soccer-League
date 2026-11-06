@@ -498,12 +498,6 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
               >
                 Fixtures
               </button>
-              <button
-                onClick={onLogout}
-                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 transition-all cursor-pointer"
-              >
-                Logout Admin
-              </button>
             </div>
           </div>
 
