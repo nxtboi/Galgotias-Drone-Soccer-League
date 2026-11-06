@@ -82,7 +82,7 @@ export const GDSL_TOURNAMENT_INFO = {
     { label: 'Vijay Prasad', number: '+91 76260 40216', tel: '+917626040216' },
   ],
   supportEmail: 'gdsl@galgotiasuniversity.edu.in',
-  whatsappCommunityLink: 'https://chat.whatsapp.com/CX88lPqupkrGFjlq2VbWQ0',
+  whatsappCommunityLink: 'https://chat.whatsapp.com/CcFN9qpWWQjH3ofa96wJl3?s=cl&p=a&iam=2',
   governingStandard: 'GCDIS (Galgotias Centre of Drone Intelligence & Simulation) 5th Revision',
 };
 
