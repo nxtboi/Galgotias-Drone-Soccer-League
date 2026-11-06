@@ -829,8 +829,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </h2>
               <p className="text-xs text-neutral-300 max-w-2xl font-sans">
                 {team.paymentInfo.status === 'PAYMENT REQUESTED'
-                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid via UPI, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
-                  : `Request official UPI payment details on your email, pay via UPI, and upload your transaction details & screenshot to unlock your Event Pass and Receipt.`}
+                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
+                  : `Request official fee payment instructions on your email, complete your transfer, and upload your payment details & screenshot to unlock your Event Pass and Receipt.`}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -1230,16 +1230,12 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     Request Payment Details on Email
                   </h3>
                   <p className="text-xs text-neutral-300 leading-relaxed font-sans">
-                    Need to pay via official UPI? Request official Galgotias University UPI ID, QR code, and fee invoice instructions directly to your email.
+                    Request official fee payment instructions and invoice directly to your email.
                   </p>
                   <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5 text-xs space-y-1.5 font-mono">
                     <div className="flex justify-between">
                       <span className="text-neutral-400">Recipient Email:</span>
                       <span className="text-white font-semibold">{team.paymentInfo.emailRequestedTo || team.captainEmail}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Official UPI ID:</span>
-                      <span className="text-[#d0fe1d] font-bold">gcdis.galgotias@hdfcbank</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-400">Division Fee ({fee.code}):</span>
@@ -2644,46 +2640,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             <p className="text-xs text-neutral-300 leading-relaxed">
-              Send the official Galgotias University Drone Soccer League UPI QR merchant credentials and payment instructions for{' '}
+              Send the official Galgotias University Drone Soccer League payment instructions for{' '}
               <strong className="text-white">{team.teamName}</strong> (<span className="text-[#d0fe1d] font-mono">{team.teamId}</span>) directly to your email or finance department.
             </p>
-
-            {/* Official UPI Remittance Card */}
-            <div className="p-4 rounded-2xl bg-black/60 border border-white/10 space-y-2.5 text-xs">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#d0fe1d]">
-                  Official Remittance Credentials
-                </span>
-                <span className="text-[11px] font-mono font-bold text-white">
-                  Payable: <strong className="text-[#d0fe1d]">{fee.formatted}.00</strong>
-                </span>
-              </div>
-
-              {[
-                { label: 'Beneficiary Name', value: 'Galgotias University - GCDIS', key: 'beneficiary' },
-                { label: 'Official UPI ID', value: 'gcdis.galgotias@hdfcbank', key: 'upi' },
-                { label: 'Payment Remarks / Ref', value: `${team.teamId} - ${team.teamName}`, key: 'ref' },
-              ].map((row) => (
-                <div key={row.key} className="flex items-center justify-between gap-2 py-1 border-b border-white/5 last:border-0">
-                  <span className="text-neutral-400 font-mono text-[11px]">{row.label}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-white text-right">{row.value}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyBankValue(row.key, row.value)}
-                      className="p-1 rounded-md bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-[#d0fe1d] transition-colors cursor-pointer"
-                      title={`Copy ${row.label}`}
-                    >
-                      {copiedBankField === row.key ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             <form onSubmit={handleRequestPaymentDetailsEmail} className="space-y-4">
               <div>
@@ -2720,7 +2679,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   href={`mailto:${encodeURIComponent(emailForPaymentDetails || team.captainEmail)}?subject=${encodeURIComponent(
                     `GDSL 2026 Official Fee Payment Details - ${team.teamName} (${team.teamId})`
                   )}&body=${encodeURIComponent(
-                    `Dear ${team.captainName},\n\nPlease find below the official fee payment details for Galgotias Drone Soccer League (GDSL 2026):\n\nTeam Name: ${team.teamName}\nRegistration ID: ${team.teamId}\nDivision: ${team.division}\nPayable Fee Amount: ${fee.formatted}.00\n\nOFFICIAL UPI CREDENTIALS:\nBeneficiary Name: Galgotias University - GCDIS\nOfficial UPI ID: gcdis.galgotias@hdfcbank\nPayment Remarks: ${team.teamId} - ${team.teamName}\n\nAfter completing your payment, please upload your Transaction ID and payment screenshot in the Team Dashboard.\n\nRegards,\nGCDIS Finance & Scrutineering Desk\nGalgotias University`
+                    `Dear ${team.captainName},\n\nPlease find below the official fee payment request for Galgotias Drone Soccer League (GDSL 2026):\n\nTeam Name: ${team.teamName}\nRegistration ID: ${team.teamId}\nDivision: ${team.division}\nPayable Fee Amount: ${fee.formatted}.00\nPayment Remarks: ${team.teamId} - ${team.teamName}\n\nAfter completing your payment, please upload your Transaction ID and payment screenshot in the Team Dashboard.\n\nRegards,\nGCDIS Finance & Scrutineering Desk\nGalgotias University`
                   )}`}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-neutral-300 hover:text-white font-mono text-[11px] transition-all"
                 >

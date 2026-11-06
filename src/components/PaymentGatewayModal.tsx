@@ -38,7 +38,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
   // UPI State
   const [upiMode, setUpiMode] = useState<'qr' | 'vpa'>('qr');
   const [upiVpa, setUpiVpa] = useState('');
-  const [copiedUpiId, setCopiedUpiId] = useState(false);
 
   // Card State
   const [cardNumber, setCardNumber] = useState('');
@@ -53,14 +52,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
-
-  const merchantUpi = 'gcdis.galgotias@hdfcbank';
-
-  const handleCopyUpi = () => {
-    navigator.clipboard.writeText(merchantUpi);
-    setCopiedUpiId(true);
-    setTimeout(() => setCopiedUpiId(false), 2000);
-  };
 
   const formatCardNumber = (val: string) => {
     const digits = val.replace(/\D/g, '').slice(0, 16);
@@ -301,19 +292,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
                         <p className="text-slate-400 leading-relaxed">
                           Open Google Pay, PhonePe, Paytm, or BHIM on your phone and scan the QR code to pay the {team.division} registration fee.
                         </p>
-                        <div className="pt-1 flex items-center gap-2">
-                          <span className="font-mono text-[11px] bg-slate-900 px-2.5 py-1 rounded border border-slate-700 text-slate-200">
-                            {merchantUpi}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={handleCopyUpi}
-                            className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] flex items-center gap-1 cursor-pointer"
-                          >
-                            {copiedUpiId ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                            <span>{copiedUpiId ? 'Copied' : 'Copy'}</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   ) : (
