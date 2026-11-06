@@ -123,7 +123,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         ],
       },
       {
-        place: '3rd Place',
+        place: '3rd Place (2)',
         amount: '₹11,000',
         title: '2nd Runner-Up',
         perks: [
@@ -158,7 +158,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         ],
       },
       {
-        place: '3rd Place',
+        place: '3rd Place (3)',
         amount: '₹11,000',
         title: '2nd Runner-Up',
         perks: [
@@ -171,13 +171,13 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
 
 export const SPECIAL_PRIZE_CATEGORIES: PrizeItem[] = [
   {
-    place: 'MVP',
+    place: 'Super Pilot',
     amount: '₹11,000',
     title: 'MVP',
     perks: ['Cash Prize and Certificate'],
   },
   {
-    place: 'MAX GOAL SCORER',
+    place: 'Best Striker',
     amount: '₹11,000',
     title: 'Max Goal Scorer',
     perks: ['Cash Prize and Certificate'],
