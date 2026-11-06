@@ -28,33 +28,76 @@ provider.setCustomParameters({
 
 // Flag to indicate if we are in the middle of a sign-in flow
 let isSigningIn = false;
-// Cache the access token in memory
-let cachedAccessToken: string | null = null;
+const TOKEN_STORAGE_KEY = 'gdsl_google_access_token_v1';
+const USER_STORAGE_KEY = 'gdsl_google_user_profile_v1';
+const STORAGE_SESSION_FLAG = 'gdsl_google_connected_v1';
+
+// Initialize cached access token from localStorage for permanent persistence
+let cachedAccessToken: string | null = (typeof window !== 'undefined') ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
 let currentGoogleUser: User | null = null;
 
-const STORAGE_SESSION_FLAG = 'gdsl_google_connected_v1';
+export interface SavedGoogleProfile {
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  uid?: string;
+}
+
+export const getSavedGoogleProfile = (): SavedGoogleProfile | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
 
 /**
  * Initialize auth state listener. Call this on app load.
+ * Restores permanent access token and user credentials without prompting again.
  */
 export const initAuth = (
-  onAuthSuccess?: (user: User, token: string) => void,
+  onAuthSuccess?: (user: User | any, token: string) => void,
   onAuthFailure?: () => void
 ) => {
+  // If we already have a saved access token and profile in localStorage, notify listeners immediately
+  const savedToken = (typeof window !== 'undefined') ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+  const savedProfile = getSavedGoogleProfile();
+  if (savedToken) {
+    cachedAccessToken = savedToken;
+    if (savedProfile && onAuthSuccess) {
+      onAuthSuccess(savedProfile as any, savedToken);
+    }
+  }
+
   return onAuthStateChanged(auth, async (user: User | null) => {
     currentGoogleUser = user;
     if (user) {
-      if (cachedAccessToken) {
-        if (onAuthSuccess) onAuthSuccess(user, cachedAccessToken);
-      } else if (!isSigningIn) {
-        // Token might have expired or refreshed; if session was previously active,
-        // we keep the user reference
-        if (onAuthFailure) onAuthFailure();
+      const token = cachedAccessToken || localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (token) {
+        cachedAccessToken = token;
+        const profile: SavedGoogleProfile = {
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          uid: user.uid,
+        };
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+        localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+        if (onAuthSuccess) onAuthSuccess(user, token);
       }
     } else {
-      cachedAccessToken = null;
-      localStorage.removeItem(STORAGE_SESSION_FLAG);
-      if (onAuthFailure) onAuthFailure();
+      // If user signed out of firebase, check if we have offline saved token
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const profile = getSavedGoogleProfile();
+      if (token && profile) {
+        cachedAccessToken = token;
+        if (onAuthSuccess) onAuthSuccess(profile as any, token);
+      } else {
+        cachedAccessToken = null;
+        if (onAuthFailure) onAuthFailure();
+      }
     }
   });
 };
@@ -73,9 +116,18 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
 
     cachedAccessToken = credential.accessToken;
     currentGoogleUser = result.user;
+    
+    // Save token permanently to localStorage
+    localStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
     localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+    const profile: SavedGoogleProfile = {
+      email: result.user.email,
+      displayName: result.user.displayName,
+      photoURL: result.user.photoURL,
+      uid: result.user.uid,
+    };
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
 
-    // Also store token in session memory for cross-component calls
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {
     console.error('Google Sign-In error:', error);
@@ -86,15 +138,31 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
 };
 
 export const getAccessToken = async (): Promise<string | null> => {
-  return cachedAccessToken;
+  if (cachedAccessToken) return cachedAccessToken;
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (saved) {
+      cachedAccessToken = saved;
+      return saved;
+    }
+  }
+  return null;
 };
 
 export const setAccessTokenInMemory = (token: string | null) => {
   cachedAccessToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+    } else {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
+  }
 };
 
-export const getCurrentGoogleUser = (): User | null => {
-  return currentGoogleUser || auth.currentUser;
+export const getCurrentGoogleUser = (): User | any | null => {
+  return currentGoogleUser || auth.currentUser || getSavedGoogleProfile();
 };
 
 export const logoutGoogle = async () => {
@@ -105,5 +173,9 @@ export const logoutGoogle = async () => {
   }
   cachedAccessToken = null;
   currentGoogleUser = null;
-  localStorage.removeItem(STORAGE_SESSION_FLAG);
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(STORAGE_SESSION_FLAG);
+  }
 };

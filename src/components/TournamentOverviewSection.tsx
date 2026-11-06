@@ -203,7 +203,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               <span className={`text-[11px] font-orbitron font-black uppercase tracking-widest flex items-center gap-1.5 ${
                                 isFirst ? 'text-amber-300' : isSecond ? 'text-slate-200' : 'text-orange-300'
                               }`}>
-                                <span>{isFirst ? '🏆 1ST PLACE' : isSecond ? '🥈 2ND PLACE' : '🥉 3RD PLACE'}</span>
+                                <span>{isFirst ? '🏆 1ST PLACE' : isSecond ? '🥈 2ND PLACE' : `🥉 ${prize.place.toUpperCase()}`}</span>
                               </span>
                               {isFirst && (
                                 <span className="px-2 py-0.5 text-[9px] font-mono font-black bg-amber-400 text-black uppercase tracking-wider">
@@ -285,7 +285,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               <span className={`text-[11px] font-orbitron font-black uppercase tracking-widest flex items-center gap-1.5 ${
                                 isFirst ? 'text-[#d0fe1d]' : isSecond ? 'text-slate-200' : 'text-orange-300'
                               }`}>
-                                <span>{isFirst ? '🏆 1ST PLACE' : isSecond ? '🥈 2ND PLACE' : '🥉 3RD PLACE'}</span>
+                                <span>{isFirst ? '🏆 1ST PLACE' : isSecond ? '🥈 2ND PLACE' : `🥉 ${prize.place.toUpperCase()}`}</span>
                               </span>
                               {isFirst && (
                                 <span className="px-2 py-0.5 text-[9px] font-mono font-black bg-[#d0fe1d] text-black uppercase tracking-wider">

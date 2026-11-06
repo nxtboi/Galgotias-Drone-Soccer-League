@@ -530,6 +530,54 @@ export async function fetchGoogleSheetValues(
 }
 
 /**
+ * Reads live values directly from a public or shared Google Sheet without requiring OAuth popup
+ */
+export async function fetchGoogleSheetPublicCsv(
+  spreadsheetId: string
+): Promise<{ headers: string[]; rows: string[][] } | null> {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const text = await res.text();
+    if (!text || text.trim().startsWith('<!DOCTYPE html>')) return null;
+
+    const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+    if (lines.length === 0) return null;
+
+    const parseCsvRow = (line: string): string[] => {
+      const items: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          items.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      items.push(current.trim());
+      return items;
+    };
+
+    const headers = parseCsvRow(lines[0]);
+    const rows = lines.slice(1).map(parseCsvRow);
+    return { headers, rows };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Universal sync helper: stores to server Excel and automatically updates Google Sheet if connected!
  */
 export async function syncTeamToSheet(
@@ -672,7 +720,29 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
         };
       }
     } catch (err) {
-      console.warn('Could not read directly from Google Sheets API, falling back to server store:', err);
+      console.warn('Could not read directly from Google Sheets API, trying public CSV endpoint:', err);
+    }
+  }
+
+  // If spreadsheetId is linked, attempt to read directly via public/shared Google Sheet export (No OAuth required)
+  if (sheetsConfig.spreadsheetId) {
+    try {
+      const publicData = await fetchGoogleSheetPublicCsv(sheetsConfig.spreadsheetId);
+      if (publicData && publicData.rows.length > 0) {
+        return {
+          headers: publicData.headers,
+          rows: publicData.rows,
+          fromGoogleSheets: true,
+          spreadsheetId: sheetsConfig.spreadsheetId,
+          spreadsheetUrl: sheetsConfig.spreadsheetUrl,
+          lastSyncedAt: sheetsConfig.lastSyncedAt || new Date().toISOString(),
+          rowCount: publicData.rows.length,
+          fileName: sheetsConfig.spreadsheetTitle,
+          teams: getRegisteredTeams(),
+        };
+      }
+    } catch (err) {
+      console.warn('Public Google Sheet fetch notice:', err);
     }
   }
 

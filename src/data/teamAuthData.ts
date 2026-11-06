@@ -62,7 +62,7 @@ export function getDivisionFee(division: string): {
   const isD20 = division.includes('20');
   return isD20
     ? { numeric: 1500, formatted: '₹1,500', code: 'D-20' }
-    : { numeric: 4000, formatted: '₹2,000', code: 'D-40' };
+    : { numeric: 2000, formatted: '₹2,000', code: 'D-40' };
 }
 
 function normalizeTeamFee(team: RegisteredTeamProfile): RegisteredTeamProfile {

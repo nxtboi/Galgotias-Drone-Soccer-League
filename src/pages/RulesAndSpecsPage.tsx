@@ -138,11 +138,11 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                 <span>{isD20 ? 'CLASS D20 HIGH-SPEED' : 'CLASS D40 HEAVYWEIGHT'}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
-                {isD20 ? '₹74,000' : '₹94,000'}{' '}
+                {isD20 ? '₹72,000/-' : '₹94,000/-'}{' '}
                 <span className="text-[#d0fe1d]">DIVISION PRIZE PURSE</span>
               </h2>
               <p className="text-neutral-300 text-xs sm:text-sm mt-1 max-w-2xl">
-                Part of the nationwide <strong className="text-amber-300">₹2,00,000 Championship Pool</strong>. Direct cash disbursements, official GCDIS rolling trophies, medals, and national pilot certificates.
+                Part of the nationwide <strong className="text-amber-300">Prize pool 200000/-</strong>. Direct cash disbursements, official GCDIS rolling trophies, medals, and national pilot certificates.
               </p>
             </div>
 
@@ -167,10 +167,10 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-5">
             <div className="bg-[#241c0e] border border-amber-400/60 p-4">
               <span className="text-[10px] font-orbitron font-black text-amber-300 uppercase tracking-widest block">
-                🥇 1ST PLACE CHAMPION
+                🥇 Ist PLACE CHAMPION
               </span>
               <div className="text-2xl sm:text-3xl font-orbitron font-black text-amber-300 my-1">
-                {isD20 ? '₹31,000' : '₹41,000'}
+                {isD20 ? '31000/-' : '41000/-'}
               </div>
               <p className="text-xs text-neutral-300 font-sans">
                 Championship Rolling Trophy · Gold Medals · Cash Prize · Official Merit Certificate
@@ -179,10 +179,10 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
 
             <div className="bg-[#1c1e22] border border-slate-400/40 p-4">
               <span className="text-[10px] font-orbitron font-black text-slate-300 uppercase tracking-widest block">
-                🥈 2ND PLACE · 1ST RUNNER-UP
+                🥈 2nd PLACE · 1ST RUNNER-UP
               </span>
               <div className="text-2xl sm:text-3xl font-orbitron font-black text-white my-1">
-                {isD20 ? '₹21,000' : '₹31,000'}
+                {isD20 ? '21000/-' : '31000/-'}
               </div>
               <p className="text-xs text-neutral-300 font-sans">
                 Runner-Up Trophy · Silver Medals · Cash Prize · Official Merit Certificate
@@ -191,13 +191,13 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
 
             <div className="bg-[#221711] border border-orange-500/40 p-4">
               <span className="text-[10px] font-orbitron font-black text-orange-300 uppercase tracking-widest block">
-                🥉 3RD PLACE · 2ND RUNNER-UP
+                🥉 3rd (2) · 2 TEAMS
               </span>
               <div className="text-2xl sm:text-3xl font-orbitron font-black text-orange-200 my-1">
-                ₹11,000
+                {isD20 ? '10000/- each' : '11000/- each'}
               </div>
               <p className="text-xs text-neutral-300 font-sans">
-                Podium Trophy · Bronze Medals · Cash Prize · Official Merit Certificate
+                Podium Trophy · Bronze Medals · Cash Prize each for 2 Teams · Official Merit Certificate
               </p>
             </div>
           </div>
