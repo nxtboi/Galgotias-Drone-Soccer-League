@@ -1050,11 +1050,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
             </div>
           )}
 
-          {/* Live Google Sheet View (Embedded) */}
+          {/* Live Google Sheet View (Embedded or Interactive Table) */}
           {activeView === 'live_google_sheet' && (
             <div className="space-y-4">
               {sheetsConfig.spreadsheetId ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-black/60 border border-white/10 rounded-2xl">
                     <div className="flex items-center gap-2.5">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#d0fe1d] animate-pulse" />
@@ -1063,11 +1063,21 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                           {sheetsConfig.spreadsheetTitle}
                         </span>
                         <span className="text-[11px] font-mono text-neutral-400">
-                          Spreadsheet ID: <code className="text-[#d0fe1d]">{sheetsConfig.spreadsheetId}</code> · Auto-updates on registration
+                          {sheetsConfig.spreadsheetId &&
+                          sheetsConfig.spreadsheetId.length > 20 &&
+                          !sheetsConfig.spreadsheetId.startsWith('attached') ? (
+                            <>
+                              Spreadsheet ID: <code className="text-[#d0fe1d]">{sheetsConfig.spreadsheetId}</code> · Real-Time Google Cloud Sync
+                            </>
+                          ) : (
+                            <>
+                              Attached Google Sheet Database · <code className="text-[#d0fe1d]">{teams.length} Teams Linked</code> · Dynamic Auto-Append
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         onClick={handlePushToSheets}
                         disabled={isSyncing}
@@ -1081,14 +1091,36 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         <span>Sync Sheet</span>
                       </button>
                       <a
-                        href={sheetsConfig.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit`}
+                        href="/api/excel/download"
+                        download="GDSL_2026_Teams_Roster.xlsx"
+                        className="px-3.5 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold transition-all flex items-center gap-1.5"
+                      >
+                        <span>📥 Download .XLSX</span>
+                      </a>
+                      <a
+                        href="/assets/aistudio/GDSL_2026_-_Galgotias_Drone_Soccer_League__Teams___Rosters__2676c7ff"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-1.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-xs font-mono font-bold transition-all flex items-center gap-1.5"
                       >
-                        <span>Open in Google Sheets</span>
-                        <span>↗</span>
+                        <span>📄 View Attached CSV</span>
                       </a>
+                      {sheetsConfig.spreadsheetId &&
+                        sheetsConfig.spreadsheetId.length > 20 &&
+                        !sheetsConfig.spreadsheetId.startsWith('attached') && (
+                          <a
+                            href={
+                              sheetsConfig.spreadsheetUrl ||
+                              `https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-1.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center gap-1.5"
+                          >
+                            <span>Open in Google Sheets</span>
+                            <span>↗</span>
+                          </a>
+                        )}
                       <button
                         onClick={handleUnlinkSheet}
                         className="px-3 py-1.5 rounded-xl border border-rose-500/30 hover:border-rose-500 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-mono transition-all cursor-pointer"
@@ -1099,14 +1131,169 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative w-full h-[650px] sm:h-[750px] rounded-2xl overflow-hidden border border-white/20 bg-white shadow-2xl">
-                    <iframe
-                      src={`https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit?rm=minimal&widget=true`}
-                      className="w-full h-full border-0"
-                      title="Google Sheet Live View"
-                      allow="clipboard-write"
-                    />
-                  </div>
+                  {sheetsConfig.spreadsheetId &&
+                  sheetsConfig.spreadsheetId.length > 20 &&
+                  !sheetsConfig.spreadsheetId.startsWith('attached') ? (
+                    <div className="relative w-full h-[650px] sm:h-[750px] rounded-2xl overflow-hidden border border-white/20 bg-white shadow-2xl">
+                      <iframe
+                        src={`https://docs.google.com/spreadsheets/d/${sheetsConfig.spreadsheetId}/edit?rm=minimal&widget=true`}
+                        className="w-full h-full border-0"
+                        title="Google Sheet Live View"
+                        allow="clipboard-write"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Google Sheets Header bar */}
+                      <div className="rounded-2xl border border-emerald-500/30 bg-[#0f1912] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0">
+                            📊
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-orbitron font-bold text-sm text-white">
+                                {sheetsConfig.spreadsheetTitle}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                LINKED DATABASE
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-mono text-neutral-400 block mt-0.5">
+                              {teams.length} Registered Squads · Synchronized with tournament engine · Auto-appends new entries
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            Live Auto-Sync Active
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Full Spreadsheet Grid */}
+                      <div className="overflow-x-auto rounded-2xl border border-white/15 bg-black/50 shadow-2xl max-h-[600px] overflow-y-auto">
+                        <table className="w-full text-left text-xs whitespace-nowrap">
+                          <thead className="sticky top-0 z-20 bg-[#121611] text-emerald-400 font-mono uppercase text-[11px] border-b border-emerald-500/30 shadow-md">
+                            <tr>
+                              <th className="py-3 px-3">#</th>
+                              <th className="py-3 px-3">Team ID</th>
+                              <th className="py-3 px-3">Team Name</th>
+                              <th className="py-3 px-3">Division</th>
+                              <th className="py-3 px-3">Institution</th>
+                              <th className="py-3 px-3">City / State</th>
+                              <th className="py-3 px-3">Captain Name</th>
+                              <th className="py-3 px-3">Captain Email</th>
+                              <th className="py-3 px-3">Captain Phone</th>
+                              <th className="py-3 px-3">Striker</th>
+                              <th className="py-3 px-3">Goalkeeper</th>
+                              <th className="py-3 px-3">Defender 1</th>
+                              <th className="py-3 px-3">Defender 2</th>
+                              <th className="py-3 px-3">Mechanic</th>
+                              <th className="py-3 px-3">Drone Model</th>
+                              <th className="py-3 px-3">Protocol</th>
+                              <th className="py-3 px-3">VTX Band</th>
+                              <th className="py-3 px-3">Scrutineering</th>
+                              <th className="py-3 px-3">Pit Allocation</th>
+                              <th className="py-3 px-3">Payment</th>
+                              <th className="py-3 px-3">Receipt No</th>
+                              <th className="py-3 px-3">Reg Date</th>
+                              <th className="py-3 px-3">Faculty Mentor</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 font-mono text-[11px]">
+                            {teams.map((t, idx) => (
+                              <tr key={t.teamId} className="hover:bg-emerald-500/[0.06] transition-colors">
+                                <td className="py-2.5 px-3 text-neutral-500 font-bold">{idx + 1}</td>
+                                <td className="py-2.5 px-3 font-bold text-[#d0fe1d]">{t.teamId}</td>
+                                <td className="py-2.5 px-3 text-white font-sans font-bold">{t.teamName}</td>
+                                <td className="py-2.5 px-3 text-neutral-300">{t.division}</td>
+                                <td className="py-2.5 px-3 text-neutral-400 max-w-[180px] truncate" title={t.institution}>
+                                  {t.institution}
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-400">
+                                  {t.city}, {t.state}
+                                </td>
+                                <td className="py-2.5 px-3 text-white font-sans">{t.captainName}</td>
+                                <td className="py-2.5 px-3 text-neutral-300">{t.captainEmail}</td>
+                                <td className="py-2.5 px-3 text-neutral-300">{t.captainPhone}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.strikerPilot}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.goalkeeper}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.defender1}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.defender2}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.pitMechanic}</td>
+                                <td className="py-2.5 px-3 text-neutral-300">{t.droneModel}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.controlProtocol}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.vtxBand}</td>
+                                <td className="py-2.5 px-3">
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                      t.scrutineeringStatus === 'PRE_APPROVED'
+                                        ? 'bg-emerald-500/20 text-emerald-300'
+                                        : 'bg-amber-500/20 text-amber-300'
+                                    }`}
+                                  >
+                                    {t.scrutineeringStatus}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.allocatedPit}</td>
+                                <td className="py-2.5 px-3">
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                      t.paymentInfo?.status === 'VERIFIED'
+                                        ? 'bg-emerald-500/20 text-emerald-300'
+                                        : t.paymentInfo?.status === 'PAID'
+                                        ? 'bg-blue-500/20 text-blue-300'
+                                        : t.paymentInfo?.status === 'PAYMENT REQUESTED'
+                                        ? 'bg-cyan-500/20 text-cyan-300'
+                                        : 'bg-amber-500/20 text-amber-300'
+                                    }`}
+                                  >
+                                    {t.paymentInfo?.status || 'PENDING'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-400">
+                                  {t.paymentInfo?.receiptNo || 'PENDING'}
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-400">{t.registeredAt}</td>
+                                <td className="py-2.5 px-3 text-neutral-400">
+                                  {t.attendanceData?.facultyName || 'Pending Dean Endorsement'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Optional Cloud Link Box */}
+                      <div className="p-4 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div className="text-left">
+                          <span className="text-xs font-orbitron font-bold text-white block">
+                            Have a Google Cloud Spreadsheet URL?
+                          </span>
+                          <span className="text-[11px] font-mono text-neutral-400">
+                            Paste your docs.google.com link anytime to also view Google Drive's live iframe directly in this tab.
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                          <input
+                            type="text"
+                            value={sheetInputUrl}
+                            onChange={(e) => setSheetInputUrl(e.target.value)}
+                            placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+                            className="px-3 py-2 bg-black/80 border border-white/20 rounded-xl text-xs text-white placeholder-neutral-500 font-mono focus:outline-none focus:border-[#d0fe1d] w-full sm:w-80"
+                          />
+                          <button
+                            onClick={handleConnectExistingSheet}
+                            className="px-4 py-2 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold text-xs uppercase rounded-xl transition-all shrink-0 cursor-pointer"
+                          >
+                            Save URL
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="py-12 px-6 text-center bg-black/40 border border-white/10 rounded-2xl space-y-6 max-w-2xl mx-auto">

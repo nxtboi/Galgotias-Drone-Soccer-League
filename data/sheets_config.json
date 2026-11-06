@@ -1,8 +1,9 @@
 {
-  "spreadsheetId": null,
-  "spreadsheetUrl": null,
-  "spreadsheetTitle": "GDSL 2026 - Registered Teams Roster",
-  "lastSyncedAt": null,
+  "spreadsheetId": "attached_sheet_gdsl_2026",
+  "spreadsheetUrl": "/assets/aistudio/GDSL_2026_-_Galgotias_Drone_Soccer_League__Teams___Rosters__2676c7ff",
+  "spreadsheetTitle": "GDSL 2026 - Galgotias Drone Soccer League: Teams & Rosters",
+  "lastSyncedAt": "2026-11-06T17:14:39.089Z",
   "autoSyncEnabled": true,
-  "permanentDatabaseMode": true
+  "permanentDatabaseMode": true,
+  "isAttachedSheet": true
 }

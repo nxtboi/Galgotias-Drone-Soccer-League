@@ -3,7 +3,6 @@ import {
   ShieldCheck,
   CreditCard,
   Smartphone,
-  Building2,
   Lock,
   CheckCircle2,
   X,
@@ -34,7 +33,7 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
   onPaymentSuccess,
 }) => {
   const fee = getDivisionFee(team.division);
-  const [method, setMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
+  const [method, setMethod] = useState<'upi' | 'card'>('upi');
 
   // UPI State
   const [upiMode, setUpiMode] = useState<'qr' | 'vpa'>('qr');
@@ -48,10 +47,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
   const [cardName, setCardName] = useState(team.captainName || '');
   const [otpStep, setOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
-
-  // Net Banking / Institutional State
-  const [selectedBank, setSelectedBank] = useState('State Bank of India (SBI)');
-  const [utrReference, setUtrReference] = useState('');
 
   // Processing & Validation State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -98,9 +93,7 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
       });
 
       const receiptNo = `GDSL-REC-2026-${Math.floor(100 + Math.random() * 900)}`;
-      const transactionId =
-        utrReference.trim() ||
-        `${txPrefix}-${Math.floor(100000000 + Math.random() * 900000000)}`;
+      const transactionId = `${txPrefix}-${Math.floor(100000000 + Math.random() * 900000000)}`;
 
       setIsProcessing(false);
       setOtpStep(false);
@@ -156,20 +149,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
     const last4 = rawDigits.slice(-4);
     finalizeTransaction(`Card (ending ${last4})`, 'CARD-AUTH');
   };
-
-  const handleNetBankingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    finalizeTransaction(`Net Banking (${selectedBank})`, 'NEFT-BANK');
-  };
-
-  const banks = [
-    'State Bank of India (SBI)',
-    'HDFC Bank Corporate',
-    'ICICI Bank',
-    'Axis Bank',
-    'Punjab National Bank (PNB)',
-    'Kotak Mahindra Bank',
-  ];
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto font-sans">
@@ -269,26 +248,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
               <div>
                 <div className="font-semibold">Credit / Debit Card</div>
                 <div className="text-[10px] opacity-80">Visa, Mastercard, RuPay</div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setMethod('netbanking');
-                setOtpStep(false);
-                setErrorMsg(null);
-              }}
-              className={`w-full px-3 py-2.5 rounded-lg text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
-                method === 'netbanking'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <Building2 className="w-4 h-4 shrink-0" />
-              <div>
-                <div className="font-semibold">Net Banking</div>
-                <div className="text-[10px] opacity-80">All Indian Banks &amp; NEFT</div>
               </div>
             </button>
           </div>
@@ -483,7 +442,7 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
                 ) : (
                   <div className="space-y-4">
                     <div className="border-b border-slate-700 pb-2 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-white">3D Secure Bank OTP Verification</h3>
+                      <h3 className="text-sm font-semibold text-white">3D Secure Card OTP Verification</h3>
                       <button
                         type="button"
                         onClick={() => setOtpCode('482910')}
@@ -525,66 +484,6 @@ export const PaymentGatewayModal: React.FC<PaymentGatewayModalProps> = ({
                     <>
                       <Lock className="w-3.5 h-3.5" />
                       <span>{otpStep ? `Confirm OTP & Pay ${fee.formatted}.00` : `Proceed to Pay ${fee.formatted}.00`}</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-
-            {/* METHOD 3: NET BANKING & INSTITUTIONAL TRANSFER */}
-            {method === 'netbanking' && (
-              <form onSubmit={handleNetBankingSubmit} className="space-y-4 flex-1 flex flex-col justify-between">
-                <div className="space-y-3.5">
-                  <div className="border-b border-slate-700 pb-2">
-                    <h3 className="text-sm font-semibold text-white">Net Banking &amp; Institutional NEFT</h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {banks.map((bank) => (
-                      <button
-                        key={bank}
-                        type="button"
-                        onClick={() => setSelectedBank(bank)}
-                        className={`p-2.5 rounded-md border text-xs text-left flex items-center justify-between transition-colors cursor-pointer ${
-                          selectedBank === bank
-                            ? 'bg-blue-950/60 border-blue-500 text-white font-medium'
-                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600'
-                        }`}
-                      >
-                        <span className="truncate">{bank}</span>
-                        {selectedBank === bank && <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">
-                      Optional: Institutional UTR / NEFT Reference (if pre-transferred by University)
-                    </label>
-                    <input
-                      type="text"
-                      value={utrReference}
-                      onChange={(e) => setUtrReference(e.target.value)}
-                      placeholder="Leave blank for instant online Net Banking redirect"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 cursor-pointer"
-                >
-                  {isProcessing ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Verifying Bank Transfer...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Pay {fee.formatted}.00 via {selectedBank.split(' ')[0]}</span>
-                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>

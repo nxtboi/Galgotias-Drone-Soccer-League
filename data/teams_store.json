@@ -24,7 +24,7 @@
     "scrutineeringStatus": "PRE_APPROVED",
     "paymentInfo": {
       "receiptNo": "GDSL-TEST-REC-001",
-      "amount": "₹4,000",
+      "amount": "₹2,000",
       "status": "VERIFIED",
       "transactionId": "UPI-TEST-SUCCESS-9999",
       "paymentMode": "UPI / Demo Gateway",
@@ -78,6 +78,140 @@
     }
   },
   {
+    "teamId": "GDSL-26-T899",
+    "accessCode": "12345680",
+    "teamName": "Runtime Terror",
+    "institution": "Galgotias University",
+    "city": "Greater Noida",
+    "state": "Uttar Pradesh",
+    "division": "Class 40 (400mm)",
+    "captainName": "Vijay",
+    "captainEmail": "vk16122001235689@sdfgh.cvbnm",
+    "captainPhone": "12345680",
+    "strikerPilot": "asdfgh",
+    "goalkeeper": "cvghu",
+    "defender1": "asdfg",
+    "defender2": "wertygjh",
+    "pitMechanic": "efgbn",
+    "droneModel": "wertyuio",
+    "controlProtocol": "ELRS 2.4GHz",
+    "vtxBand": "5.8GHz Raceband (Locked Channels)",
+    "failsafeAgreed": true,
+    "registeredAt": "Oct 29, 2026",
+    "allocatedPit": "Arena Cage 1 · Scrutineering Bay 04",
+    "scrutineeringStatus": "PENDING_ON_SITE",
+    "paymentInfo": {
+      "receiptNo": "PENDING",
+      "amount": "₹2,000",
+      "status": "PENDING",
+      "transactionId": "PENDING",
+      "paymentMode": "Pending Dashboard Checkout",
+      "paidAt": "Awaiting Fee Payment",
+      "currency": "INR"
+    },
+    "attendanceData": {
+      "facultyName": "Pending Dean Endorsement",
+      "designation": "Faculty Advisor",
+      "department": "Aerospace / Robotics",
+      "collegeName": "Galgotias University",
+      "travelDatesIncluded": true,
+      "students": [
+        {
+          "name": "Vijay",
+          "role": "Captain",
+          "phone": "12345680"
+        },
+        {
+          "name": "asdfgh",
+          "role": "Striker Pilot"
+        },
+        {
+          "name": "cvghu",
+          "role": "Goalkeeper"
+        },
+        {
+          "name": "asdfg",
+          "role": "Defender 1"
+        },
+        {
+          "name": "wertygjh",
+          "role": "Defender 2"
+        },
+        {
+          "name": "efgbn",
+          "role": "Pit Mechanic"
+        }
+      ]
+    }
+  },
+  {
+    "teamId": "GDSL-26-T583",
+    "accessCode": "917626040216",
+    "teamName": "Runtime Terror",
+    "institution": "Galgotias University",
+    "city": "greater noida",
+    "state": "Uttar Pradesh",
+    "division": "Class 40 (400mm)",
+    "captainName": "Vijay",
+    "captainEmail": "vk16122001@gmail.com",
+    "captainPhone": "917626040216",
+    "strikerPilot": "asdfg",
+    "goalkeeper": "asdf",
+    "defender1": "ASDF",
+    "defender2": "asdf",
+    "pitMechanic": "ASDFG",
+    "droneModel": "ASDFGHYUI",
+    "controlProtocol": "ELRS 2.4GHz",
+    "vtxBand": "5.8GHz Raceband (Locked Channels)",
+    "failsafeAgreed": true,
+    "registeredAt": "Oct 23, 2026",
+    "allocatedPit": "Arena Cage 1 · Scrutineering Bay 04",
+    "scrutineeringStatus": "PRE_APPROVED",
+    "paymentInfo": {
+      "receiptNo": "GDSL-REC-2026-122",
+      "amount": "₹2,000",
+      "status": "VERIFIED",
+      "transactionId": "UPI-VERIFIED-122",
+      "paymentMode": "UPI / Online Transfer",
+      "paidAt": "23 Oct 2026",
+      "currency": "INR"
+    },
+    "attendanceData": {
+      "facultyName": "Pending Dean Endorsement",
+      "designation": "Faculty Advisor",
+      "department": "Aerospace / Robotics",
+      "collegeName": "Galgotias University",
+      "travelDatesIncluded": true,
+      "students": [
+        {
+          "name": "Vijay",
+          "role": "Captain",
+          "phone": "917626040216"
+        },
+        {
+          "name": "asdfg",
+          "role": "Striker Pilot"
+        },
+        {
+          "name": "asdf",
+          "role": "Goalkeeper"
+        },
+        {
+          "name": "ASDF",
+          "role": "Defender 1"
+        },
+        {
+          "name": "asdf",
+          "role": "Defender 2"
+        },
+        {
+          "name": "ASDFG",
+          "role": "Pit Mechanic"
+        }
+      ]
+    }
+  },
+  {
     "teamId": "GDSL-26-T101",
     "accessCode": "hawks2026",
     "teamName": "Galgotias Aero Hawks",
@@ -102,7 +236,7 @@
     "scrutineeringStatus": "PRE_APPROVED",
     "paymentInfo": {
       "receiptNo": "GDSL-REC-2026-901",
-      "amount": "₹4,000",
+      "amount": "₹2,000",
       "status": "VERIFIED",
       "transactionId": "UPI-HDFC-938210948",
       "paymentMode": "UPI / Net Banking",
@@ -180,7 +314,7 @@
     "scrutineeringStatus": "PRE_APPROVED",
     "paymentInfo": {
       "receiptNo": "GDSL-REC-2026-902",
-      "amount": "₹4,000",
+      "amount": "₹2,000",
       "status": "VERIFIED",
       "transactionId": "SBI-NEFT-88492019",
       "paymentMode": "NEFT / Institutional Transfer",
@@ -258,7 +392,7 @@
     "scrutineeringStatus": "PRE_APPROVED",
     "paymentInfo": {
       "receiptNo": "GDSL-REC-2026-903",
-      "amount": "₹4,000",
+      "amount": "₹2,000",
       "status": "VERIFIED",
       "transactionId": "UPI-ICICI-449102831",
       "paymentMode": "UPI",
@@ -291,7 +425,7 @@
     "scrutineeringStatus": "PRE_APPROVED",
     "paymentInfo": {
       "receiptNo": "GDSL-REC-2026-904",
-      "amount": "₹1,400",
+      "amount": "₹1,500",
       "status": "VERIFIED",
       "transactionId": "UPI-PAYTM-671029384",
       "paymentMode": "UPI",

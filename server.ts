@@ -195,6 +195,92 @@ function writeTeamsToExcelFile(teams: RegisteredTeamProfile[]) {
   // Write the .xlsx binary file to disk using buffer + fs.writeFileSync
   const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   fs.writeFileSync(EXCEL_FILE_PATH, excelBuffer);
+  updateAttachedGoogleSheetCsv(teams);
+}
+
+const ATTACHED_CSV_PATH = path.join(
+  __dirname,
+  'public/assets/aistudio/GDSL_2026_-_Galgotias_Drone_Soccer_League__Teams___Rosters__2676c7ff'
+);
+
+function updateAttachedGoogleSheetCsv(teams: RegisteredTeamProfile[]) {
+  try {
+    const csvHeaders = [
+      'Team ID',
+      'Team Name',
+      'Division',
+      'Institution',
+      'City',
+      'State',
+      'Captain Name',
+      'Captain Email',
+      'Captain Phone',
+      'Striker Pilot',
+      'Goalkeeper',
+      'Defender 1',
+      'Defender 2',
+      'Pit Mechanic',
+      'Drone Model',
+      'Control Protocol',
+      'VTX Channel / Band',
+      'Scrutineering Status',
+      'Allocated Pit',
+      'Payment Status',
+      'Receipt No',
+      'Registration Date',
+      'Faculty Mentor / HOD',
+      'Department',
+      'Total Students',
+      'Last Synchronized',
+    ];
+
+    const formatCsvCell = (val: any) => {
+      const s = String(val ?? '');
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const rows = teams.map((t) => {
+      const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+      return [
+        t.teamId,
+        t.teamName,
+        t.division,
+        t.institution,
+        t.city,
+        t.state,
+        t.captainName,
+        t.captainEmail,
+        t.captainPhone,
+        t.strikerPilot,
+        t.goalkeeper,
+        t.defender1,
+        t.defender2,
+        t.pitMechanic,
+        t.droneModel,
+        t.controlProtocol,
+        t.vtxBand,
+        t.scrutineeringStatus,
+        t.allocatedPit,
+        t.paymentInfo?.status || 'PENDING',
+        t.paymentInfo?.receiptNo || 'PENDING',
+        t.registeredAt || 'Nov 06, 2026',
+        t.attendanceData?.facultyName || 'Pending Dean Endorsement',
+        t.attendanceData?.department || 'Aerospace / Robotics',
+        t.attendanceData?.students?.length || 5,
+        now,
+      ]
+        .map(formatCsvCell)
+        .join(',');
+    });
+
+    const csvContent = [csvHeaders.join(','), ...rows].join('\n');
+    fs.writeFileSync(ATTACHED_CSV_PATH, csvContent, 'utf-8');
+  } catch (err) {
+    console.warn('Could not sync to attached Google Sheet CSV file:', err);
+  }
 }
 
 function readServerTeams(): RegisteredTeamProfile[] {

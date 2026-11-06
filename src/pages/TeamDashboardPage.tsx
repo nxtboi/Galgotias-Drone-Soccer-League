@@ -829,8 +829,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </h2>
               <p className="text-xs text-neutral-300 max-w-2xl font-sans">
                 {team.paymentInfo.status === 'PAYMENT REQUESTED'
-                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid via UPI/NEFT, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
-                  : `Request official bank/UPI payment details on your email, pay via UPI/NEFT, and upload your transaction details & screenshot to unlock your Event Pass and Receipt.`}
+                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid via UPI, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
+                  : `Request official UPI payment details on your email, pay via UPI, and upload your transaction details & screenshot to unlock your Event Pass and Receipt.`}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -892,7 +892,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 type="button"
                 onClick={handleDirectRequestPaymentDetails}
                 className="px-3.5 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                title="Receive official bank account & UPI fee payment details on email"
+                title="Receive official UPI fee payment details on email"
               >
                 <Mail className="w-3.5 h-3.5 text-[#d0fe1d]" />
                 <span>Request Payment Details</span>
@@ -1047,7 +1047,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     {isPaymentCompleted
                       ? 'Official registration fee receipt and tax invoice.'
-                      : `Pay ${fee.formatted} (${fee.code} Division) via UPI, Card, or Net Banking.`}
+                      : `Pay ${fee.formatted} (${fee.code} Division) via UPI or Card.`}
                   </p>
                   <div className="mt-3 text-xs font-mono tabular-nums text-neutral-300">
                     {isPaymentCompleted
@@ -1248,7 +1248,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     Request Payment Details on Email
                   </h3>
                   <p className="text-xs text-neutral-300 leading-relaxed font-sans">
-                    Need to pay via college accounts, NEFT/RTGS, or a separate UPI device? Request official Galgotias University bank account details, UPI ID, and fee invoice instructions directly to your email.
+                    Need to pay via official UPI? Request official Galgotias University UPI ID, QR code, and fee invoice instructions directly to your email.
                   </p>
                   <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5 text-xs space-y-1.5 font-mono">
                     <div className="flex justify-between">
@@ -1305,7 +1305,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     Upload Payment Details &amp; Screenshot
                   </h3>
                   <p className="text-xs text-neutral-300 leading-relaxed font-sans">
-                    Already completed your {fee.formatted} fee transfer via UPI, NEFT, or Bank Deposit? Upload your UTR / Transaction Reference Number and payment screenshot here to update your registration.
+                    Already completed your {fee.formatted} fee transfer via UPI or Card? Upload your Transaction Reference Number and payment screenshot here to update your registration.
                   </p>
                   <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5 text-xs space-y-1.5 font-mono">
                     <div className="flex justify-between">
@@ -2662,11 +2662,11 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             <p className="text-xs text-neutral-300 leading-relaxed">
-              Send the official Galgotias University Drone Soccer League bank account, NEFT/RTGS/IMPS instructions, and UPI QR merchant credentials for{' '}
+              Send the official Galgotias University Drone Soccer League UPI QR merchant credentials and payment instructions for{' '}
               <strong className="text-white">{team.teamName}</strong> (<span className="text-[#d0fe1d] font-mono">{team.teamId}</span>) directly to your email or finance department.
             </p>
 
-            {/* Official Bank / UPI Remittance Card */}
+            {/* Official UPI Remittance Card */}
             <div className="p-4 rounded-2xl bg-black/60 border border-white/10 space-y-2.5 text-xs">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#d0fe1d]">
@@ -2679,9 +2679,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
               {[
                 { label: 'Beneficiary Name', value: 'Galgotias University - GCDIS', key: 'beneficiary' },
-                { label: 'Bank & Branch', value: 'HDFC Bank Ltd., Greater Noida', key: 'bank' },
-                { label: 'Account Number', value: '50100482910452', key: 'acc' },
-                { label: 'IFSC Code', value: 'HDFC0001248', key: 'ifsc' },
                 { label: 'Official UPI ID', value: 'gcdis.galgotias@hdfcbank', key: 'upi' },
                 { label: 'Payment Remarks / Ref', value: `${team.teamId} - ${team.teamName}`, key: 'ref' },
               ].map((row) => (
@@ -2744,7 +2741,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   href={`mailto:${encodeURIComponent(emailForPaymentDetails || team.captainEmail)}?subject=${encodeURIComponent(
                     `GDSL 2026 Official Fee Payment Details - ${team.teamName} (${team.teamId})`
                   )}&body=${encodeURIComponent(
-                    `Dear ${team.captainName},\n\nPlease find below the official fee remittance details for Galgotias Drone Soccer League (GDSL 2026):\n\nTeam Name: ${team.teamName}\nRegistration ID: ${team.teamId}\nDivision: ${team.division}\nPayable Fee Amount: ${fee.formatted}.00\n\nOFFICIAL BANK / UPI CREDENTIALS:\nBeneficiary Name: Galgotias University - GCDIS\nBank: HDFC Bank Ltd., Greater Noida\nAccount Number: 50100482910452\nIFSC Code: HDFC0001248\nOfficial UPI ID: gcdis.galgotias@hdfcbank\nPayment Remarks: ${team.teamId} - ${team.teamName}\n\nAfter completing your payment, please upload your Transaction ID / UTR and payment screenshot in the Team Dashboard.\n\nRegards,\nGCDIS Finance & Scrutineering Desk\nGalgotias University`
+                    `Dear ${team.captainName},\n\nPlease find below the official fee payment details for Galgotias Drone Soccer League (GDSL 2026):\n\nTeam Name: ${team.teamName}\nRegistration ID: ${team.teamId}\nDivision: ${team.division}\nPayable Fee Amount: ${fee.formatted}.00\n\nOFFICIAL UPI CREDENTIALS:\nBeneficiary Name: Galgotias University - GCDIS\nOfficial UPI ID: gcdis.galgotias@hdfcbank\nPayment Remarks: ${team.teamId} - ${team.teamName}\n\nAfter completing your payment, please upload your Transaction ID and payment screenshot in the Team Dashboard.\n\nRegards,\nGCDIS Finance & Scrutineering Desk\nGalgotias University`
                   )}`}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-neutral-300 hover:text-white font-mono text-[11px] transition-all"
                 >
@@ -2853,7 +2850,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             <p className="text-xs text-neutral-300 leading-relaxed">
-              Paid via UPI, NEFT, IMPS, RTGS, or Demand Draft? Submit your transaction reference / UTR number and upload your payment screenshot below to immediately update your registration payment record and unlock your Event Pass, Payment Receipt, and OD Attendance Letter.
+              Paid via UPI or Card? Submit your transaction reference number and upload your payment screenshot below to immediately update your registration payment record and unlock your Event Pass, Payment Receipt, and OD Attendance Letter.
             </p>
 
             {uploadError && (
@@ -2867,14 +2864,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 mb-1">
-                    Transaction ID / UTR / Reference No. *
+                    Transaction ID / Reference No. *
                   </label>
                   <input
                     type="text"
                     required
                     value={uploadTxId}
                     onChange={(e) => setUploadTxId(e.target.value)}
-                    placeholder="e.g. UTR431982741092 / TXN_982341"
+                    placeholder="e.g. TXN_431982741092 / UPI_982341"
                     className="w-full px-3.5 py-2.5 bg-black/70 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                   />
                 </div>
@@ -2889,10 +2886,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     className="w-full px-3.5 py-2.5 bg-black/70 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
                   >
                     <option value="UPI / QR Scan (GPay / PhonePe / Paytm)">UPI / QR Scan (GPay / PhonePe / Paytm)</option>
-                    <option value="NEFT / RTGS / IMPS Bank Transfer">NEFT / RTGS / IMPS Bank Transfer</option>
-                    <option value="NetBanking / Corporate Portal">NetBanking / Corporate Portal</option>
                     <option value="Debit / Credit Card">Debit / Credit Card</option>
-                    <option value="University Demand Draft / Challan">University Demand Draft / Challan</option>
+                    <option value="Online Portal Transfer">Online Portal Transfer</option>
                   </select>
                 </div>
 
@@ -2926,14 +2921,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
                 <div className="sm:col-span-2">
                   <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 mb-1">
-                    Account Holder / Sender UPI ID / Bank Name *
+                    Sender UPI ID / Payer Name *
                   </label>
                   <input
                     type="text"
                     required
                     value={uploadPayerDetails}
                     onChange={(e) => setUploadPayerDetails(e.target.value)}
-                    placeholder="e.g. Aarav Sharma - SBI / aarav@okaxis"
+                    placeholder="e.g. Aarav Sharma / aarav@okaxis"
                     className="w-full px-3.5 py-2.5 bg-black/70 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#d0fe1d]"
                   />
                 </div>
@@ -2942,7 +2937,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               {/* Screenshot / Receipt File Upload */}
               <div>
                 <label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
-                  Upload Payment Screenshot / Bank Receipt (PNG, JPG, WebP)
+                  Upload Payment Screenshot (PNG, JPG, WebP)
                 </label>
                 <label className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-black/60 border border-dashed border-[#d0fe1d]/40 hover:border-[#d0fe1d] transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
@@ -2951,10 +2946,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     </div>
                     <div>
                       <span className="text-xs font-bold text-white block">
-                        {uploadProofFileName ? uploadProofFileName : 'Click to attach payment screenshot or bank receipt'}
+                        {uploadProofFileName ? uploadProofFileName : 'Click to attach payment confirmation screenshot'}
                       </span>
                       <span className="text-[11px] text-neutral-400 font-mono block">
-                        Supports UPI confirmation screenshots, NEFT slips, or receipt images
+                        Supports UPI payment confirmation screenshots or card slips
                       </span>
                     </div>
                   </div>
@@ -3023,7 +3018,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   className="inline-flex items-center gap-1.5 text-xs font-mono text-neutral-400 hover:text-[#d0fe1d] transition-colors cursor-pointer"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  Need Bank / UPI Details on Email?
+                  Need UPI Payment Details on Email?
                 </button>
 
                 <div className="flex items-center gap-2.5">
