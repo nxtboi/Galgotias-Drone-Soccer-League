@@ -364,6 +364,17 @@ async function startServer() {
   // Initialize Excel workbook on server startup
   readServerTeams();
 
+  // Health check endpoint for VPS, container orchestration, and uptime monitors
+  app.get('/api/health', (_req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'gdsl-tournament-portal',
+      uptimeSeconds: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      nodeEnv: process.env.NODE_ENV || 'development',
+    });
+  });
+
   // 1. GET /api/excel/status — Inspect server Excel workbook & read rows
   app.get('/api/excel/status', (_req, res) => {
     try {
@@ -628,10 +639,27 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`GDSL Server & Excel Engine running on http://0.0.0.0:${PORT}`);
     console.log(`Server Excel Sheet stored at: ${EXCEL_FILE_PATH}`);
   });
+
+  const handleShutdown = (signal: string) => {
+    console.log(`\n[${signal}] Initiating graceful shutdown...`);
+    server.close(() => {
+      console.log('HTTP server closed cleanly. Exiting process.');
+      process.exit(0);
+    });
+
+    // Force shutdown if connections do not close in 10s
+    setTimeout(() => {
+      console.error('Forced shutdown: open connections did not drain in time.');
+      process.exit(1);
+    }, 10000).unref();
+  };
+
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 startServer();

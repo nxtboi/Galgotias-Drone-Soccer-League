@@ -1,0 +1,28 @@
+services:
+  gdsl-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gdsl_portal_app
+    restart: unless-stopped
+    ports:
+      # Expose on 127.0.0.1:3000 to keep it securely behind Nginx reverse proxy
+      # Or change to "3000:3000" if exposing port directly to the internet
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      # Persistent volume mount for Excel rosters, registered teams JSON, and user inquiries
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

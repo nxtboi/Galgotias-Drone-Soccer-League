@@ -1,0 +1,36 @@
+# ==============================================================================
+# GDSL 2026 Tournament Portal - Linux Systemd Service Unit
+# Install location: /etc/systemd/system/gdsl.service
+# Commands:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable gdsl
+#   sudo systemctl start gdsl
+#   sudo systemctl status gdsl
+# ==============================================================================
+
+[Unit]
+Description=Galgotias Drone Soccer League (GDSL 2026) Portal
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/gdsl
+Environment=NODE_ENV=production
+Environment=PORT=3000
+# Node 22 natively supports TypeScript type stripping via tsx or node:
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gdsl-portal
+
+# Security sandboxing
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
