@@ -2,6 +2,8 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getAuth,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   User,
@@ -71,6 +73,50 @@ export const initAuth = (
     }
   }
 
+  // Check if returning from a signInWithRedirect operation
+  if (typeof window !== 'undefined') {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          if (credential?.accessToken) {
+            cachedAccessToken = credential.accessToken;
+            currentGoogleUser = result.user;
+            localStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
+            localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+            const profile: SavedGoogleProfile = {
+              email: result.user.email,
+              displayName: result.user.displayName,
+              photoURL: result.user.photoURL,
+              uid: result.user.uid,
+            };
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+            if (onAuthSuccess) {
+              onAuthSuccess(result.user, cachedAccessToken);
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Redirect sign-in check notice:', err);
+      });
+
+    // Cross-tab synchronization: if user signs in via full tab, update this iframe/tab automatically
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === TOKEN_STORAGE_KEY && e.newValue) {
+        cachedAccessToken = e.newValue;
+        const profile = getSavedGoogleProfile();
+        if (profile && onAuthSuccess) {
+          onAuthSuccess(profile as any, e.newValue);
+        }
+      } else if (e.key === TOKEN_STORAGE_KEY && !e.newValue) {
+        cachedAccessToken = null;
+        if (onAuthFailure) onAuthFailure();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+  }
+
   return onAuthStateChanged(auth, async (user: User | null) => {
     currentGoogleUser = user;
     if (user) {
@@ -103,7 +149,7 @@ export const initAuth = (
 };
 
 /**
- * Must be called from a button click or user interaction
+ * Sign in using popup window
  */
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string } | null> => {
   try {
@@ -131,9 +177,25 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {
     console.error('Google Sign-In error:', error);
+    if (error.code === 'auth/popup-blocked' || (typeof error.message === 'string' && error.message.includes('popup-blocked'))) {
+      error.isPopupBlocked = true;
+      error.friendlyMessage = 'Popup was blocked by your browser. Please allow popups or open in a new tab.';
+    }
     throw error;
   } finally {
     isSigningIn = false;
+  }
+};
+
+/**
+ * Sign in using full-page redirect (alternative when popups are blocked by browser policy)
+ */
+export const googleSignInRedirect = async (): Promise<void> => {
+  try {
+    await signInWithRedirect(auth, provider);
+  } catch (error: any) {
+    console.error('Google Sign-In Redirect error:', error);
+    throw error;
   }
 };
 

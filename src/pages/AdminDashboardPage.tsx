@@ -26,6 +26,7 @@ import {
 import {
   initAuth,
   googleSignIn,
+  googleSignInRedirect,
   logoutGoogle,
   getCurrentGoogleUser,
   getAccessToken,
@@ -93,6 +94,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [isPopupBlocked, setIsPopupBlocked] = useState(false);
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -306,11 +308,13 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const handleGoogleSignIn = async () => {
     setIsConnectingGoogle(true);
     setSyncError(null);
+    setIsPopupBlocked(false);
     try {
       const res = await googleSignIn();
       if (res) {
         setGoogleUser(res.user);
         setGoogleToken(res.accessToken);
+        setIsPopupBlocked(false);
         setSyncMessage(`Connected to Google as ${res.user.displayName || res.user.email}!`);
         setTimeout(() => setSyncMessage(null), 5000);
 
@@ -334,11 +338,35 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
       }
     } catch (err: any) {
       console.error('Google Sign-In failed:', err);
-      setSyncError(err?.message || 'Failed to connect Google account.');
-      setTimeout(() => setSyncError(null), 6000);
+      if (
+        err?.code === 'auth/popup-blocked' ||
+        err?.isPopupBlocked ||
+        (typeof err?.message === 'string' && err.message.includes('popup-blocked'))
+      ) {
+        setIsPopupBlocked(true);
+        setSyncError('Browser blocked the Google Sign-in pop-up window. Choose a resolution option below:');
+      } else if (err?.code === 'auth/popup-closed-by-user') {
+        setSyncError('Google Sign-In window was closed before completion.');
+        setTimeout(() => setSyncError(null), 5000);
+      } else {
+        setSyncError(err?.message || 'Failed to connect Google account.');
+        setTimeout(() => setSyncError(null), 6000);
+      }
     } finally {
       setIsConnectingGoogle(false);
       setIsCreatingSheet(false);
+    }
+  };
+
+  const handleGoogleSignInRedirect = async () => {
+    setIsConnectingGoogle(true);
+    setSyncError(null);
+    try {
+      await googleSignInRedirect();
+    } catch (err: any) {
+      console.error('Google Sign-In redirect failed:', err);
+      setSyncError(err?.message || 'Redirect sign-in failed. Open in a new tab.');
+      setIsConnectingGoogle(false);
     }
   };
 
@@ -346,6 +374,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     await logoutGoogle();
     setGoogleUser(null);
     setGoogleToken(null);
+    setIsPopupBlocked(false);
     setSyncMessage('Google Account disconnected.');
     setTimeout(() => setSyncMessage(null), 4000);
   };
@@ -354,11 +383,26 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const handleCreateNewGoogleSheet = async () => {
     let token = googleToken || (await getAccessToken());
     if (!token) {
-      const res = await googleSignIn();
-      if (!res) return;
-      token = res.accessToken;
-      setGoogleUser(res.user);
-      setGoogleToken(token);
+      try {
+        const res = await googleSignIn();
+        if (!res) return;
+        token = res.accessToken;
+        setGoogleUser(res.user);
+        setGoogleToken(token);
+        setIsPopupBlocked(false);
+      } catch (err: any) {
+        if (
+          err?.code === 'auth/popup-blocked' ||
+          err?.isPopupBlocked ||
+          (typeof err?.message === 'string' && err.message.includes('popup-blocked'))
+        ) {
+          setIsPopupBlocked(true);
+          setSyncError('Browser blocked the Google Sign-in pop-up window. Choose a resolution option below:');
+          return;
+        }
+        setSyncError(err?.message || 'Failed to authorize Google Sheets.');
+        return;
+      }
     }
 
     setIsCreatingSheet(true);
@@ -636,7 +680,61 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
         )}
 
-        {syncError && (
+        {isPopupBlocked && (
+          <div className="p-5 rounded-2xl bg-amber-950/90 border border-amber-500/60 text-amber-100 text-xs sm:text-sm font-sans shadow-2xl space-y-3.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🚫</span>
+                <div>
+                  <h4 className="font-orbitron font-bold text-amber-300 uppercase tracking-wide text-xs sm:text-sm">
+                    Pop-Up Window Blocked by Browser
+                  </h4>
+                  <p className="text-xs text-amber-200/90 mt-0.5">
+                    Your browser blocked the Google Sign-In window (standard browser protection when running inside an embedded preview frame).
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPopupBlocked(false)}
+                className="text-amber-400 hover:text-white text-xs font-bold font-mono px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 cursor-pointer"
+              >
+                ✕ Dismiss
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <a
+                href={typeof window !== 'undefined' ? window.location.href : '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
+              >
+                <span>↗ 1. Open in Full Tab</span>
+              </a>
+              <button
+                onClick={handleGoogleSignIn}
+                className="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-orbitron font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <span>🔄 2. Retry Sign In</span>
+              </button>
+              <button
+                onClick={handleGoogleSignInRedirect}
+                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-200 hover:text-white font-orbitron font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <span>🔀 3. Try Redirect</span>
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-black/50 border border-amber-500/25 text-[11px] font-mono text-amber-200/90 space-y-1">
+              <div>💡 <strong>How to unblock in Chrome / Safari / Edge:</strong></div>
+              <div>1. Look at the right edge of your browser URL address bar for the blocked pop-up icon (🚫).</div>
+              <div>2. Click it and select <strong>&quot;Always allow pop-ups and redirects from this site&quot;</strong>, then click <strong>Retry Sign In</strong>.</div>
+              <div>3. <em>Alternative:</em> You can link any Google Sheet directly below by pasting its URL or ID without needing to log in!</div>
+            </div>
+          </div>
+        )}
+
+        {syncError && !isPopupBlocked && (
           <div className="p-4 rounded-2xl bg-rose-950/70 border border-rose-500/50 text-rose-300 text-xs sm:text-sm font-medium flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-2">
               <span className="text-lg">⚠️</span>
@@ -726,19 +824,30 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={isConnectingGoogle}
-                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 text-xs font-bold font-sans flex items-center gap-2.5 transition-all shadow-md cursor-pointer disabled:opacity-50"
-                >
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                  </svg>
-                  <span>{isConnectingGoogle ? 'Connecting Google...' : 'Sign in with Google'}</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleGoogleSignIn}
+                    disabled={isConnectingGoogle}
+                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 text-xs font-bold font-sans flex items-center gap-2.5 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
+                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                    </svg>
+                    <span>{isConnectingGoogle ? 'Connecting Google...' : 'Sign in with Google'}</span>
+                  </button>
+                  <a
+                    href={typeof window !== 'undefined' ? window.location.href : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open Admin Portal in full window (bypasses iframe pop-up blockers)"
+                    className="px-3 py-2.5 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white text-xs font-mono transition-colors flex items-center gap-1.5"
+                  >
+                    <span>↗ Full Tab</span>
+                  </a>
+                </div>
               )}
             </div>
           </div>
@@ -1439,19 +1548,30 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         <span>Create Live GDSL Google Sheet</span>
                       </button>
                     ) : (
-                      <button
-                        onClick={handleGoogleSignIn}
-                        disabled={isConnectingGoogle}
-                        className="px-4 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-sans font-bold text-xs flex items-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-50"
-                      >
-                        <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
-                          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                        </svg>
-                        <span>{isConnectingGoogle ? 'Connecting...' : 'Sign in with Google to Auto-Generate'}</span>
-                      </button>
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        <button
+                          onClick={handleGoogleSignIn}
+                          disabled={isConnectingGoogle}
+                          className="px-4 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-sans font-bold text-xs flex items-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                        >
+                          <svg className="w-4 h-4 shrink-0" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                          </svg>
+                          <span>{isConnectingGoogle ? 'Connecting...' : 'Sign in with Google to Auto-Generate'}</span>
+                        </button>
+                        <a
+                          href={typeof window !== 'undefined' ? window.location.href : '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Open Admin Portal in full window (bypasses iframe pop-up blockers)"
+                          className="px-3 py-2 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white text-xs font-mono transition-colors flex items-center gap-1.5"
+                        >
+                          <span>↗ Full Tab</span>
+                        </a>
+                      </div>
                     )}
                   </div>
                 </div>
