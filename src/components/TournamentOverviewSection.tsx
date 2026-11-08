@@ -344,7 +344,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       Special Awards Purse
                     </span>
                     <span className="text-2xl sm:text-3xl font-orbitron font-black text-cyan-300">
-                      ₹33,000
+                      ₹34,000
                     </span>
                   </div>
                 </div>

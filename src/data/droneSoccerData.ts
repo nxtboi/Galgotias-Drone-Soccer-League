@@ -172,7 +172,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
 export const SPECIAL_PRIZE_CATEGORIES: PrizeItem[] = [
   {
     place: 'Super Pilot',
-    amount: '₹11,000',
+    amount: '₹12,000',
     title: 'MVP',
     perks: ['Cash Prize and Certificate'],
   },
