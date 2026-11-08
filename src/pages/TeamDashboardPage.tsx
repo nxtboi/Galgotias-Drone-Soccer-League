@@ -30,7 +30,6 @@ import {
   updateAllTournamentDataOnSheets,
   getStoredSheetInfo,
 } from '../services/googleSheetsService';
-import { PaymentGatewayModal } from '../components/PaymentGatewayModal';
 
 export interface TeamDashboardPageProps {
   team: RegisteredTeamProfile;
@@ -48,7 +47,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [activeTab, setActiveTab] = useState<
     'overview' | 'pass' | 'receipt' | 'attendance' | 'profile' | 'schedule'
   >('overview');
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   // Request Payment Details on Email Modal State
   const [isEmailDetailsModalOpen, setIsEmailDetailsModalOpen] = useState(false);
@@ -241,7 +239,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     saveRegisteredTeam(updatedTeam);
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
-    setIsPaymentModalOpen(false);
     setActiveTab('pass');
     setSheetSyncSuccess(
       `Payment of ${paymentDetails.amount} verified (${paymentDetails.transactionId}). Official Event Pass unlocked!`
@@ -667,7 +664,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
   const handleDownloadReceiptPdf = async () => {
     if (!isPaymentCompleted) {
-      setIsPaymentModalOpen(true);
+      handleOpenUploadModal();
       return;
     }
     if (activeTab !== 'receipt') {
@@ -717,7 +714,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
   const handleDownloadPassPdf = async () => {
     if (!isPaymentCompleted) {
-      setIsPaymentModalOpen(true);
+      handleOpenUploadModal();
       return;
     }
     if (activeTab !== 'pass') {
@@ -1024,17 +1021,17 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       : `Payment Due · ${fee.formatted}`}
                   </div>
                   <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">
-                    {isPaymentCompleted ? 'Payment Receipt' : 'Entry Fee Payment'}
+                    {isPaymentCompleted ? 'Payment Receipt' : 'Registration Fee Verification'}
                   </h2>
                   <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
                     {isPaymentCompleted
                       ? 'Official registration fee receipt and tax invoice.'
-                      : `Pay ${fee.formatted} (${fee.code} Division) via UPI or Card.`}
+                      : `Entry fee: ${fee.formatted} (${fee.code} Division). Upload transaction proof or request details.`}
                   </p>
                   <div className="mt-3 text-xs font-mono tabular-nums text-neutral-300">
                     {isPaymentCompleted
                       ? `Ref: ${team.paymentInfo.receiptNo}`
-                      : `Amount Due: ${fee.formatted}.00`}
+                      : `Fee Allocated: ${fee.formatted}.00`}
                   </div>
                 </div>
                 <div className="mt-5 pt-4 border-t border-white/10 space-y-2">
@@ -1067,33 +1064,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       </button>
                     </>
                   ) : (
-                    <>
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        onClick={() => setIsPaymentModalOpen(true)}
-                        className="w-full py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
+                        onClick={handleOpenUploadModal}
+                        className="py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        Pay {fee.formatted} Now
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Proof</span>
                       </button>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={handleOpenEmailDetailsModal}
-                          className="py-2 px-2 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 text-[10px] font-rajdhani font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <Mail className="w-3 h-3 text-[#d0fe1d]" />
-                          <span>Email Details</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleOpenUploadModal}
-                          className="py-2 px-2 border border-[#d0fe1d]/40 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d] text-[#d0fe1d] hover:text-black text-[10px] font-rajdhani font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <Upload className="w-3 h-3" />
-                          <span>Upload Proof</span>
-                        </button>
-                      </div>
-                    </>
+                      <button
+                        type="button"
+                        onClick={handleOpenEmailDetailsModal}
+                        className="py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Mail className="w-3.5 h-3.5 text-[#d0fe1d]" />
+                        <span>Email Info</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1140,10 +1128,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setIsPaymentModalOpen(true)}
+                      onClick={() => setActiveTab('pass')}
                       className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-300 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
                     >
-                      Pay {fee.formatted} to Unlock
+                      View Pass Status
                     </button>
                   )}
                 </div>
@@ -1386,13 +1374,13 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
                 <div className="space-y-1.5">
                   <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest block">
-                    REGISTRATION STATUS: PENDING · PAYMENT REQUIRED
+                    REGISTRATION STATUS: PENDING · VERIFICATION REQUIRED
                   </span>
                   <h2 className="text-xl sm:text-2xl font-orbitron font-bold text-white uppercase tracking-wider">
-                    Complete Registration (Make Payment) to Unlock Event Pass
+                    Registration Verification Required to Unlock Event Pass
                   </h2>
                   <p className="text-xs sm:text-sm text-neutral-300 max-w-lg mx-auto leading-relaxed font-sans">
-                    Your registration payment status has been set to <span className="text-amber-400 font-bold">PENDING</span> by tournament administration. Participants receive their Official GDSL 2026 Event Pass, gate QR access credential, and Pit Bay assignment immediately upon completing the {fee.formatted} registration fee for {team.division}.
+                    Your registration fee is currently marked as <span className="text-amber-400 font-bold">PENDING</span> by tournament administration. Participants receive their Official GDSL 2026 Event Pass, gate QR access credential, and Pit Bay assignment upon verification of the {fee.formatted} registration fee for {team.division}.
                   </p>
                 </div>
 
@@ -1418,19 +1406,19 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <button
                     type="button"
-                    onClick={() => setIsPaymentModalOpen(true)}
+                    onClick={handleOpenUploadModal}
                     className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black uppercase tracking-wider text-xs sm:text-sm inline-flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(208,254,29,0.35)] cursor-pointer"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Complete Registration (Pay {fee.formatted})</span>
+                    <Upload className="w-4 h-4" />
+                    <span>Upload Payment Details / Proof</span>
                   </button>
                   <button
                     type="button"
-                    onClick={handleOpenUploadModal}
-                    className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-[#d0fe1d]/50 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d] text-[#d0fe1d] hover:text-black font-orbitron font-bold uppercase tracking-wider text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    onClick={handleOpenEmailDetailsModal}
+                    className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] text-neutral-200 hover:text-[#d0fe1d] font-orbitron font-bold uppercase tracking-wider text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer"
                   >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Payment Details</span>
+                    <Mail className="w-4 h-4 text-[#d0fe1d]" />
+                    <span>Email Payment Credentials</span>
                   </button>
                 </div>
                 <div>
@@ -1618,10 +1606,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     REGISTRATION STATUS: PENDING · RECEIPT LOCKED
                   </span>
                   <h2 className="text-xl sm:text-2xl font-orbitron font-bold text-white uppercase tracking-wider">
-                    Complete Registration (Make Payment) to Generate Official Receipt
+                    Registration Verification Required to Generate Official Receipt
                   </h2>
                   <p className="text-xs sm:text-sm text-neutral-300 max-w-md mx-auto font-sans leading-relaxed">
-                    Your tournament fee is marked as <span className="text-amber-400 font-bold">PENDING</span> by tournament administration. Complete your {fee.formatted} registration fee for {team.division} to instantly generate and download your official GSTIN tax invoice and verified payment receipt.
+                    Your tournament fee is marked as <span className="text-amber-400 font-bold">PENDING</span> by tournament administration. Once your {fee.formatted} registration fee for {team.division} is verified, your official GSTIN tax invoice and verified payment receipt will be generated.
                   </p>
                 </div>
 
@@ -1647,19 +1635,19 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <button
                     type="button"
-                    onClick={() => setIsPaymentModalOpen(true)}
+                    onClick={handleOpenUploadModal}
                     className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black uppercase tracking-wider text-xs sm:text-sm inline-flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(208,254,29,0.35)] cursor-pointer"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Complete Registration (Pay {fee.formatted})</span>
+                    <Upload className="w-4 h-4" />
+                    <span>Upload Payment Proof</span>
                   </button>
                   <button
                     type="button"
-                    onClick={handleOpenUploadModal}
-                    className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-[#d0fe1d]/50 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d] text-[#d0fe1d] hover:text-black font-orbitron font-bold uppercase tracking-wider text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    onClick={handleOpenEmailDetailsModal}
+                    className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] text-neutral-200 hover:text-[#d0fe1d] font-orbitron font-bold uppercase tracking-wider text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer"
                   >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Payment Details</span>
+                    <Mail className="w-4 h-4 text-[#d0fe1d]" />
+                    <span>Request Details on Email</span>
                   </button>
                 </div>
                 <div>
@@ -1914,13 +1902,21 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     </span>
                   </div>
                   <h3 className="text-base sm:text-lg font-orbitron font-bold text-white uppercase tracking-wide">
-                    Complete Registration (Make Payment) to Validate OD Letter
+                    Registration Verification Required to Validate OD Letter
                   </h3>
                   <p className="text-xs text-neutral-300 font-sans max-w-2xl leading-relaxed">
-                    Tournament administration has set your registration payment status to <span className="font-bold text-amber-300 uppercase">PENDING</span>. Complete your {fee.formatted} entry fee for {team.division} or upload your payment details to authenticate the official GCDIS stamp and dean&apos;s attendance grant clearance.
+                    Tournament administration has set your registration payment status to <span className="font-bold text-amber-300 uppercase">PENDING</span>. Upload your payment remittance proof or receive details to authenticate the official GCDIS stamp and dean&apos;s attendance grant clearance.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleOpenUploadModal}
+                    className="px-5 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black text-xs uppercase tracking-wider whitespace-nowrap shadow-[0_0_20px_rgba(208,254,29,0.35)] flex items-center gap-2 cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Upload Payment Proof</span>
+                  </button>
                   <button
                     type="button"
                     onClick={handleOpenEmailDetailsModal}
@@ -1928,22 +1924,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   >
                     <Mail className="w-4 h-4" />
                     <span>Email Payment Info</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOpenUploadModal}
-                    className="px-4 py-3 rounded-xl border border-[#d0fe1d]/60 bg-[#d0fe1d]/10 hover:bg-[#d0fe1d] text-[#d0fe1d] hover:text-black font-orbitron font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Payment Proof</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsPaymentModalOpen(true)}
-                    className="px-5 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black text-xs uppercase tracking-wider whitespace-nowrap shadow-[0_0_20px_rgba(208,254,29,0.35)] flex items-center gap-2 cursor-pointer"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Pay {fee.formatted} Now</span>
                   </button>
                 </div>
               </div>
@@ -2051,10 +2031,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setIsPaymentModalOpen(true)}
+                    onClick={handleOpenUploadModal}
                     className="text-xs font-bold text-amber-950 underline hover:text-black cursor-pointer print:hidden text-left"
                   >
-                    Complete Registration (Make Payment) →
+                    Upload Payment Proof / Details →
                   </button>
                 </div>
               ) : (
@@ -2600,14 +2580,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         )}
       </div>
-
-      {/* Interactive Razorpay-Style Payment Gateway Modal */}
-      <PaymentGatewayModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        team={team}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
 
       {/* ===================================================================== */}
       {/* MODAL: REQUEST PAYMENT DETAILS ON EMAIL                               */}

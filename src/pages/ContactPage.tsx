@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GcdisLogo } from '../components/GcdisLogo';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import { saveUserQuery } from '../data/userQueriesData';
 
 export interface ContactPageProps {
   onNavigate?: (page: string) => void;
@@ -17,9 +18,19 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submittedTicketId, setSubmittedTicketId] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const created = saveUserQuery({
+      name: formState.name,
+      email: formState.email,
+      institution: formState.institution,
+      topic: formState.topic,
+      subject: formState.subject,
+      message: formState.message,
+    });
+    setSubmittedTicketId(created.id);
     setSubmitted(true);
   };
 
@@ -148,21 +159,56 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               </button>
             </form>
           ) : (
-            <div className="py-12 text-center space-y-4">
+            <div className="py-10 text-center space-y-5">
               <div className="w-16 h-16 xotc-icon-box flex items-center justify-center mx-auto text-2xl font-black">
                 ✓
               </div>
-              <h3 className="text-xl font-orbitron font-black text-white uppercase tracking-wider">
-                INQUIRY DISPATCHED
-              </h3>
-              <p className="text-sm text-neutral-300 max-w-md mx-auto">
-                Thank you, {formState.name}. A GDSL tournament official has been notified and will reply to {formState.email} within 12 hours.
+              <div className="space-y-1">
+                <span className="font-mono text-xs font-bold text-[#d0fe1d] uppercase tracking-widest">
+                  TICKET REF: {submittedTicketId || 'GDSL-QRY-SUBMITTED'}
+                </span>
+                <h3 className="text-xl font-orbitron font-black text-white uppercase tracking-wider">
+                  INQUIRY LOGGED WITH TOURNAMENT DESK
+                </h3>
+              </div>
+              <p className="text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
+                Thank you, <span className="text-white font-bold">{formState.name}</span>. Your query regarding{' '}
+                <span className="text-[#d0fe1d]">"{formState.topic}"</span> has been dispatched to the GDSL Tournament Administration team.
               </p>
+              <div className="p-4 bg-black/60 border border-white/10 rounded-xl max-w-md mx-auto text-left text-xs font-mono space-y-1 text-neutral-300">
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Sender:</span>
+                  <span className="text-white font-bold">{formState.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Reply Channel:</span>
+                  <span className="text-[#d0fe1d]">{formState.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Subject:</span>
+                  <span className="text-white truncate max-w-[200px]">{formState.subject}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Status:</span>
+                  <span className="text-emerald-400 font-bold">QUEUED FOR ADMIN REVIEW</span>
+                </div>
+              </div>
               <button
-                onClick={() => setSubmitted(false)}
-                className="xotc-btn-outline mt-4 px-6 py-2.5 text-xs cursor-pointer"
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormState({
+                    name: '',
+                    email: '',
+                    institution: '',
+                    topic: 'Team Registration Assistance',
+                    subject: '',
+                    message: '',
+                  });
+                }}
+                className="xotc-btn-outline mt-3 px-6 py-2.5 text-xs cursor-pointer inline-flex items-center gap-2"
               >
-                Send Another Message
+                <span>+</span>
+                <span>Send Another Message</span>
               </button>
             </div>
           )}

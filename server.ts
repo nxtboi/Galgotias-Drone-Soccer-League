@@ -8,6 +8,7 @@ import {
   INITIAL_REGISTERED_TEAMS,
   getDivisionFee,
 } from './src/data/teamAuthData.ts';
+import { SEED_USER_QUERIES, type UserQuery } from './src/data/userQueriesData.ts';
 
 const XLSX: typeof XLSXModule = (XLSXModule as any).default || XLSXModule;
 
@@ -19,6 +20,7 @@ const EXCEL_FILE_NAME = 'GDSL_2026_Teams_Roster.xlsx';
 const EXCEL_FILE_PATH = path.join(DATA_DIR, EXCEL_FILE_NAME);
 const TEAMS_JSON_PATH = path.join(DATA_DIR, 'teams_store.json');
 const SHEETS_CONFIG_PATH = path.join(DATA_DIR, 'sheets_config.json');
+const QUERIES_JSON_PATH = path.join(DATA_DIR, 'queries_store.json');
 const SHEET_NAME = 'Registered Teams';
 
 export interface GoogleSheetsConfig {
@@ -79,6 +81,31 @@ function appendToPendingQueue(team: RegisteredTeamProfile) {
 function clearPendingQueue() {
   ensureDataDirectory();
   fs.writeFileSync(PENDING_QUEUE_PATH, JSON.stringify([], null, 2), 'utf-8');
+}
+
+function readQueriesStore(): UserQuery[] {
+  ensureDataDirectory();
+  if (fs.existsSync(QUERIES_JSON_PATH)) {
+    try {
+      const raw = fs.readFileSync(QUERIES_JSON_PATH, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      // Fallback
+    }
+  }
+  // Initialize with seed queries if empty
+  try {
+    fs.writeFileSync(QUERIES_JSON_PATH, JSON.stringify(SEED_USER_QUERIES, null, 2), 'utf-8');
+  } catch {
+    // Ignore
+  }
+  return [...SEED_USER_QUERIES];
+}
+
+function writeQueriesStore(queries: UserQuery[]) {
+  ensureDataDirectory();
+  fs.writeFileSync(QUERIES_JSON_PATH, JSON.stringify(queries, null, 2), 'utf-8');
 }
 
 export const EXCEL_HEADERS = [
@@ -522,6 +549,63 @@ async function startServer() {
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err?.message || 'Failed to clear pending queue.' });
+    }
+  });
+
+  // 10. GET /api/queries — Fetch all inquiries submitted by users
+  app.get('/api/queries', (_req, res) => {
+    try {
+      const queries = readQueriesStore();
+      res.json({ success: true, queries });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to read queries.' });
+    }
+  });
+
+  // 11. POST /api/queries — Save new user inquiry
+  app.post('/api/queries', (req, res) => {
+    try {
+      const current = readQueriesStore();
+      const newQuery = req.body as UserQuery;
+      if (!newQuery || !newQuery.email || !newQuery.message) {
+        return res.status(400).json({ success: false, error: 'Query requires email and message.' });
+      }
+      const updated = [newQuery, ...current.filter((q) => q.id !== newQuery.id)];
+      writeQueriesStore(updated);
+      res.json({ success: true, query: newQuery });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to save query.' });
+    }
+  });
+
+  // 12. PATCH /api/queries/:id — Update inquiry status or admin notes
+  app.patch('/api/queries/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const current = readQueriesStore();
+      const updated = current.map((q) => {
+        if (q.id === id) {
+          return { ...q, ...req.body };
+        }
+        return q;
+      });
+      writeQueriesStore(updated);
+      res.json({ success: true, queries: updated });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to update query.' });
+    }
+  });
+
+  // 13. DELETE /api/queries/:id — Delete inquiry
+  app.delete('/api/queries/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const current = readQueriesStore();
+      const updated = current.filter((q) => q.id !== id);
+      writeQueriesStore(updated);
+      res.json({ success: true, queries: updated });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message || 'Failed to delete query.' });
     }
   });
 

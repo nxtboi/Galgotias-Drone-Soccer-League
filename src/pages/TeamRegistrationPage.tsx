@@ -642,14 +642,14 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
             <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="font-bold text-blue-950 block uppercase">
-                  Next Step: Complete Registration Payment in Squad Dashboard
+                  Next Step: Access Squad Dashboard &amp; Review Roster
                 </span>
                 <span className="text-slate-600">
-                  Your squad account will be created now. Official Event Passes unlock in your Squad Dashboard once the {selectedFee.formatted} ({selectedFee.code}) fee is paid.
+                  Your squad account will be created now. Access your Squad Dashboard to view your official pass, download documents, and submit verification details.
                 </span>
               </div>
               <div className="font-mono font-bold text-base text-blue-950 shrink-0">
-                Fee: {selectedFee.formatted}
+                Division: {selectedFee.code} ({selectedFee.formatted})
               </div>
             </div>
 
@@ -671,7 +671,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
           </form>
         )}
 
-        {/* STEP 4: REGISTRATION RECORDED — PROCEED TO DASHBOARD FOR PAYMENT & EVENT PASS */}
+        {/* STEP 4: REGISTRATION RECORDED — PROCEED TO DASHBOARD */}
         {step === 4 && generatedPass && createdProfile && (
           <div className="space-y-6">
             <div className="max-w-2xl mx-auto bg-white border border-blue-200 rounded-3xl p-8 sm:p-10 shadow-xl text-left space-y-6">
@@ -679,8 +679,8 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                 <div className="flex items-center gap-3">
                   <GcdisLogo size="md" showWordmark={false} />
                   <div>
-                    <span className="text-xs font-mono font-bold text-amber-400 uppercase block">
-                      STEP 4 OF 4 · PAYMENT PENDING IN DASHBOARD
+                    <span className="text-xs font-mono font-bold text-emerald-600 uppercase block">
+                      STEP 4 OF 4 · REGISTRATION RECORDED
                     </span>
                     <h3 className="font-sans font-black text-lg uppercase text-blue-950">
                       SQUAD ACCOUNT CREATED
@@ -694,9 +694,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
 
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Your squad <strong>{createdProfile.teamName}</strong> has been registered for{' '}
-                <strong>{createdProfile.division}</strong>. To unlock and download your{' '}
-                <strong>Official GDSL 2026 Event Pass</strong> and tax invoice, please complete the{' '}
-                <strong>{createdProfile.paymentInfo.amount}</strong> entry fee payment inside your Squad Dashboard.
+                <strong>{createdProfile.division}</strong>. Access your Squad Dashboard to inspect your squad dossier, download documents, and view allocated pit bay credentials.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
@@ -709,9 +707,9 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   <span className="font-mono font-bold text-blue-950 text-sm">{createdProfile.accessCode}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Registration Fee Due</span>
-                  <span className="font-mono font-bold text-amber-400 text-sm">
-                    {createdProfile.paymentInfo.amount} ({createdProfile.division.includes('20') ? 'D-20' : 'D-40'})
+                  <span className="text-slate-500 block font-mono uppercase text-[10px]">Division Allocated</span>
+                  <span className="font-mono font-bold text-blue-950 text-sm">
+                    {createdProfile.division.includes('20') ? 'Class 20 (D-20)' : 'Class 40 (D-40)'}
                   </span>
                 </div>
               </div>
@@ -722,7 +720,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   onClick={() => onNavigate('dashboard')}
                   className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>OPEN SQUAD DASHBOARD TO PAY {createdProfile.paymentInfo.amount} &amp; UNLOCK PASS →</span>
+                  <span>OPEN SQUAD DASHBOARD &amp; VIEW DOSSIER →</span>
                 </button>
               </div>
             </div>

@@ -31,6 +31,14 @@ import {
   getAccessToken,
 } from '../services/googleAuthService';
 import type { User } from 'firebase/auth';
+import { AdminQueriesView } from '../components/AdminQueriesView';
+import {
+  UserQuery,
+  getUserQueries,
+  updateQueryStatus,
+  updateQueryNotes,
+  deleteUserQuery,
+} from '../data/userQueriesData';
 
 export interface AdminDashboardPageProps {
   onLogout: () => void;
@@ -89,10 +97,45 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<string>('ALL');
-  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet'>('sheet');
+  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries'>('sheet');
+  const [queries, setQueries] = useState<UserQuery[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
   const [editTeamForm, setEditTeamForm] = useState<RegisteredTeamProfile | null>(null);
+
+  const loadQueries = async () => {
+    try {
+      const res = await fetch('/api/queries');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.queries)) {
+          setQueries(data.queries);
+          return;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+    const local = getUserQueries();
+    setQueries(local);
+  };
+
+  const handleUpdateQueryStatus = (id: string, status: UserQuery['status'], notes?: string) => {
+    const updated = updateQueryStatus(id, status, notes);
+    setQueries(updated);
+  };
+
+  const handleUpdateQueryNotes = (id: string, notes: string) => {
+    const updated = updateQueryNotes(id, notes);
+    setQueries(updated);
+  };
+
+  const handleDeleteQuery = (id: string) => {
+    const updated = deleteUserQuery(id);
+    setQueries(updated);
+  };
+
+  const unreadQueriesCount = queries.filter((q) => q.status === 'UNREAD').length;
 
   const openTeamModal = (team: RegisteredTeamProfile, startInEditMode: boolean = false) => {
     setSelectedTeam(team);
@@ -204,6 +247,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
 
   useEffect(() => {
     loadData();
+    loadQueries();
 
     // Listen to Google Auth changes
     const unsubscribe = initAuth(
@@ -502,7 +546,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
 
           {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 pt-6">
             <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-4 transition-all shadow-lg">
               <span className="text-xs font-mono font-bold text-neutral-400 block uppercase tracking-wider">TOTAL SQUADS</span>
               <span className="text-3xl font-black font-orbitron text-white mt-1 block">
@@ -545,6 +589,34 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 {sheetsConfig.spreadsheetId ? `Auto-sync: ${autoSyncTimer}s` : 'Server .XLSX + Sheets ready'}
               </span>
             </div>
+
+            <button
+              onClick={() => setActiveView('queries')}
+              className={`border rounded-2xl p-4 transition-all shadow-lg text-left cursor-pointer col-span-2 sm:col-span-1 ${
+                activeView === 'queries'
+                  ? 'bg-[#1b1e17] border-[#d0fe1d] shadow-[0_0_20px_rgba(208,254,29,0.25)] ring-1 ring-[#d0fe1d]'
+                  : unreadQueriesCount > 0
+                  ? 'bg-amber-950/20 border-amber-400/50 hover:border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.15)]'
+                  : 'bg-[#1b1e17] border-white/10 hover:border-[#d0fe1d]/40'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-neutral-400 block uppercase tracking-wider">
+                  USER INQUIRIES
+                </span>
+                {unreadQueriesCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/50 animate-pulse">
+                    {unreadQueriesCount} NEW
+                  </span>
+                )}
+              </div>
+              <span className="text-3xl font-black font-orbitron text-white mt-1 block">
+                {queries.length}
+              </span>
+              <span className={`text-[11px] mt-1 block font-mono ${unreadQueriesCount > 0 ? 'text-amber-300 font-bold' : 'text-neutral-400'}`}>
+                {unreadQueriesCount > 0 ? `💬 ${unreadQueriesCount} unread message${unreadQueriesCount > 1 ? 's' : ''}` : '✓ All queries reviewed'}
+              </span>
+            </button>
           </div>
         </div>
 
@@ -751,35 +823,50 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         <div className="bg-[#141612]/95 backdrop-blur-2xl border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Search Input */}
-            <div className="relative flex-1 max-w-md">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">🔍</span>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by Team ID, Squad Name, College, City, Captain..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/15 bg-black/50 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/30"
-              />
-            </div>
+            {activeView !== 'queries' ? (
+              <div className="relative flex-1 max-w-md">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by Team ID, Squad Name, College, City, Captain..."
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/15 bg-black/50 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#d0fe1d] focus:ring-1 focus:ring-[#d0fe1d]/30"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <span className="text-sm font-orbitron font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <span>📨</span>
+                  <span>Direct Visitor &amp; Pilot Communications</span>
+                </span>
+                <span className="text-xs text-[#d0fe1d] font-mono font-bold">
+                  ({queries.length} total · {unreadQueriesCount} unread)
+                </span>
+              </div>
+            )}
 
-            {/* Division Filter */}
+            {/* Division Filter & View Toggle */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-wider">Division:</span>
-              {(['ALL', 'CLASS_20', 'CLASS_40'] as const).map((div) => (
-                <button
-                  key={div}
-                  onClick={() => setSelectedDivision(div)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedDivision === div
-                      ? 'bg-[#d0fe1d] text-black shadow-[0_0_15px_rgba(208,254,29,0.3)]'
-                      : 'bg-white/5 border border-white/10 text-neutral-300 hover:border-white/20 hover:text-white'
-                  }`}
-                >
-                  {div === 'ALL' ? 'All Divisions' : div === 'CLASS_20' ? 'Class 20' : 'Class 40'}
-                </button>
-              ))}
-
-              <div className="h-4 w-px bg-white/15 mx-1 hidden sm:block" />
+              {activeView !== 'queries' && (
+                <>
+                  <span className="text-xs font-mono font-bold text-neutral-400 uppercase tracking-wider">Division:</span>
+                  {(['ALL', 'CLASS_20', 'CLASS_40'] as const).map((div) => (
+                    <button
+                      key={div}
+                      onClick={() => setSelectedDivision(div)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                        selectedDivision === div
+                          ? 'bg-[#d0fe1d] text-black shadow-[0_0_15px_rgba(208,254,29,0.3)]'
+                          : 'bg-white/5 border border-white/10 text-neutral-300 hover:border-white/20 hover:text-white'
+                      }`}
+                    >
+                      {div === 'ALL' ? 'All Divisions' : div === 'CLASS_20' ? 'Class 20' : 'Class 40'}
+                    </button>
+                  ))}
+                  <div className="h-4 w-px bg-white/15 mx-1 hidden sm:block" />
+                </>
+              )}
 
               {/* View Toggle */}
               <div className="flex items-center bg-black/60 border border-white/10 rounded-lg p-0.5">
@@ -813,6 +900,27 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 >
                   <span>Google Sheet (Live)</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                </button>
+                <button
+                  onClick={() => setActiveView('queries')}
+                  className={`px-3 py-1 rounded-md text-xs font-rajdhani font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeView === 'queries'
+                      ? 'bg-[#d0fe1d] text-black shadow-xs'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <span>User Queries</span>
+                  {unreadQueriesCount > 0 && (
+                    <span
+                      className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold ${
+                        activeView === 'queries'
+                          ? 'bg-black text-[#d0fe1d]'
+                          : 'bg-amber-400 text-black animate-pulse'
+                      }`}
+                    >
+                      {unreadQueriesCount}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
@@ -1348,6 +1456,19 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* User Queries View */}
+          {activeView === 'queries' && (
+            <div className="pt-2">
+              <AdminQueriesView
+                queries={queries}
+                onRefresh={loadQueries}
+                onUpdateStatus={handleUpdateQueryStatus}
+                onUpdateNotes={handleUpdateQueryNotes}
+                onDeleteQuery={handleDeleteQuery}
+              />
             </div>
           )}
         </div>
