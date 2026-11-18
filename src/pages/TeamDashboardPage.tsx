@@ -92,6 +92,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const fee = getDivisionFee(team.division);
   const isPaymentCompleted =
     team.paymentInfo.status === 'VERIFIED' || team.paymentInfo.status === 'PAID';
+  const isPaymentVerified = team.paymentInfo.status === 'VERIFIED';
 
   // Refs for PDF Generation
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -663,8 +664,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   };
 
   const handleDownloadReceiptPdf = async () => {
-    if (!isPaymentCompleted) {
-      handleOpenUploadModal();
+    if (!isPaymentVerified) {
+      setActiveTab('receipt');
       return;
     }
     if (activeTab !== 'receipt') {
@@ -713,8 +714,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   };
 
   const handleDownloadPassPdf = async () => {
-    if (!isPaymentCompleted) {
-      handleOpenUploadModal();
+    if (!isPaymentVerified) {
+      setActiveTab('pass');
       return;
     }
     if (activeTab !== 'pass') {
@@ -1035,7 +1036,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   </div>
                 </div>
                 <div className="mt-5 pt-4 border-t border-white/10 space-y-2">
-                  {isPaymentCompleted ? (
+                  {isPaymentVerified ? (
                     <>
                       <div className="flex items-center gap-2">
                         <button
@@ -1064,37 +1065,42 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       </button>
                     </>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={handleOpenUploadModal}
-                        className="py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Upload Proof</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleOpenEmailDetailsModal}
-                        className="py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <Mail className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                        <span>Email Info</span>
-                      </button>
+                    <div className="space-y-2">
+                      <div className="text-[11px] text-amber-400 font-mono">
+                        {team.paymentInfo.status === 'PAID' ? '⏳ Proof Uploaded (Awaiting Admin Verification)' : '⏳ Payment Pending Verification'}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handleOpenUploadModal}
+                          className="py-2 px-2 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-[11px] font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Upload className="w-3 h-3" />
+                          <span>Upload</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleOpenEmailDetailsModal}
+                          className="py-2 px-2 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 text-[11px] font-rajdhani font-bold uppercase rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Mail className="w-3 h-3 text-[#d0fe1d]" />
+                          <span>Email Info</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Card 2: Official Event Pass (Gated by Payment) */}
+              {/* Card 2: Official Event Pass (Gated by Payment Verification) */}
               <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
                 <div>
                   <div
                     className={`text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5 ${
-                      isPaymentCompleted ? 'text-emerald-400' : 'text-amber-400'
+                      isPaymentVerified ? 'text-emerald-400' : 'text-amber-400'
                     }`}
                   >
-                    {isPaymentCompleted ? (
+                    {isPaymentVerified ? (
                       <>
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Unlocked &amp; Active</span>
@@ -1102,22 +1108,22 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     ) : (
                       <>
                         <Lock className="w-3.5 h-3.5" />
-                        <span>Locked Until Payment</span>
+                        <span>Locked Until Admin Verified</span>
                       </>
                     )}
                   </div>
                   <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">Official Event Pass</h2>
                   <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
-                    {isPaymentCompleted
+                    {isPaymentVerified
                       ? 'Official squad entry badge & pit bay pass ready for download.'
-                      : 'Complete your registration payment to unlock the event pass.'}
+                      : 'Requires admin fee verification to unlock event pass.'}
                   </p>
                   <div className="mt-3 text-xs font-mono tabular-nums text-[#d0fe1d]">
-                    {isPaymentCompleted ? team.allocatedPit : 'Requires Fee Verification'}
+                    {isPaymentVerified ? team.allocatedPit : 'Requires Admin Verification'}
                   </div>
                 </div>
                 <div className="mt-5 pt-4 border-t border-white/10">
-                  {isPaymentCompleted ? (
+                  {isPaymentVerified ? (
                     <button
                       type="button"
                       onClick={() => setActiveTab('pass')}
@@ -1367,7 +1373,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* ========================================================= */}
         {activeTab === 'pass' && (
           <div className="space-y-5 text-left">
-            {!isPaymentCompleted ? (
+            {!isPaymentVerified ? (
               <div className="bg-[#141612]/95 backdrop-blur-2xl border-2 border-amber-500/50 rounded-3xl p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-5 shadow-[0_0_40px_rgba(245,158,11,0.15)]">
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(245,158,11,0.2)]">
                   <Lock className="w-7 h-7" />
@@ -1596,7 +1602,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
         {/* ========================================================= */}
         {activeTab === 'receipt' && (
           <div className="space-y-5 text-left">
-            {!isPaymentCompleted ? (
+            {!isPaymentVerified ? (
               <div className="bg-[#141612]/95 backdrop-blur-2xl border-2 border-amber-500/50 rounded-3xl p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-5 shadow-[0_0_40px_rgba(245,158,11,0.15)]">
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(245,158,11,0.2)]">
                   <CreditCard className="w-7 h-7" />
