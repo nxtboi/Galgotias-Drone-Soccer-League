@@ -137,16 +137,36 @@ export const Navigation: React.FC<NavigationProps> = ({
               )}
             </div>
           ) : !isAdminLoggedIn ? (
-            <button
-              onClick={() => handleNavClick('login')}
-              className={`hidden sm:inline-flex items-center px-4 py-2 min-h-[40px] font-rajdhani font-bold text-sm sm:text-base uppercase tracking-widest transition-all cursor-pointer border ${
-                activeTab === 'login'
-                  ? 'border-[#d0fe1d] text-[#d0fe1d] bg-[#d0fe1d]/10'
-                  : 'border-white/20 text-neutral-300 hover:border-white hover:text-white bg-[#171915]'
-              }`}
-            >
-              Squad Login
-            </button>
+            <>
+              {/* Compact login icon (small screens, where the text button is hidden) */}
+              <button
+                onClick={() => handleNavClick('login')}
+                aria-label="Squad / Admin login"
+                title="Squad / Admin login"
+                className={`sm:hidden inline-flex items-center justify-center p-2 min-w-[42px] min-h-[42px] border transition-all cursor-pointer ${
+                  activeTab === 'login'
+                    ? 'border-[#d0fe1d] text-[#d0fe1d] bg-[#d0fe1d]/10'
+                    : 'border-white/20 text-[#d0fe1d] hover:border-[#d0fe1d] bg-[#171915]'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 17l5-5-5-5" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H3" />
+                </svg>
+              </button>
+              {/* Squad Login text button (larger screens) */}
+              <button
+                onClick={() => handleNavClick('login')}
+                className={`hidden sm:inline-flex items-center px-4 py-2 min-h-[40px] font-rajdhani font-bold text-sm sm:text-base uppercase tracking-widest transition-all cursor-pointer border ${
+                  activeTab === 'login'
+                    ? 'border-[#d0fe1d] text-[#d0fe1d] bg-[#d0fe1d]/10'
+                    : 'border-white/20 text-neutral-300 hover:border-white hover:text-white bg-[#171915]'
+                }`}
+              >
+                Squad Login
+              </button>
+            </>
           ) : null}
 
           {/* Primary XOTC Acid-Lime Chamfered CTA */}
