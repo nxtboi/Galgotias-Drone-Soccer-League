@@ -143,7 +143,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 onClick={() => handleNavClick('login')}
                 aria-label="Squad / Admin login"
                 title="Squad / Admin login"
-                className={`sm:hidden inline-flex items-center justify-center p-2 min-w-[42px] min-h-[42px] border transition-all cursor-pointer ${
+                className={`sm:hidden inline-flex items-center gap-1.5 px-3 py-2 min-h-[42px] border font-rajdhani font-bold text-sm uppercase tracking-widest transition-all cursor-pointer ${
                   activeTab === 'login'
                     ? 'border-[#d0fe1d] text-[#d0fe1d] bg-[#d0fe1d]/10'
                     : 'border-white/20 text-[#d0fe1d] hover:border-[#d0fe1d] bg-[#171915]'
@@ -154,6 +154,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 17l5-5-5-5" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H3" />
                 </svg>
+                <span>Login</span>
               </button>
               {/* Squad Login text button (larger screens) */}
               <button
