@@ -8,19 +8,32 @@ import {
   RegisteredTeamProfile,
   getDivisionFee,
 } from '../data/teamAuthData';
-import { syncTeamToSheet, getStoredSheetInfo } from '../services/googleSheetsService';
-import { DEFAULT_LINKED_ACCOUNT } from '../services/googleAuth';
+import { syncTeamToSheet } from '../services/googleSheetsService';
+import { clearAuthToken } from '../services/apiClient';
+import {
+  GoogleSignInButton,
+  getPendingGoogleSignup,
+  type PendingGoogleSignup,
+} from '../components/GoogleSignInButton';
 
 export interface TeamRegistrationPageProps {
   onNavigate: (tab: string) => void;
   onRegisterSuccess?: (team: RegisteredTeamProfile) => void;
+  /** A leader who already has a team signed in with Google from this page. */
+  onLoginSuccess?: (team: RegisteredTeamProfile) => void;
 }
 
 export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
   onNavigate,
   onRegisterSuccess,
+  onLoginSuccess,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  // Team leader verified with Google (captain email locked to the Google address)
+  const [googleLeader, setGoogleLeader] = useState<PendingGoogleSignup | null>(() => getPendingGoogleSignup());
+  const [googleError, setGoogleError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [formData, setFormData] = useState({
@@ -29,8 +42,8 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     city: '',
     state: '',
     division: 'Class 40 (400mm Heavy Sphere)',
-    captainName: '',
-    captainEmail: '',
+    captainName: getPendingGoogleSignup()?.profile.name || '',
+    captainEmail: getPendingGoogleSignup()?.profile.email || '',
     captainPhone: '',
     password: '',
     confirmPassword: '',
@@ -71,7 +84,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
       if (formData.password.trim().length < 6) {
@@ -88,17 +101,11 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
       setStep((prev) => (prev + 1) as 2 | 3);
       window.scrollTo({ top: 100, behavior: 'smooth' });
     } else {
-      const randomId = `GDSL-26-T${Math.floor(100 + Math.random() * 900)}`;
+      if (isSubmitting) return;
       const regDateStr = new Date().toLocaleDateString('en-IN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-      });
-      setGeneratedPass({
-        teamId: randomId,
-        qrSeed: `https://gcdis.galgotias.edu/pass/${randomId}`,
-        registeredAt: regDateStr,
-        slot: 'Arena Cage 1 · Scrutineering Bay 04',
       });
 
       const divisionFormatted = formData.division.includes('20')
@@ -106,9 +113,9 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
         : 'Class 40 (400mm)';
       const feeInfo = getDivisionFee(divisionFormatted);
 
-      const newProfile: RegisteredTeamProfile = {
-        teamId: randomId,
-        accessCode: formData.password.trim() || 'gdsl2026',
+      const buildProfile = (teamId: string): RegisteredTeamProfile => ({
+        teamId,
+        accessCode: formData.password.trim(),
         teamName: formData.teamName || 'Galgotias Aerial Squad',
         institution: formData.institution || 'Galgotias University',
         city: formData.city || 'Greater Noida',
@@ -138,14 +145,52 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
           paidAt: 'Awaiting Fee Payment',
           currency: 'INR',
         },
-      };
+      });
 
+      // Save to the server FIRST. The success screen only appears once the team is really in
+      // the server roster (and therefore the Excel sheet). If the random Team ID is already
+      // taken, a new one is tried automatically.
+      setIsSubmitting(true);
+      setSubmitError(null);
+      clearAuthToken(); // the server issues this new team's session token
+      let newProfile: RegisteredTeamProfile | null = null;
+      let syncResult: Awaited<ReturnType<typeof syncTeamToSheet>> | null = null;
+      for (let attempt = 0; attempt < 5 && !syncResult; attempt++) {
+        const candidate = buildProfile(`GDSL-26-T${Math.floor(1000 + Math.random() * 9000)}`);
+        try {
+          syncResult = await syncTeamToSheet(candidate);
+          newProfile = candidate;
+        } catch (err: any) {
+          if (err?.code === 'TEAM_ID_TAKEN') continue;
+          setSubmitError(err?.message || 'Registration could not be saved. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      setIsSubmitting(false);
+      if (!newProfile || !syncResult) {
+        setSubmitError('Registration could not be saved. Please try again.');
+        return;
+      }
+
+      setGeneratedPass({
+        teamId: newProfile.teamId,
+        qrSeed: `https://gcdis.galgotias.edu/pass/${newProfile.teamId}`,
+        registeredAt: regDateStr,
+        slot: 'Arena Cage 1 · Scrutineering Bay 04',
+      });
       saveRegisteredTeam(newProfile);
       setCurrentSession(newProfile);
       setCreatedProfile(newProfile);
       if (onRegisterSuccess) {
         onRegisterSuccess(newProfile);
       }
+      setSheetSyncStatus({
+        synced: true,
+        url: syncResult.spreadsheetUrl,
+        loading: false,
+        message: syncResult.message,
+      });
 
       setStep(4);
       confetti({
@@ -154,27 +199,6 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
         origin: { y: 0.6 },
       });
       window.scrollTo({ top: 100, behavior: 'smooth' });
-
-      (async () => {
-        try {
-          setSheetSyncStatus({ synced: false, loading: true });
-          const syncResult = await syncTeamToSheet(newProfile);
-          setSheetSyncStatus({
-            synced: true,
-            url: syncResult.spreadsheetUrl,
-            loading: false,
-            message: syncResult.message,
-          });
-        } catch (err: any) {
-          console.warn('Google Sheets auto-sync notice:', err);
-          setSheetSyncStatus({
-            synced: true,
-            url: getStoredSheetInfo().spreadsheetUrl || undefined,
-            loading: false,
-            message: `Roster queued for sync to ${DEFAULT_LINKED_ACCOUNT} Google Sheet.`,
-          });
-        }
-      })();
     }
   };
 
@@ -253,6 +277,33 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                 Selected Fee: {selectedFee.formatted} ({selectedFee.code})
               </span>
             </div>
+
+            {/* Team leader: Continue with Google (shown only when Google sign-in is configured) */}
+            {googleLeader ? (
+              <p className="text-xs font-sans text-slate-600">
+                Signed in with Google as <strong className="text-blue-950">{googleLeader.profile.email}</strong> (team leader).
+              </p>
+            ) : (
+              <GoogleSignInButton
+                caption="Team leaders only. Your verified Google email becomes the captain email; add your members in the next step."
+                onSignedIn={(team) => onLoginSuccess?.(team)}
+                onNewLeader={(signup) => {
+                  setGoogleError(null);
+                  setGoogleLeader(signup);
+                  setFormData((prev) => ({
+                    ...prev,
+                    captainName: prev.captainName || signup.profile.name,
+                    captainEmail: signup.profile.email,
+                  }));
+                }}
+                onError={setGoogleError}
+              />
+            )}
+            {googleError && (
+              <p role="alert" className="text-xs font-sans font-bold text-red-600">
+                {googleError}
+              </p>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
@@ -345,6 +396,7 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
                   placeholder="captain@university.edu"
                   value={formData.captainEmail}
                   onChange={handleChange}
+                  readOnly={Boolean(googleLeader)}
                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 font-sans text-sm text-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -663,11 +715,17 @@ export const TeamRegistrationPage: React.FC<TeamRegistrationPageProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                disabled={isSubmitting}
+                className="px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-sans font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
               >
-                SUBMIT REGISTRATION &amp; PROCEED TO DASHBOARD →
+                {isSubmitting ? 'SAVING REGISTRATION…' : <>SUBMIT REGISTRATION &amp; PROCEED TO DASHBOARD →</>}
               </button>
             </div>
+            {submitError && (
+              <p role="alert" className="text-xs font-sans font-bold text-red-600 text-right">
+                {submitError}
+              </p>
+            )}
           </form>
         )}
 

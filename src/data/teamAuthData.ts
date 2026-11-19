@@ -16,6 +16,10 @@ export interface RegisteredTeamProfile {
   captainName: string;
   captainEmail: string;
   captainPhone: string;
+  /** Server-only: Google account id of a leader who signed up with Google (never sent to browsers). */
+  captainGoogleSub?: string;
+  /** Sent to browsers instead of captainGoogleSub. */
+  captainGoogleLinked?: boolean;
   strikerPilot: string;
   goalkeeper: string;
   defender1: string;
@@ -59,7 +63,7 @@ export function getDivisionFee(division: string): {
   formatted: string;
   code: 'D-20' | 'D-40';
 } {
-  const isD20 = division.includes('20');
+  const isD20 = String(division || '').includes('20');
   return isD20
     ? { numeric: 1500, formatted: '₹1,500', code: 'D-20' }
     : { numeric: 2000, formatted: '₹2,000', code: 'D-40' };
@@ -79,342 +83,39 @@ function normalizeTeamFee(team: RegisteredTeamProfile): RegisteredTeamProfile {
   return team;
 }
 
-export const TEST_USER_PROFILE: RegisteredTeamProfile = {
-  teamId: 'GDSL-TEST-01',
-  accessCode: 'test123',
-  teamName: 'GCDIS Flight Test Team',
-  institution: 'Galgotias University (Centre for Drone Intelligence & Simulation)',
-  city: 'Greater Noida',
-  state: 'Uttar Pradesh',
-  division: 'Class 40 (400mm)',
-  captainName: 'Test Pilot Alpha',
-  captainEmail: 'test@gdsl.in',
-  captainPhone: '+91 98765 00001',
-  strikerPilot: 'Arjun Test (Striker)',
-  goalkeeper: 'Dev Test (Keeper)',
-  defender1: 'Sameer Test (Defender 1)',
-  defender2: 'Karan Test (Defender 2)',
-  pitMechanic: 'Priya Test (Pit Chief)',
-  droneModel: 'HawkSphere 400X Test Rig',
-  controlProtocol: 'ELRS 2.4GHz 500Hz',
-  vtxBand: '5.8GHz Raceband CH 4 (5769MHz)',
-  failsafeAgreed: true,
-  registeredAt: 'Nov 02, 2026',
-  allocatedPit: 'Arena Cage 1 · Scrutineering Bay 00 (Demo/Test)',
-  scrutineeringStatus: 'PRE_APPROVED',
-  paymentInfo: {
-    receiptNo: 'GDSL-TEST-REC-001',
-    amount: '₹2,000',
-    status: 'VERIFIED',
-    transactionId: 'UPI-TEST-SUCCESS-9999',
-    paymentMode: 'UPI / Demo Gateway',
-    paidAt: '02 Nov 2026 · 10:00 IST',
-    currency: 'INR',
-  },
-  attendanceData: {
-    facultyName: 'Dr. Test Mentor',
-    designation: 'Associate Professor & Drone Research Lead',
-    department: 'Department of Aerospace & Robotics',
-    collegeName: 'Galgotias University, Greater Noida',
-    travelDatesIncluded: true,
-    students: [
-      { name: 'Test Pilot Alpha', role: 'Captain & Telemetry Lead', rollNo: '23TEST01', phone: '+91 98765 00001' },
-      { name: 'Arjun Test', role: 'Designated Striker Pilot', rollNo: '23TEST02', phone: '+91 98765 00002' },
-      { name: 'Dev Test', role: 'Goalkeeper Pilot', rollNo: '23TEST03', phone: '+91 98765 00003' },
-      { name: 'Sameer Test', role: 'Defender 1 (Libero)', rollNo: '23TEST04', phone: '+91 98765 00004' },
-      { name: 'Karan Test', role: 'Defender 2 (Sweeper)', rollNo: '23TEST05', phone: '+91 98765 00005' },
-      { name: 'Priya Test', role: 'Pit Engineer & Safety', rollNo: '23TEST06', phone: '+91 98765 00006' },
-    ],
-  },
-};
-
-export const INITIAL_REGISTERED_TEAMS: RegisteredTeamProfile[] = [
-  TEST_USER_PROFILE,
-  {
-    teamId: 'GDSL-26-T899',
-    accessCode: '12345680',
-    teamName: 'Runtime Terror',
-    institution: 'Galgotias University',
-    city: 'Greater Noida',
-    state: 'Uttar Pradesh',
-    division: 'Class 40 (400mm)',
-    captainName: 'Vijay',
-    captainEmail: 'vk16122001235689@sdfgh.cvbnm',
-    captainPhone: '12345680',
-    strikerPilot: 'asdfgh',
-    goalkeeper: 'cvghu',
-    defender1: 'asdfg',
-    defender2: 'wertygjh',
-    pitMechanic: 'efgbn',
-    droneModel: 'wertyuio',
-    controlProtocol: 'ELRS 2.4GHz',
-    vtxBand: '5.8GHz Raceband (Locked Channels)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 29, 2026',
-    allocatedPit: 'Arena Cage 1 · Scrutineering Bay 04',
-    scrutineeringStatus: 'PENDING_ON_SITE',
-    paymentInfo: {
-      receiptNo: 'PENDING',
-      amount: '₹2,000',
-      status: 'PENDING',
-      transactionId: 'PENDING',
-      paymentMode: 'Pending Dashboard Checkout',
-      paidAt: 'Awaiting Fee Payment',
-      currency: 'INR',
-    },
-    attendanceData: {
-      facultyName: 'Pending Dean Endorsement',
-      designation: 'Faculty Advisor',
-      department: 'Aerospace / Robotics',
-      collegeName: 'Galgotias University',
-      travelDatesIncluded: true,
-      students: [
-        { name: 'Vijay', role: 'Captain', phone: '12345680' },
-        { name: 'asdfgh', role: 'Striker Pilot' },
-        { name: 'cvghu', role: 'Goalkeeper' },
-        { name: 'asdfg', role: 'Defender 1' },
-        { name: 'wertygjh', role: 'Defender 2' },
-        { name: 'efgbn', role: 'Pit Mechanic' },
-      ],
-    },
-  },
-  {
-    teamId: 'GDSL-26-T583',
-    accessCode: '917626040216',
-    teamName: 'Runtime Terror',
-    institution: 'Galgotias University',
-    city: 'greater noida',
-    state: 'Uttar Pradesh',
-    division: 'Class 40 (400mm)',
-    captainName: 'Vijay',
-    captainEmail: 'vk16122001@gmail.com',
-    captainPhone: '917626040216',
-    strikerPilot: 'asdfg',
-    goalkeeper: 'asdf',
-    defender1: 'ASDF',
-    defender2: 'asdf',
-    pitMechanic: 'ASDFG',
-    droneModel: 'ASDFGHYUI',
-    controlProtocol: 'ELRS 2.4GHz',
-    vtxBand: '5.8GHz Raceband (Locked Channels)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 23, 2026',
-    allocatedPit: 'Arena Cage 1 · Scrutineering Bay 04',
-    scrutineeringStatus: 'PRE_APPROVED',
-    paymentInfo: {
-      receiptNo: 'GDSL-REC-2026-122',
-      amount: '₹2,000',
-      status: 'VERIFIED',
-      transactionId: 'UPI-VERIFIED-122',
-      paymentMode: 'UPI / Online Transfer',
-      paidAt: '23 Oct 2026',
-      currency: 'INR',
-    },
-    attendanceData: {
-      facultyName: 'Pending Dean Endorsement',
-      designation: 'Faculty Advisor',
-      department: 'Aerospace / Robotics',
-      collegeName: 'Galgotias University',
-      travelDatesIncluded: true,
-      students: [
-        { name: 'Vijay', role: 'Captain', phone: '917626040216' },
-        { name: 'asdfg', role: 'Striker Pilot' },
-        { name: 'asdf', role: 'Goalkeeper' },
-        { name: 'ASDF', role: 'Defender 1' },
-        { name: 'asdf', role: 'Defender 2' },
-        { name: 'ASDFG', role: 'Pit Mechanic' },
-      ],
-    },
-  },
-  {
-    teamId: 'GDSL-26-T101',
-    accessCode: 'hawks2026',
-    teamName: 'Galgotias Aero Hawks',
-    institution: 'Galgotias University',
-    city: 'Greater Noida',
-    state: 'Uttar Pradesh',
-    division: 'Class 40 (400mm)',
-    captainName: 'Aarav Sharma',
-    captainEmail: 'aarav.hawks@galgotias.edu',
-    captainPhone: '+91 98112 34567',
-    strikerPilot: 'Kabir Singhania',
-    goalkeeper: 'Rohan Verma',
-    defender1: 'Aditya Narayan',
-    defender2: 'Vikas Mehra',
-    pitMechanic: 'Isha Patel',
-    droneModel: 'HawkSphere 400X Carbon FAI',
-    controlProtocol: 'ELRS 2.4GHz (Packet Rate 500Hz)',
-    vtxBand: '5.8GHz Raceband (CH 3 - 5732MHz)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 02, 2026',
-    allocatedPit: 'Arena Cage 1 · Scrutineering Bay 01',
-    scrutineeringStatus: 'PRE_APPROVED',
-    paymentInfo: {
-      receiptNo: 'GDSL-REC-2026-901',
-      amount: '₹2,000',
-      status: 'VERIFIED',
-      transactionId: 'UPI-HDFC-938210948',
-      paymentMode: 'UPI / Net Banking',
-      paidAt: '02 Oct 2026 · 14:32 IST',
-      currency: 'INR',
-    },
-    attendanceData: {
-      facultyName: 'Dr. V. K. Singh',
-      designation: 'Dean, School of Mechanical & Aerospace Engineering',
-      department: 'Department of Aerospace Engineering',
-      collegeName: 'Galgotias University, Greater Noida',
-      travelDatesIncluded: true,
-      students: [
-        { name: 'Aarav Sharma', role: 'Captain & Telemetry Lead', rollNo: '23BTE094', phone: '+91 98112 34567' },
-        { name: 'Kabir Singhania', role: 'Designated Striker Pilot', rollNo: '23BTE108', phone: '+91 98112 34568' },
-        { name: 'Rohan Verma', role: 'Goalkeeper Pilot', rollNo: '23BTE112', phone: '+91 98112 34569' },
-        { name: 'Aditya Narayan', role: 'Defender 1 (Libero)', rollNo: '23BTE115', phone: '+91 98112 34570' },
-        { name: 'Vikas Mehra', role: 'Defender 2 (Sweeper)', rollNo: '23BTE121', phone: '+91 98112 34571' },
-        { name: 'Isha Patel', role: 'Pit Engineer & Safety', rollNo: '23BTE130', phone: '+91 98112 34572' },
-      ],
-    },
-  },
-  {
-    teamId: 'GDSL-26-T102',
-    accessCode: 'vortex2026',
-    teamName: 'IIT Delhi AeroVortex',
-    institution: 'Indian Institute of Technology Delhi',
-    city: 'New Delhi',
-    state: 'Delhi',
-    division: 'Class 40 (400mm)',
-    captainName: 'Ananya Sen',
-    captainEmail: 'ananya.vortex@iitd.ac.in',
-    captainPhone: '+91 98710 43210',
-    strikerPilot: 'Kunal Roy',
-    goalkeeper: 'Siddharth Bose',
-    defender1: 'Tushar Gupta',
-    defender2: 'Pooja Nair',
-    pitMechanic: 'Rishi Kapoor',
-    droneModel: 'VortexCage Pro V3 (Toray 3K)',
-    controlProtocol: 'TBS Crossfire 868MHz',
-    vtxBand: '5.8GHz Raceband (CH 6 - 5866MHz)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 04, 2026',
-    allocatedPit: 'Arena Cage 1 · Scrutineering Bay 02',
-    scrutineeringStatus: 'PRE_APPROVED',
-    paymentInfo: {
-      receiptNo: 'GDSL-REC-2026-902',
-      amount: '₹2,000',
-      status: 'VERIFIED',
-      transactionId: 'SBI-NEFT-88492019',
-      paymentMode: 'NEFT / Institutional Transfer',
-      paidAt: '04 Oct 2026 · 11:15 IST',
-      currency: 'INR',
-    },
-    attendanceData: {
-      facultyName: 'Prof. Alok Ranjan',
-      designation: 'Head, Robotics & Aeromodelling Society',
-      department: 'Department of Mechanical Engineering',
-      collegeName: 'Indian Institute of Technology Delhi (IIT Delhi)',
-      travelDatesIncluded: true,
-      students: [
-        { name: 'Ananya Sen', role: 'Captain & Strategist', rollNo: '2023ME10450', phone: '+91 98710 43210' },
-        { name: 'Kunal Roy', role: 'Striker Pilot', rollNo: '2023ME10488', phone: '+91 98710 43211' },
-        { name: 'Siddharth Bose', role: 'Goalkeeper Pilot', rollNo: '2023EE10312', phone: '+91 98710 43212' },
-        { name: 'Tushar Gupta', role: 'Defender (Libero)', rollNo: '2023CS10190', phone: '+91 98710 43213' },
-        { name: 'Pooja Nair', role: 'Defender (Sweeper)', rollNo: '2023ME10499', phone: '+91 98710 43214' },
-        { name: 'Rishi Kapoor', role: 'Hardware & Battery Lead', rollNo: '2023ME10512', phone: '+91 98710 43215' },
-      ],
-    },
-  },
-  {
-    teamId: 'GDSL-26-T103',
-    accessCode: 'phoenix2026',
-    teamName: 'DTU Sky Phoenix',
-    institution: 'Delhi Technological University',
-    city: 'New Delhi',
-    state: 'Delhi',
-    division: 'Class 40 (400mm)',
-    captainName: 'Vikramaditya Rao',
-    captainEmail: 'vikram.phoenix@dtu.ac.in',
-    captainPhone: '+91 99100 87654',
-    strikerPilot: 'Aryan Mathur',
-    goalkeeper: 'Nitin Yadav',
-    defender1: 'Sahil Chhabra',
-    defender2: 'Ayush Mittal',
-    pitMechanic: 'Divya Khurana',
-    droneModel: 'Phoenix Orb 4.2 Polycarbonate',
-    controlProtocol: 'ELRS 2.4GHz',
-    vtxBand: '5.8GHz Raceband (CH 1 - 5658MHz)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 05, 2026',
-    allocatedPit: 'Arena Cage 2 · Scrutineering Bay 01',
-    scrutineeringStatus: 'PRE_APPROVED',
-    paymentInfo: {
-      receiptNo: 'GDSL-REC-2026-903',
-      amount: '₹2,000',
-      status: 'VERIFIED',
-      transactionId: 'UPI-ICICI-449102831',
-      paymentMode: 'UPI',
-      paidAt: '05 Oct 2026 · 16:40 IST',
-      currency: 'INR',
-    },
-  },
-  {
-    teamId: 'GDSL-26-T104',
-    accessCode: 'hyper2026',
-    teamName: 'BITS Pilani HyperDrones',
-    institution: 'BITS Pilani, Pilani Campus',
-    city: 'Pilani',
-    state: 'Rajasthan',
-    division: 'Class 20 (200mm)',
-    captainName: 'Tanvi Joshi',
-    captainEmail: 'tanvi.hyper@pilani.bits-pilani.ac.in',
-    captainPhone: '+91 97200 11223',
-    strikerPilot: 'Rhea Deshmukh',
-    goalkeeper: 'Kavita Menon',
-    defender1: 'Kunal Varma',
-    defender2: 'Dhruv Singhal',
-    pitMechanic: 'Sameer Joshi',
-    droneModel: 'NanoStrike 200 Junior FAI',
-    controlProtocol: 'ELRS 2.4GHz',
-    vtxBand: '5.8GHz Raceband (CH 7 - 5880MHz)',
-    failsafeAgreed: true,
-    registeredAt: 'Oct 06, 2026',
-    allocatedPit: 'Arena Cage 3 · Scrutineering Bay 04',
-    scrutineeringStatus: 'PRE_APPROVED',
-    paymentInfo: {
-      receiptNo: 'GDSL-REC-2026-904',
-      amount: '₹1,500',
-      status: 'VERIFIED',
-      transactionId: 'UPI-PAYTM-671029384',
-      paymentMode: 'UPI',
-      paidAt: '06 Oct 2026 · 09:20 IST',
-      currency: 'INR',
-    },
-  },
-];
-
 const STORAGE_KEY_TEAMS = 'gdsl_registered_teams_v1';
 const STORAGE_KEY_SESSION = 'gdsl_current_team_session_v1';
 
+/** The browser never keeps a squad password; the server stores only a hash. */
+function withoutPassword(team: RegisteredTeamProfile): RegisteredTeamProfile {
+  return { ...team, accessCode: '' };
+}
+
+/**
+ * Local cache only. The server is the source of truth and only returns the teams this
+ * browser may see (its own squad after a team login, every squad after an admin login).
+ * Passwords are checked on the server (POST /api/auth/login), never in the browser.
+ */
 export function getRegisteredTeams(): RegisteredTeamProfile[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_TEAMS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(INITIAL_REGISTERED_TEAMS));
-      return INITIAL_REGISTERED_TEAMS;
-    }
+    const raw = sessionStorage.getItem(STORAGE_KEY_TEAMS);
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      let normalized = parsed.map(normalizeTeamFee);
-      INITIAL_REGISTERED_TEAMS.forEach((initTeam) => {
-        if (!normalized.some((t) => t.teamId.toLowerCase() === initTeam.teamId.toLowerCase())) {
-          normalized.push(initTeam);
-        }
-      });
-      localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(normalized));
-      return normalized;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((t) => t && t.teamId).map(normalizeTeamFee);
     }
   } catch {
     // fallback
   }
-  return INITIAL_REGISTERED_TEAMS;
+  return [];
+}
+
+export function clearRegisteredTeamsCache(): void {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY_TEAMS);
+  } catch {
+    // ignore
+  }
 }
 
 export function saveRegisteredTeam(team: RegisteredTeamProfile): void {
@@ -422,88 +123,17 @@ export function saveRegisteredTeam(team: RegisteredTeamProfile): void {
     const current = getRegisteredTeams();
     const existingIndex = current.findIndex((t) => t.teamId === team.teamId);
     let updated: RegisteredTeamProfile[];
+    const safeTeam = withoutPassword(team);
     if (existingIndex >= 0) {
       updated = [...current];
-      updated[existingIndex] = team;
+      updated[existingIndex] = safeTeam;
     } else {
-      updated = [team, ...current];
+      updated = [safeTeam, ...current];
     }
-    localStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(updated));
+    sessionStorage.setItem(STORAGE_KEY_TEAMS, JSON.stringify(updated));
   } catch (err) {
     console.error('Failed to save team profile in local storage', err);
   }
-}
-
-export function authenticateTeam(
-  identifier: string,
-  passcode: string
-): { success: boolean; team?: RegisteredTeamProfile; error?: string } {
-  const cleanId = identifier.trim().toLowerCase();
-  const cleanPass = passcode.trim().toLowerCase();
-
-  if (!cleanId) {
-    return { success: false, error: 'Please enter your Team ID or registered Captain Email.' };
-  }
-
-  const teams = getRegisteredTeams();
-
-  // Fast test user shortcut (uses live stored profile so admin status updates apply)
-  if (
-    cleanId === 'test' ||
-    cleanId === 'testuser' ||
-    cleanId === 'test@gdsl.in' ||
-    cleanId === 'gdsl-test-01'
-  ) {
-    if (cleanPass === 'test123' || cleanPass === 'test' || cleanPass === '') {
-      const liveTestTeam =
-        teams.find((t) => t.teamId.toLowerCase() === TEST_USER_PROFILE.teamId.toLowerCase()) ||
-        TEST_USER_PROFILE;
-      setCurrentSession(liveTestTeam);
-      return { success: true, team: liveTestTeam };
-    }
-  }
-
-  const matched = teams.find((t) => {
-    const matchesId = t.teamId.toLowerCase() === cleanId;
-    const matchesEmail = t.captainEmail.toLowerCase() === cleanId;
-    const matchesName = t.teamName.toLowerCase() === cleanId;
-    return matchesId || matchesEmail || matchesName;
-  });
-
-  if (!matched) {
-    return {
-      success: false,
-      error: `No registered squad found matching "${identifier}". Please verify your Team ID (e.g. GDSL-26-T101) or Captain Email.`,
-    };
-  }
-
-  if (!cleanPass) {
-    return {
-      success: false,
-      error: 'Please enter your squad password to sign in.',
-    };
-  }
-
-  const isPasscodeValid =
-    !matched.accessCode ||
-    matched.accessCode.toLowerCase() === cleanPass ||
-    matched.accessCode === passcode.trim() ||
-    cleanPass === 'gdsl2026' ||
-    cleanPass === 'admin2026' ||
-    cleanPass === '123456' ||
-    cleanPass === 'test123' ||
-    cleanPass === matched.teamId.toLowerCase() ||
-    (matched.captainPhone && matched.captainPhone.replace(/\D/g, '') === cleanPass.replace(/\D/g, ''));
-
-  if (!isPasscodeValid) {
-    return {
-      success: false,
-      error: `Incorrect password for ${matched.teamName}. Please verify your password and try again.`,
-    };
-  }
-
-  setCurrentSession(matched);
-  return { success: true, team: matched };
 }
 
 export function getCurrentSession(): RegisteredTeamProfile | null {
@@ -523,7 +153,7 @@ export function getCurrentSession(): RegisteredTeamProfile | null {
 
 export function setCurrentSession(team: RegisteredTeamProfile): void {
   try {
-    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(team));
+    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(withoutPassword(team)));
   } catch (err) {
     console.error('Failed to set current session', err);
   }

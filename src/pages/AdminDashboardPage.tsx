@@ -1,5 +1,7 @@
+import { apiFetch } from '../services/apiClient';
 import React, { useState, useEffect } from 'react';
 import { GcdisLogo } from '../components/GcdisLogo';
+import { AdminAccountsView } from '../components/AdminAccountsView';
 import {
   RegisteredTeamProfile,
   getRegisteredTeams,
@@ -13,6 +15,7 @@ import {
   updateAllTournamentDataOnSheets,
   syncTeamToSheet,
   downloadServerExcelWorkbook,
+  downloadServerRosterCsv,
   HEADERS,
   getGoogleSheetsConfig,
   saveGoogleSheetsConfig,
@@ -44,11 +47,14 @@ import {
 export interface AdminDashboardPageProps {
   onLogout: () => void;
   onNavigate: (tab: string) => void;
+  /** Super admin can manage other admin accounts */
+  isSuperAdmin?: boolean;
 }
 
 export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   onLogout,
   onNavigate,
+  isSuperAdmin = false,
 }) => {
   const [teams, setTeams] = useState<RegisteredTeamProfile[]>([]);
   const [sheetData, setSheetData] = useState<{
@@ -99,7 +105,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<string>('ALL');
-  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries'>('sheet');
+  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries' | 'admins'>('sheet');
   const [queries, setQueries] = useState<UserQuery[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
@@ -107,7 +113,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
 
   const loadQueries = async () => {
     try {
-      const res = await fetch('/api/queries');
+      const res = await apiFetch('/api/queries');
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.queries)) {
@@ -1031,6 +1037,18 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                     </span>
                   )}
                 </button>
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setActiveView('admins')}
+                    className={`px-3 py-1 rounded-md text-xs font-rajdhani font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activeView === 'admins'
+                        ? 'bg-[#d0fe1d] text-black shadow-xs'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <span>Admins</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1301,21 +1319,20 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         )}
                         <span>Sync Sheet</span>
                       </button>
-                      <a
-                        href="/api/excel/download"
-                        download="GDSL_2026_Teams_Roster.xlsx"
+                      <button
+                        type="button"
+                        onClick={downloadServerExcelWorkbook}
                         className="px-3.5 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold transition-all flex items-center gap-1.5"
                       >
                         <span>📥 Download .XLSX</span>
-                      </a>
-                      <a
-                        href="/assets/aistudio/GDSL_2026_-_Galgotias_Drone_Soccer_League__Teams___Rosters__2676c7ff"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      </button>
+                      <button
+                        type="button"
+                        onClick={downloadServerRosterCsv}
                         className="px-3.5 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-xs font-mono font-bold transition-all flex items-center gap-1.5"
                       >
-                        <span>📄 View Attached CSV</span>
-                      </a>
+                        <span>📄 Download CSV</span>
+                      </button>
                       {sheetsConfig.spreadsheetId &&
                         sheetsConfig.spreadsheetId.length > 20 &&
                         !sheetsConfig.spreadsheetId.startsWith('attached') && (
@@ -1579,6 +1596,13 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
             </div>
           )}
 
+          {/* Admin Accounts View (super admin only) */}
+          {activeView === 'admins' && isSuperAdmin && (
+            <div className="pt-2">
+              <AdminAccountsView />
+            </div>
+          )}
+
           {/* User Queries View */}
           {activeView === 'queries' && (
             <div className="pt-2">
@@ -1696,9 +1720,12 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Access Code</label>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Reset Password (optional)</label>
                       <input
                         type="text"
+                        minLength={6}
+                        autoComplete="off"
+                        placeholder="Passwords are hashed; type a new one to reset"
                         value={editTeamForm.accessCode}
                         onChange={(e) => setEditTeamForm({ ...editTeamForm, accessCode: e.target.value })}
                         className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono"

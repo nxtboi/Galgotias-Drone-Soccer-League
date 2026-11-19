@@ -54,6 +54,14 @@ PORT=3000
 EOF
         echo "    Generated basic production .env"
     fi
+    # Generate strong admin credentials and session secret for this server
+    GEN_ADMIN_PASSWORD=$(openssl rand -base64 18 | tr -d '/+=' | cut -c1-20)
+    GEN_SECRET=$(openssl rand -hex 32)
+    sed -i '/^ADMIN_PASSWORD=/d;/^ADMIN_SECRET_KEY=/d' "$APP_DIR/.env"
+    echo "ADMIN_PASSWORD=$GEN_ADMIN_PASSWORD" >> "$APP_DIR/.env"
+    echo "ADMIN_SECRET_KEY=$GEN_SECRET" >> "$APP_DIR/.env"
+    chmod 600 "$APP_DIR/.env"
+    echo "    Generated admin password (saved in $APP_DIR/.env): $GEN_ADMIN_PASSWORD"
 else
     echo "    Existing .env found. Keeping current settings."
 fi

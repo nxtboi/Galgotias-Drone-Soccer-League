@@ -1,14 +1,62 @@
+import './server/loadEnv.ts';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as XLSXModule from 'xlsx';
+import { type RegisteredTeamProfile, getDivisionFee } from './src/data/teamAuthData.ts';
+import { INITIAL_REGISTERED_TEAMS } from './server/seedTeams.ts';
 import {
-  type RegisteredTeamProfile,
-  INITIAL_REGISTERED_TEAMS,
-  getDivisionFee,
-} from './src/data/teamAuthData.ts';
-import { SEED_USER_QUERIES, type UserQuery } from './src/data/userQueriesData.ts';
+  createToken,
+  getAuth,
+  requireAdmin,
+  checkAdminCredentials,
+  isAdminIdentifier,
+  findTeamForLogin,
+  isRateLimited,
+  recordFailure,
+  clearFailures,
+  applyTeamEditRules,
+  applyNewRegistrationRules,
+  withoutAccessCode,
+  resolveAccessCode,
+  hashPlainTextPasswords,
+  MIN_TEAM_PASSWORD_LENGTH,
+  createGoogleSignupToken,
+  verifyGoogleSignupToken,
+  getActiveAdmin,
+  requireSuperAdmin,
+} from './server/auth.ts';
+import {
+  AdminError,
+  SUPER_ADMIN_ID,
+  authenticateAdmin,
+  createAdmin,
+  deleteAdmin,
+  findActiveAdminById,
+  findAdminByIdentifier,
+  readAdmins,
+  recordAdminLogin,
+  requestAdminAccess,
+  toPublicAdmin,
+  updateAdmin,
+} from './server/admins.ts';
+import { isEmailConfigured, sendPaymentDetailsEmail, verifyEmailTransport } from './server/mailer.ts';
+import { getGooglePublicConfig, verifyGoogleCredential, GoogleAuthError } from './server/googleAuth.ts';
+import type { UserQuery } from './src/data/userQueriesData.ts';
+import { SEED_USER_QUERIES } from './server/seedQueries.ts';
+
+
+/**
+ * Error text that is safe to send to a browser: messages written for users (admin and Google
+ * sign-in errors) pass through; anything else (file-system errors, stack details) is logged
+ * on the server and replaced with a generic message.
+ */
+function safeError(err: unknown, fallback: string): string {
+  if (err instanceof AdminError || err instanceof GoogleAuthError) return err.message;
+  console.error('[server]', fallback, err);
+  return fallback;
+}
 
 const XLSX: typeof XLSXModule = (XLSXModule as any).default || XLSXModule;
 
@@ -74,7 +122,7 @@ function readPendingQueue(): RegisteredTeamProfile[] {
 function appendToPendingQueue(team: RegisteredTeamProfile) {
   ensureDataDirectory();
   const queue = readPendingQueue();
-  queue.push(team);
+  queue.push(withoutAccessCode(team));
   fs.writeFileSync(PENDING_QUEUE_PATH, JSON.stringify(queue, null, 2), 'utf-8');
 }
 
@@ -89,18 +137,20 @@ function readQueriesStore(): UserQuery[] {
     try {
       const raw = fs.readFileSync(QUERIES_JSON_PATH, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      // An empty list is valid (deleted queries must not come back as demo data)
+      if (Array.isArray(parsed)) return parsed;
     } catch {
       // Fallback
     }
   }
-  // Initialize with seed queries if empty
+  // First start: demo queries in development only
+  const seed = process.env.NODE_ENV === 'production' ? [] : [...SEED_USER_QUERIES];
   try {
-    fs.writeFileSync(QUERIES_JSON_PATH, JSON.stringify(SEED_USER_QUERIES, null, 2), 'utf-8');
+    fs.writeFileSync(QUERIES_JSON_PATH, JSON.stringify(seed, null, 2), 'utf-8');
   } catch {
     // Ignore
   }
-  return [...SEED_USER_QUERIES];
+  return seed;
 }
 
 function writeQueriesStore(queries: UserQuery[]) {
@@ -192,8 +242,11 @@ function ensureDataDirectory() {
   }
 }
 
-function writeTeamsToExcelFile(teams: RegisteredTeamProfile[]) {
+function writeTeamsToExcelFile(inputTeams: RegisteredTeamProfile[]) {
   ensureDataDirectory();
+
+  // Never persist a plain-text team password: hash anything that isn't hashed yet.
+  const { teams } = hashPlainTextPasswords(inputTeams);
 
   // Save full JSON mirror alongside the Excel workbook
   fs.writeFileSync(TEAMS_JSON_PATH, JSON.stringify(teams, null, 2), 'utf-8');
@@ -225,10 +278,9 @@ function writeTeamsToExcelFile(teams: RegisteredTeamProfile[]) {
   updateAttachedGoogleSheetCsv(teams);
 }
 
-const ATTACHED_CSV_PATH = path.join(
-  __dirname,
-  'public/assets/aistudio/GDSL_2026_-_Galgotias_Drone_Soccer_League__Teams___Rosters__2676c7ff'
-);
+// Kept in data/ (NOT public/) because it contains captain emails and phone numbers.
+// Admins download it through GET /api/excel/csv.
+const ATTACHED_CSV_PATH = path.join(DATA_DIR, 'GDSL_2026_Teams_Roster.csv');
 
 function updateAttachedGoogleSheetCsv(teams: RegisteredTeamProfile[]) {
   try {
@@ -317,7 +369,8 @@ function readServerTeams(): RegisteredTeamProfile[] {
     try {
       const raw = fs.readFileSync(TEAMS_JSON_PATH, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      // An empty list is a valid state (e.g. a fresh live server) and must not be re-seeded.
+      if (Array.isArray(parsed)) {
         if (!fs.existsSync(EXCEL_FILE_PATH)) {
           writeTeamsToExcelFile(parsed);
         }
@@ -328,9 +381,11 @@ function readServerTeams(): RegisteredTeamProfile[] {
     }
   }
 
-  // Seed initial teams and write the Excel workbook on server startup
-  writeTeamsToExcelFile(INITIAL_REGISTERED_TEAMS);
-  return INITIAL_REGISTERED_TEAMS;
+  // First start: demo teams in development only. A live (production) server starts empty,
+  // because the demo teams' passwords are in the source code.
+  const seed = process.env.NODE_ENV === 'production' ? [] : INITIAL_REGISTERED_TEAMS;
+  writeTeamsToExcelFile(seed);
+  return seed;
 }
 
 function getExcelMetadata(teams: RegisteredTeamProfile[]) {
@@ -350,7 +405,8 @@ function getExcelMetadata(teams: RegisteredTeamProfile[]) {
     lastUpdatedAt: stats.mtime.toISOString(),
     headers: EXCEL_HEADERS,
     rows,
-    teams,
+    // Password hashes never leave the server, not even to admins.
+    teams: teams.map(withoutAccessCode),
   };
 }
 
@@ -360,9 +416,56 @@ async function startServer() {
 
   // Allow larger payloads for base64 receipt proof images
   app.use(express.json({ limit: '15mb' }));
+  app.disable('x-powered-by');
+  // Browser security headers on every response
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    // Allows the Google sign-in popup to report back to this page
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    }
+    next();
+  });
+  // Never serve private project files, in any mode. (In development the Vite dev server would
+  // otherwise serve raw files such as data/teams_store.json, data/admins.json or server code.)
+  app.use((req, res, next) => {
+    let p: string;
+    try {
+      p = decodeURIComponent(req.path).replace(/\\/g, '/').toLowerCase();
+    } catch {
+      res.status(400).end();
+      return;
+    }
+    if (
+      /^\/(data|server|\.git|\.claude)(\/|$)/.test(p) ||
+      /^\/\.env/.test(p) ||
+      /^\/(server\.ts|package(-lock)?\.json|docker-compose\.yml|dockerfile|ecosystem\.config\.cjs|nginx\.conf|deploy-vps\.sh|tsconfig\.json|vite\.config\.ts|vps_deployment\.md|readme\.md)$/.test(p)
+    ) {
+      res.status(404).end();
+      return;
+    }
+    next();
+  });
+  // Behind Nginx (same host or Docker network): take the client IP from X-Forwarded-For
+  // only when the request comes from a local proxy, so login rate limiting can't be spoofed.
+  app.set('trust proxy', 'loopback, uniquelocal');
 
-  // Initialize Excel workbook on server startup
-  readServerTeams();
+  void verifyEmailTransport();
+
+  // Initialize Excel workbook on server startup, and hash any plain-text
+  // passwords left over from older versions of the portal.
+  {
+    const startupTeams = readServerTeams();
+    const { changed } = hashPlainTextPasswords(startupTeams);
+    if (changed > 0) {
+      writeTeamsToExcelFile(startupTeams);
+      console.log(`[auth] Hashed ${changed} plain-text team password(s) in data/teams_store.json`);
+    }
+  }
 
   // Health check endpoint for VPS, container orchestration, and uptime monitors
   app.get('/api/health', (_req, res) => {
@@ -371,26 +474,267 @@ async function startServer() {
       service: 'gdsl-tournament-portal',
       uptimeSeconds: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
-      nodeEnv: process.env.NODE_ENV || 'development',
     });
   });
 
-  // 1. GET /api/excel/status — Inspect server Excel workbook & read rows
-  app.get('/api/excel/status', (_req, res) => {
+  // AUTH: POST /api/auth/login — checks admin or team credentials on the server
+  app.post('/api/auth/login', (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    if (isRateLimited(ip)) {
+      res.status(429).json({ success: false, error: 'Too many failed sign-in attempts. Please wait 15 minutes and try again.' });
+      return;
+    }
+    const identifier = String(req.body?.identifier || '').slice(0, 200);
+    const password = String(req.body?.password || '').slice(0, 200);
+    if (!identifier.trim() || !password.trim()) {
+      res.status(400).json({ success: false, error: 'Please enter your Team ID / email and password.' });
+      return;
+    }
+
+    // 1. Super admin (from .env)
+    if (isAdminIdentifier(identifier)) {
+      if (checkAdminCredentials(identifier, password)) {
+        clearFailures(ip);
+        res.json({
+          success: true,
+          role: 'admin',
+          adminRole: 'super_admin',
+          name: 'Super Admin',
+          token: createToken({ role: 'admin', adminId: SUPER_ADMIN_ID, adminRole: 'super_admin' }),
+        });
+        return;
+      }
+    } else {
+      // 2. Registered / approved admins (data/admins.json) — must be active.
+      // A wrong password falls through to the team check, so a fake admin request that reuses
+      // a captain's email can't block that captain's login.
+      const adminAccount = findAdminByIdentifier(identifier);
+      if (adminAccount) {
+        try {
+          const account = authenticateAdmin(adminAccount, password);
+          clearFailures(ip);
+          recordAdminLogin(account.id);
+          res.json({
+            success: true,
+            role: 'admin',
+            adminRole: 'admin',
+            name: account.name,
+            token: createToken({ role: 'admin', adminId: account.id, adminRole: 'admin' }),
+          });
+          return;
+        } catch (err: any) {
+          if (err instanceof AdminError && err.status === 403) {
+            res.status(403).json({ success: false, error: err.message });
+            return;
+          }
+        }
+      }
+
+      // 3. Teams
+      const team = findTeamForLogin(readServerTeams(), identifier, password);
+      if (team) {
+        clearFailures(ip);
+        res.json({
+          success: true,
+          role: 'team',
+          token: createToken({ role: 'team', teamId: team.teamId }),
+          team: withoutAccessCode(team),
+        });
+        return;
+      }
+    }
+
+    recordFailure(ip);
+    res.status(401).json({ success: false, error: 'Incorrect Team ID / email or password.' });
+  });
+
+  // AUTH: GET /api/auth/google/config — lets the browser hide the Google button when not configured
+  app.get('/api/auth/google/config', (_req, res) => {
+    res.json(getGooglePublicConfig());
+  });
+
+  // AUTH: POST /api/auth/google — "Continue with Google" for team leaders (captains) only.
+  // Existing leader -> signed in to their team. New leader -> short-lived signup token used to
+  // register a team whose captain email is locked to the verified Google address.
+  app.post('/api/auth/google', async (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    if (isRateLimited(ip)) {
+      res.status(429).json({ success: false, error: 'Too many failed sign-in attempts. Please wait 15 minutes and try again.' });
+      return;
+    }
+    const credential = typeof req.body?.credential === 'string' ? req.body.credential.trim() : '';
+    if (!credential || credential.length > 8192) {
+      res.status(400).json({ success: false, error: 'Missing Google credential.' });
+      return;
+    }
+
+    let identity;
     try {
-      const teams = readServerTeams();
-      const meta = getExcelMetadata(teams);
+      identity = await verifyGoogleCredential(credential);
+    } catch (err: any) {
+      recordFailure(ip);
+      const status = err instanceof GoogleAuthError ? err.status : 401;
+      res.status(status).json({ success: false, error: safeError(err, 'Google sign-in failed. Please try again.') });
+      return;
+    }
+
+    const teams = readServerTeams();
+    let index = teams.findIndex((t) => t.captainGoogleSub === identity.sub);
+    if (index < 0) {
+      const byEmail = teams
+        .map((t, i) => ({ t, i }))
+        .filter(({ t }) => (t.captainEmail || '').trim().toLowerCase() === identity.email);
+      if (byEmail.length > 1) {
+        res.status(409).json({
+          success: false,
+          error: 'More than one team uses this captain email. Please sign in with your Team ID and password.',
+        });
+        return;
+      }
+      if (byEmail.length === 1) {
+        const match = byEmail[0];
+        if (match.t.captainGoogleSub && match.t.captainGoogleSub !== identity.sub) {
+          res.status(403).json({ success: false, error: 'A different Google account is already linked to this team.' });
+          return;
+        }
+        // Google has proved ownership of the captain email: link this Google account to the team.
+        index = match.i;
+        const updatedTeams = [...teams];
+        updatedTeams[index] = { ...match.t, captainGoogleSub: identity.sub };
+        writeTeamsToExcelFile(updatedTeams);
+        teams[index] = updatedTeams[index];
+      }
+    }
+
+    clearFailures(ip);
+    if (index >= 0) {
+      const team = teams[index];
       res.json({
         success: true,
-        ...meta,
+        status: 'signed_in',
+        role: 'team',
+        token: createToken({ role: 'team', teamId: team.teamId }),
+        team: withoutAccessCode(team),
       });
+      return;
+    }
+
+    res.json({
+      success: true,
+      status: 'new_leader',
+      signupToken: createGoogleSignupToken(identity),
+      profile: { email: identity.email, name: identity.name },
+    });
+  });
+
+  // ADMINS: public request for admin access (stays pending until the super admin approves it)
+  app.post('/api/admins/request', (req, res) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    if (isRateLimited(ip)) {
+      res.status(429).json({ success: false, error: 'Too many attempts. Please wait 15 minutes and try again.' });
+      return;
+    }
+    try {
+      requestAdminAccess(req.body || {});
+      recordFailure(ip); // counts toward the per-IP limit so the form can't be spammed
+      res.json({ success: true, message: 'Request sent. You can sign in once the super admin approves it.' });
+    } catch (err: any) {
+      res.status(err instanceof AdminError ? err.status : 500).json({ success: false, error: safeError(err, 'Request failed.') });
+    }
+  });
+
+  // ADMINS: super admin manages admin accounts
+  app.get('/api/admins', requireSuperAdmin, (_req, res) => {
+    res.json({ success: true, admins: readAdmins().map(toPublicAdmin) });
+  });
+
+  app.post('/api/admins', requireSuperAdmin, (req, res) => {
+    try {
+      const account = createAdmin(req.body || {});
+      res.json({ success: true, admin: toPublicAdmin(account) });
+    } catch (err: any) {
+      res.status(err instanceof AdminError ? err.status : 500).json({ success: false, error: safeError(err, 'Could not create admin.') });
+    }
+  });
+
+  app.patch('/api/admins/:id', requireSuperAdmin, (req, res) => {
+    try {
+      const account = updateAdmin(String(req.params.id), {
+        status: req.body?.status,
+        password: req.body?.password,
+      });
+      res.json({ success: true, admin: toPublicAdmin(account) });
+    } catch (err: any) {
+      res.status(err instanceof AdminError ? err.status : 500).json({ success: false, error: safeError(err, 'Could not update admin.') });
+    }
+  });
+
+  app.delete('/api/admins/:id', requireSuperAdmin, (req, res) => {
+    try {
+      deleteAdmin(String(req.params.id));
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(err instanceof AdminError ? err.status : 500).json({ success: false, error: safeError(err, 'Could not remove admin.') });
+    }
+  });
+
+  // AUTH: GET /api/auth/me — who does this token belong to?
+  app.get('/api/auth/me', (req, res) => {
+    const auth = getAuth(req);
+    if (!auth) {
+      res.status(401).json({ success: false, error: 'Not signed in.' });
+      return;
+    }
+    if (auth.role === 'admin') {
+      const admin = getActiveAdmin(req);
+      if (!admin) {
+        res.status(401).json({ success: false, error: 'This admin session is no longer valid.' });
+        return;
+      }
+      const account = admin.adminId === SUPER_ADMIN_ID ? null : findActiveAdminById(admin.adminId);
+      res.json({
+        success: true,
+        role: 'admin',
+        adminRole: admin.adminRole,
+        name: account ? account.name : 'Super Admin',
+      });
+      return;
+    }
+    const team = readServerTeams().find((t) => t.teamId === auth.teamId);
+    if (!team) {
+      res.status(401).json({ success: false, error: 'Team no longer exists.' });
+      return;
+    }
+    res.json({ success: true, role: 'team', team: withoutAccessCode(team) });
+  });
+
+  // 1. GET /api/excel/status — Workbook metadata. Team rows only for the signed-in team (own row) or admin (all).
+  app.get('/api/excel/status', (req, res) => {
+    try {
+      const auth = getAuth(req);
+      const allTeams = readServerTeams();
+      const meta = getExcelMetadata(allTeams);
+      if (getActiveAdmin(req)) {
+        res.json({ success: true, ...meta });
+        return;
+      }
+      if (auth?.role === 'team') {
+        // A team sees only its own record
+        res.json({ success: true, teams: allTeams.filter((t) => t.teamId === auth.teamId).map(withoutAccessCode) });
+        return;
+      }
+      // Anonymous visitors get nothing about the roster (not even how many teams exist)
+      res.json({ success: true, teams: [] });
     } catch (err: any) {
       res.status(500).json({
         success: false,
-        error: err?.message || 'Failed to read server Excel workbook.',
+        error: safeError(err, 'Failed to read server Excel workbook.'),
       });
     }
   });
+
+  const registrationLog = new Map<string, number[]>();
+  const REGISTRATIONS_PER_IP_PER_HOUR = 10;
 
   // 2. POST /api/excel/sync-team — Upsert a single team into the server Excel sheet
   app.post('/api/excel/sync-team', (req, res) => {
@@ -401,6 +745,7 @@ async function startServer() {
         return;
       }
 
+      const auth = getAuth(req);
       const currentTeams = readServerTeams();
       const existingIndex = currentTeams.findIndex(
         (t) => t.teamId.trim().toLowerCase() === incomingTeam.teamId.trim().toLowerCase()
@@ -408,36 +753,122 @@ async function startServer() {
 
       let action: 'inserted' | 'updated';
       let updatedTeams: RegisteredTeamProfile[];
+      let savedTeam: RegisteredTeamProfile;
+      let newToken: string | undefined;
 
       if (existingIndex >= 0) {
+        const existing = currentTeams[existingIndex];
+        if (getActiveAdmin(req)) {
+          // Admin may reset the password by sending a new one; blank keeps the current hash.
+          savedTeam = {
+            ...existing,
+            ...incomingTeam,
+            captainGoogleSub: existing.captainGoogleSub,
+            captainGoogleLinked: undefined,
+            accessCode: resolveAccessCode(existing.accessCode, incomingTeam.accessCode),
+          };
+        } else if (auth?.role === 'team' && auth.teamId === existing.teamId) {
+          savedTeam = applyTeamEditRules(existing, incomingTeam);
+        } else if (!auth) {
+          // Not signed in: this is a new registration whose random Team ID is already taken
+          res.status(409).json({
+            success: false,
+            code: 'TEAM_ID_TAKEN',
+            error: 'This Team ID is already registered. Sign in as this team to update it.',
+          });
+          return;
+        } else {
+          res.status(401).json({ success: false, error: 'Sign in as this team (or as admin) to update it.' });
+          return;
+        }
         updatedTeams = [...currentTeams];
-        updatedTeams[existingIndex] = incomingTeam;
+        updatedTeams[existingIndex] = savedTeam;
         action = 'updated';
       } else {
-        updatedTeams = [incomingTeam, ...currentTeams];
+        // New public registration (limited per visitor so the roster can't be spammed)
+        if (!getActiveAdmin(req)) {
+          const ip = req.ip || req.socket.remoteAddress || 'unknown';
+          const now = Date.now();
+          const recent = (registrationLog.get(ip) || []).filter((t) => now - t < 60 * 60 * 1000);
+          if (recent.length >= REGISTRATIONS_PER_IP_PER_HOUR) {
+            res.status(429).json({ success: false, error: 'Too many registrations from this network. Please try again later.' });
+            return;
+          }
+          recent.push(now);
+          registrationLog.set(ip, recent);
+        }
+        if (!/^[A-Za-z0-9-]{4,40}$/.test(incomingTeam.teamId.trim())) {
+          res.status(400).json({ success: false, error: 'Invalid Team ID.' });
+          return;
+        }
+        // Only the two real divisions are accepted (a missing one used to break every later save)
+        const division = String(incomingTeam.division || '');
+        if (division !== 'Class 20 (200mm)' && division !== 'Class 40 (400mm)') {
+          res.status(400).json({ success: false, error: 'Please choose a valid division.' });
+          return;
+        }
+        if (!String(incomingTeam.teamName || '').trim()) {
+          res.status(400).json({ success: false, error: 'Team name is required.' });
+          return;
+        }
+        // Leader who signed up with Google: lock the captain email to the verified Google address
+        let googleLeader: { sub: string; email: string; name: string } | null = null;
+        if (req.body?.googleSignupToken !== undefined) {
+          googleLeader = verifyGoogleSignupToken(req.body.googleSignupToken);
+          if (!googleLeader) {
+            res.status(401).json({ success: false, error: 'Your Google sign-in has expired. Please continue with Google again.' });
+            return;
+          }
+          if (currentTeams.some((t) => t.captainGoogleSub === googleLeader!.sub)) {
+            res.status(409).json({ success: false, error: 'This Google account already leads a registered team. Please sign in instead.' });
+            return;
+          }
+        }
+        if (!incomingTeam.accessCode || incomingTeam.accessCode.trim().length < MIN_TEAM_PASSWORD_LENGTH) {
+          res.status(400).json({
+            success: false,
+            error: `A squad password of at least ${MIN_TEAM_PASSWORD_LENGTH} characters is required.`,
+          });
+          return;
+        }
+        const hashed: RegisteredTeamProfile = {
+          ...incomingTeam,
+          accessCode: resolveAccessCode('', incomingTeam.accessCode),
+          captainGoogleLinked: undefined,
+          // Only a verified Google signup token can set the Google link
+          captainGoogleSub: googleLeader ? googleLeader.sub : undefined,
+          ...(googleLeader
+            ? { captainEmail: googleLeader.email, captainName: incomingTeam.captainName?.trim() || googleLeader.name }
+            : {}),
+        };
+        savedTeam = getActiveAdmin(req) ? hashed : applyNewRegistrationRules(hashed);
+        updatedTeams = [savedTeam, ...currentTeams];
         action = 'inserted';
+        if (!getActiveAdmin(req)) {
+          newToken = createToken({ role: 'team', teamId: savedTeam.teamId });
+        }
       }
 
       writeTeamsToExcelFile(updatedTeams);
-      appendToPendingQueue(incomingTeam);
-      const meta = getExcelMetadata(updatedTeams);
+      appendToPendingQueue(savedTeam);
 
       res.json({
         success: true,
         action,
-        message: `Team "${incomingTeam.teamName}" (${incomingTeam.teamId}) ${action} in server Excel sheet (${meta.filePath}).`,
-        ...meta,
+        message: `Team "${savedTeam.teamName}" (${savedTeam.teamId}) ${action} on the server.`,
+        team: withoutAccessCode(savedTeam),
+        ...(newToken ? { token: newToken } : {}),
       });
     } catch (err: any) {
       res.status(500).json({
         success: false,
-        error: err?.message || 'Failed to write team to server Excel workbook.',
+        error: safeError(err, 'Failed to write team to server Excel workbook.'),
       });
     }
   });
 
   // 3. POST /api/excel/sync-all — Write full list of teams into the server Excel sheet
-  app.post('/api/excel/sync-all', (req, res) => {
+  app.post('/api/excel/sync-all', requireAdmin, (req, res) => {
     try {
       const incomingTeams = req.body?.teams as RegisteredTeamProfile[] | undefined;
       const currentTeams = readServerTeams();
@@ -451,7 +882,10 @@ async function startServer() {
         }
         for (const t of incomingTeams) {
           if (t && t.teamId) {
-            mergedMap.set(t.teamId.trim().toUpperCase(), t);
+            const key = t.teamId.trim().toUpperCase();
+            const existing = mergedMap.get(key);
+            // Browsers never hold password hashes, so keep the stored one unless a new password was typed.
+            mergedMap.set(key, { ...t, accessCode: resolveAccessCode(existing?.accessCode, t.accessCode) });
           }
         }
         finalTeams = Array.from(mergedMap.values());
@@ -471,13 +905,13 @@ async function startServer() {
     } catch (err: any) {
       res.status(500).json({
         success: false,
-        error: err?.message || 'Failed to sync teams to server Excel workbook.',
+        error: safeError(err, 'Failed to sync teams to server Excel workbook.'),
       });
     }
   });
 
   // 4. GET /api/excel/download — Download the live .xlsx file directly from the server
-  app.get('/api/excel/download', (_req, res) => {
+  app.get('/api/excel/download', requireAdmin, (_req, res) => {
     try {
       const teams = readServerTeams();
       if (!fs.existsSync(EXCEL_FILE_PATH)) {
@@ -496,23 +930,118 @@ async function startServer() {
     } catch (err: any) {
       res.status(500).json({
         success: false,
-        error: err?.message || 'Failed to download server Excel file.',
+        error: safeError(err, 'Failed to download server Excel file.'),
       });
     }
   });
 
+  // PAYMENTS: POST /api/payments/request-details — a team asks for the fee payment details.
+  // The request is always recorded (status "PAYMENT REQUESTED" + the address), which admins see
+  // in the dashboard and Excel. If email is configured, the details are also emailed from the
+  // single official address (MAIL_FROM); otherwise the secretariat sends them manually.
+  const paymentRequestLog = new Map<string, number[]>();
+  const PAYMENT_REQUESTS_PER_HOUR = 5;
+  app.post('/api/payments/request-details', async (req, res) => {
+    const auth = getAuth(req);
+    if (!auth || auth.role !== 'team' || !auth.teamId) {
+      res.status(401).json({ success: false, error: 'Please sign in to your team dashboard first.' });
+      return;
+    }
+
+    const to = String(req.body?.email || '').trim().toLowerCase();
+    // One plain address only
+    if (to.length > 200 || !/^[^\s@,;<>"'()\\]+@[^\s@,;<>"'()\\]+\.[A-Za-z]{2,}$/.test(to)) {
+      res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+      return;
+    }
+
+    const now = Date.now();
+    const recent = (paymentRequestLog.get(auth.teamId) || []).filter((t) => now - t < 60 * 60 * 1000);
+    if (recent.length >= PAYMENT_REQUESTS_PER_HOUR) {
+      res.status(429).json({
+        success: false,
+        error: 'You have already requested payment details several times in the last hour. The secretariat will email you within 24 hours.',
+      });
+      return;
+    }
+
+    const teams = readServerTeams();
+    const index = teams.findIndex((t) => t.teamId === auth.teamId);
+    if (index < 0) {
+      res.status(404).json({ success: false, error: 'Team not found.' });
+      return;
+    }
+    const team = teams[index];
+
+    const requestedAt = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const status = String(team.paymentInfo?.status || 'PENDING').toUpperCase();
+    const updated: RegisteredTeamProfile = {
+      ...team,
+      paymentInfo: {
+        ...team.paymentInfo,
+        // Don't move a PAID / VERIFIED team back to "requested"
+        status: status === 'PENDING' ? 'PAYMENT REQUESTED' : team.paymentInfo.status,
+        emailRequestedTo: to,
+        emailRequestedAt: `${requestedAt} IST`,
+      },
+    };
+    const updatedTeams = [...teams];
+    updatedTeams[index] = updated;
+    writeTeamsToExcelFile(updatedTeams);
+    recent.push(now);
+    paymentRequestLog.set(auth.teamId, recent);
+
+    let emailSent = false;
+    if (isEmailConfigured()) {
+      const portalUrl =
+        process.env.PUBLIC_URL && !process.env.PUBLIC_URL.includes('example.com')
+          ? process.env.PUBLIC_URL
+          : `${req.protocol}://${req.get('host')}`;
+      try {
+        await sendPaymentDetailsEmail(updated, to, portalUrl);
+        emailSent = true;
+        console.log(`[payments] ${team.teamId}: payment details emailed to ${to}`);
+      } catch (err: any) {
+        console.error(`[payments] ${team.teamId}: email to ${to} failed (${err?.message || err}); send manually`);
+      }
+    } else {
+      console.log(`[payments] ${team.teamId} requested payment details at ${to} (email not configured: send manually)`);
+    }
+    res.json({ success: true, requestedTo: to, emailSent, team: withoutAccessCode(updated) });
+  });
+
+  // 4b. GET /api/excel/csv — Admin download of the CSV mirror of the roster
+  app.get('/api/excel/csv', requireAdmin, (_req, res) => {
+    try {
+      updateAttachedGoogleSheetCsv(readServerTeams());
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="GDSL_2026_Teams_Roster.csv"');
+      fs.createReadStream(ATTACHED_CSV_PATH).pipe(res);
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to build CSV.') });
+    }
+  });
+
   // 5. GET /api/sheets/config — Retrieve current Google Sheets integration config
-  app.get('/api/sheets/config', (_req, res) => {
+  app.get('/api/sheets/config', requireAdmin, (_req, res) => {
     try {
       const config = readSheetsConfig();
       res.json({ success: true, config });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to read Google Sheets config.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to read Google Sheets config.') });
     }
   });
 
   // 6. POST /api/sheets/config — Update Google Sheets integration config
-  app.post('/api/sheets/config', (req, res) => {
+  app.post('/api/sheets/config', requireAdmin, (req, res) => {
     try {
       const current = readSheetsConfig();
       const updated: GoogleSheetsConfig = {
@@ -522,12 +1051,12 @@ async function startServer() {
       writeSheetsConfig(updated);
       res.json({ success: true, config: updated });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to update Google Sheets config.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to update Google Sheets config.') });
     }
   });
 
   // 7. POST /api/sheets/mark-synced — Update last synced timestamp
-  app.post('/api/sheets/mark-synced', (req, res) => {
+  app.post('/api/sheets/mark-synced', requireAdmin, (req, res) => {
     try {
       const current = readSheetsConfig();
       const updated: GoogleSheetsConfig = {
@@ -539,37 +1068,37 @@ async function startServer() {
       writeSheetsConfig(updated);
       res.json({ success: true, config: updated });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to mark Google Sheet as synced.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to mark Google Sheet as synced.') });
     }
   });
 
   // 8. GET /api/sheets/pending — Fetch queued registrations waiting to be appended to Google Sheet
-  app.get('/api/sheets/pending', (_req, res) => {
+  app.get('/api/sheets/pending', requireAdmin, (_req, res) => {
     try {
       const queue = readPendingQueue();
       res.json({ success: true, pendingTeams: queue });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to read pending queue.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to read pending queue.') });
     }
   });
 
   // 9. POST /api/sheets/pending/clear — Clear queue once flushed to Google Sheet
-  app.post('/api/sheets/pending/clear', (_req, res) => {
+  app.post('/api/sheets/pending/clear', requireAdmin, (_req, res) => {
     try {
       clearPendingQueue();
       res.json({ success: true });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to clear pending queue.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to clear pending queue.') });
     }
   });
 
   // 10. GET /api/queries — Fetch all inquiries submitted by users
-  app.get('/api/queries', (_req, res) => {
+  app.get('/api/queries', requireAdmin, (_req, res) => {
     try {
       const queries = readQueriesStore();
       res.json({ success: true, queries });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to read queries.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to read queries.') });
     }
   });
 
@@ -577,20 +1106,41 @@ async function startServer() {
   app.post('/api/queries', (req, res) => {
     try {
       const current = readQueriesStore();
-      const newQuery = req.body as UserQuery;
-      if (!newQuery || !newQuery.email || !newQuery.message) {
+      const body = (req.body || {}) as Partial<UserQuery>;
+      const clip = (v: unknown, max: number) => String(v ?? '').slice(0, max);
+      if (!body.email || !body.message) {
         return res.status(400).json({ success: false, error: 'Query requires email and message.' });
       }
-      const updated = [newQuery, ...current.filter((q) => q.id !== newQuery.id)];
+      // Public submissions: only whitelisted fields, status forced to UNREAD, and an existing
+      // inquiry can never be overwritten by re-using its id.
+      const requestedId = clip(body.id, 60);
+      const id =
+        /^[A-Za-z0-9-]{4,60}$/.test(requestedId) && !current.some((q) => q.id === requestedId)
+          ? requestedId
+          : `GDSL-QRY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const priority = body.priority === 'HIGH' || body.priority === 'URGENT' ? body.priority : 'NORMAL';
+      const newQuery: UserQuery = {
+        id,
+        name: clip(body.name, 120),
+        email: clip(body.email, 200),
+        institution: clip(body.institution, 200),
+        topic: clip(body.topic, 120),
+        subject: clip(body.subject, 300),
+        message: clip(body.message, 5000),
+        submittedAt: new Date().toISOString(),
+        status: 'UNREAD',
+        priority,
+      };
+      const updated = [newQuery, ...current];
       writeQueriesStore(updated);
       res.json({ success: true, query: newQuery });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to save query.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to save query.') });
     }
   });
 
   // 12. PATCH /api/queries/:id — Update inquiry status or admin notes
-  app.patch('/api/queries/:id', (req, res) => {
+  app.patch('/api/queries/:id', requireAdmin, (req, res) => {
     try {
       const { id } = req.params;
       const current = readQueriesStore();
@@ -603,12 +1153,12 @@ async function startServer() {
       writeQueriesStore(updated);
       res.json({ success: true, queries: updated });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to update query.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to update query.') });
     }
   });
 
   // 13. DELETE /api/queries/:id — Delete inquiry
-  app.delete('/api/queries/:id', (req, res) => {
+  app.delete('/api/queries/:id', requireAdmin, (req, res) => {
     try {
       const { id } = req.params;
       const current = readQueriesStore();
@@ -616,7 +1166,7 @@ async function startServer() {
       writeQueriesStore(updated);
       res.json({ success: true, queries: updated });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err?.message || 'Failed to delete query.' });
+      res.status(500).json({ success: false, error: safeError(err, 'Failed to delete query.') });
     }
   });
 

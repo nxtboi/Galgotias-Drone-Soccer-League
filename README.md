@@ -66,7 +66,7 @@ Official Championship Portal, 3D Flight Practice Arena, Team Registration System
 - **Live Spreadsheet Table & Squad Dossiers**: Filterable by division (`All`, `Class D-20`, `Class D-40`) and searchable by Team ID, Squad Name, Institution, or Captain.
 - **Instant Payment Status Control**: Admins can toggle any team's registration fee status between **`PENDING`**, **`PAID`**, and **`VERIFIED`** directly from the table or team editor; changes reflect immediately in the user's Team Dashboard and persist to the server Excel sheet.
 - **Payment Proof Inspection**: View uploaded UTR numbers, payment timestamps, and full-size payment receipt screenshots submitted by teams, with a one-click **Approve & Mark Verified** button.
-- **Full Team Profile Editor**: Edit any squad's name, division, institution, password, pilot roster, or payment status.
+- **Full Team Profile Editor**: Edit any squad's name, division, institution, pilot roster, or payment status, and reset its password (passwords are stored as scrypt hashes and cannot be viewed).
 
 ---
 

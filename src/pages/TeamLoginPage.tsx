@@ -11,16 +11,15 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { GcdisLogo } from '../components/GcdisLogo';
-import {
-  authenticateTeam,
-  RegisteredTeamProfile,
-} from '../data/teamAuthData';
-import { fetchLiveSheetData } from '../services/googleSheetsService';
+import { RegisteredTeamProfile, saveRegisteredTeam } from '../data/teamAuthData';
+import { loginWithServer, type AdminRole } from '../services/apiClient';
+import { GoogleSignInButton } from '../components/GoogleSignInButton';
+import { AdminAccessRequest } from '../components/AdminAccessRequest';
 import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
 
 export interface TeamLoginPageProps {
   onLoginSuccess: (team: RegisteredTeamProfile) => void;
-  onAdminLoginSuccess?: () => void;
+  onAdminLoginSuccess?: (adminRole: AdminRole) => void;
   onNavigate: (tab: string) => void;
   loggedInTeam?: RegisteredTeamProfile | null;
   isAdminLoggedIn?: boolean;
@@ -47,42 +46,20 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
     setErrorMessage(null);
     setIsLoading(true);
 
-    const idClean = identifier.trim().toLowerCase();
-    const passClean = accessCode.trim();
-
-    // 1. Administrator Authentication check
-    if (
-      (idClean === 'admin' ||
-        idClean === 'admin@gdsl.in' ||
-        idClean === 'admin@galgotiasuniversity.edu.in' ||
-        idClean === 'gdsl@galgotiasuniversity.edu.in' ||
-        idClean === 'gdsladmin') &&
-      (passClean === 'gdsl@147896' || passClean === 'admin2026' || passClean === 'gdsladmin')
-    ) {
-      setTimeout(() => {
-        setIsLoading(false);
-        if (onAdminLoginSuccess) {
-          onAdminLoginSuccess();
-        }
-      }, 250);
-      return;
-    }
-
-    // 2. Fetch live sheet data & authenticate squad team
-    try {
-      await fetchLiveSheetData();
-    } catch {
-      // fallback to local storage
-    }
-
-    const result = authenticateTeam(identifier, accessCode);
+    // Credentials are checked by the server; it returns a signed session token.
+    const result = await loginWithServer(identifier, accessCode);
     setIsLoading(false);
 
-    if (result.success && result.team) {
-      onLoginSuccess(result.team);
-    } else {
-      setErrorMessage(result.error || 'Authentication failed. Please verify your Team ID or Passcode.');
+    if (!result.success) {
+      setErrorMessage(result.error);
+      return;
     }
+    if (result.role === 'admin') {
+      onAdminLoginSuccess?.(result.adminRole);
+      return;
+    }
+    saveRegisteredTeam(result.team);
+    onLoginSuccess(result.team);
   };
 
   return (
@@ -360,7 +337,21 @@ export const TeamLoginPage: React.FC<TeamLoginPageProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Team leaders: Continue with Google (shown only when configured) */}
+              <GoogleSignInButton
+                caption="Team leaders only: use the Google account of your captain email."
+                onSignedIn={(team) => {
+                  saveRegisteredTeam(team);
+                  onLoginSuccess(team);
+                }}
+                onNewLeader={() => onNavigate('register')}
+                onError={setErrorMessage}
+              />
             </form>
+            <div className="mt-4">
+              <AdminAccessRequest />
+            </div>
           </div>
         </div>
       </div>

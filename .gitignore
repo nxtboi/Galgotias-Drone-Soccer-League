@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Runtime data: team passwords, contact details, payment info
+data/*.json
+data/*.xlsx
+data/*.csv
+data/outbox/

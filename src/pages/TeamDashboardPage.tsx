@@ -1,3 +1,4 @@
+import { apiFetch } from '../services/apiClient';
 import React, { useState, useRef, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import {
@@ -55,6 +56,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [emailDetailsSentSuccess, setEmailDetailsSentSuccess] = useState(false);
   const [copiedBankField, setCopiedBankField] = useState<string | null>(null);
   const [paymentRequestMessageModal, setPaymentRequestMessageModal] = useState(false);
+  const [emailDetailsError, setEmailDetailsError] = useState<string | null>(null);
+  // true when the server emailed the details right away (false = will be sent manually)
+  const [paymentEmailSentNow, setPaymentEmailSentNow] = useState(false);
 
   // Upload Payment Details Modal State
   const [isUploadPaymentModalOpen, setIsUploadPaymentModalOpen] = useState(false);
@@ -110,7 +114,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     city: team.city,
     state: team.state,
     division: team.division,
-    accessCode: team.accessCode,
+    accessCode: '', // blank = keep current password (never sent back by the server)
     captainName: team.captainName,
     captainEmail: team.captainEmail,
     captainPhone: team.captainPhone,
@@ -165,11 +169,11 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     const syncFromServerExcel = async () => {
       try {
         setSheetSyncLoading(true);
-        const res = await fetch('/api/excel/status');
+        const res = await apiFetch('/api/excel/status');
         if (res.ok && !isCancelled) {
           const data = await res.json();
           if (Array.isArray(data.teams) && data.teams.length > 0) {
-            localStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(data.teams));
+            sessionStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(data.teams));
             const serverMatch = data.teams.find(
               (t: RegisteredTeamProfile) =>
                 t.teamId.trim().toLowerCase() === team.teamId.trim().toLowerCase()
@@ -223,13 +227,14 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     paymentMode: string;
     paidAt: string;
   }) => {
+    // Only an admin can mark a payment VERIFIED (the server enforces this), so a team's
+    // own payment is recorded as PAID and waits for the secretariat to verify it.
     const updatedTeam: RegisteredTeamProfile = {
       ...team,
-      scrutineeringStatus: 'PRE_APPROVED',
       paymentInfo: {
         receiptNo: paymentDetails.receiptNo,
         amount: paymentDetails.amount,
-        status: 'VERIFIED',
+        status: 'PAID',
         transactionId: paymentDetails.transactionId,
         paymentMode: paymentDetails.paymentMode,
         paidAt: paymentDetails.paidAt,
@@ -240,9 +245,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     saveRegisteredTeam(updatedTeam);
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
-    setActiveTab('pass');
     setSheetSyncSuccess(
-      `Payment of ${paymentDetails.amount} verified (${paymentDetails.transactionId}). Official Event Pass unlocked!`
+      `Payment of ${paymentDetails.amount} recorded (${paymentDetails.transactionId}). Your Event Pass unlocks once the secretariat verifies it.`
     );
     setTimeout(() => setSheetSyncSuccess(null), 6000);
 
@@ -285,6 +289,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const handleOpenEmailDetailsModal = () => {
     setEmailForPaymentDetails(team.paymentInfo.emailRequestedTo || team.captainEmail);
     setEmailDetailsSentSuccess(false);
+    setEmailDetailsError(null);
     setIsEmailDetailsModalOpen(true);
   };
 
@@ -294,86 +299,58 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setTimeout(() => setCopiedBankField(null), 2000);
   };
 
-  const handleRequestPaymentDetailsEmail = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const targetEmail = emailForPaymentDetails.trim() || team.paymentInfo.emailRequestedTo || team.captainEmail;
+  // Records a payment-details request on the server. The secretariat emails the details manually.
+  const sendPaymentDetailsToEmail = async (targetEmail: string): Promise<boolean> => {
     setIsSendingEmailDetails(true);
-
-    const now = new Date();
-    const timestamp = `${now.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    })} · ${now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })} IST`;
-
-    setTimeout(async () => {
-      const updatedTeam: RegisteredTeamProfile = {
-        ...team,
-        paymentInfo: {
-          ...team.paymentInfo,
-          status: 'PAYMENT REQUESTED',
-          emailRequestedTo: targetEmail,
-          emailRequestedAt: timestamp,
-        },
-      };
-
+    setEmailDetailsError(null);
+    try {
+      const res = await apiFetch('/api/payments/request-details', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        setEmailDetailsError(data.error || 'Could not record your request. Please try again.');
+        return false;
+      }
+      const updatedTeam: RegisteredTeamProfile = data.team;
       saveRegisteredTeam(updatedTeam);
       setCurrentSession(updatedTeam);
       if (onUpdateTeam) onUpdateTeam(updatedTeam);
-      setIsSendingEmailDetails(false);
+      setEmailForPaymentDetails(data.requestedTo);
+      setPaymentEmailSentNow(Boolean(data.emailSent));
       setEmailDetailsSentSuccess(true);
       setPaymentRequestMessageModal(true);
-      setSheetSyncSuccess('Payment details will be sent on your email in next 24 hours');
+      setSheetSyncSuccess(
+        data.emailSent
+          ? `Payment details have been sent to ${data.requestedTo}. Please check your inbox and spam folder.`
+          : 'Payment details will be sent on your email in next 24 hours'
+      );
       setTimeout(() => setSheetSyncSuccess(null), 8000);
+      return true;
+    } catch {
+      setEmailDetailsError('Could not reach the server. Check your connection and try again.');
+      return false;
+    } finally {
+      setIsSendingEmailDetails(false);
+    }
+  };
 
-      try {
-        await syncTeamToSheet(updatedTeam);
-      } catch (err) {
-        console.warn('Email request sheet sync notice:', err);
-      }
-    }, 400);
+  const handleRequestPaymentDetailsEmail = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const targetEmail = emailForPaymentDetails.trim() || team.paymentInfo.emailRequestedTo || team.captainEmail;
+    await sendPaymentDetailsToEmail(targetEmail);
   };
 
   const handleDirectRequestPaymentDetails = async () => {
     const targetEmail = team.paymentInfo.emailRequestedTo || team.captainEmail;
-    const now = new Date();
-    const timestamp = `${now.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    })} · ${now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })} IST`;
-
-    const updatedTeam: RegisteredTeamProfile = {
-      ...team,
-      paymentInfo: {
-        ...team.paymentInfo,
-        status: 'PAYMENT REQUESTED',
-        emailRequestedTo: targetEmail,
-        emailRequestedAt: timestamp,
-      },
-    };
-
-    saveRegisteredTeam(updatedTeam);
-    setCurrentSession(updatedTeam);
-    if (onUpdateTeam) onUpdateTeam(updatedTeam);
     setEmailForPaymentDetails(targetEmail);
-    setEmailDetailsSentSuccess(true);
-    setPaymentRequestMessageModal(true);
-    setSheetSyncSuccess('Payment details will be sent on your email in next 24 hours');
-    setTimeout(() => setSheetSyncSuccess(null), 8000);
-
-    try {
-      await syncTeamToSheet(updatedTeam);
-    } catch (err) {
-      console.warn('Email request sheet sync notice:', err);
+    const ok = await sendPaymentDetailsToEmail(targetEmail);
+    if (!ok) {
+      // Show the email form so the error is visible and the address can be corrected
+      setEmailDetailsSentSuccess(false);
+      setIsEmailDetailsModalOpen(true);
     }
   };
 
@@ -2239,10 +2216,12 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Access Code / Password</label>
+                      <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">New Password (optional)</label>
                       <input
-                        type="text"
-                        required
+                        type="password"
+                        minLength={6}
+                        autoComplete="new-password"
+                        placeholder="Leave blank to keep current password"
                         value={editForm.accessCode}
                         onChange={(e) => setEditForm({ ...editForm, accessCode: e.target.value })}
                         className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
@@ -2646,9 +2625,17 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     Payment Details Request Received!
                   </div>
-                  <p className="text-[#d0fe1d] font-bold text-sm leading-relaxed">
-                    Payment details will be sent on your email in next 24 hours
+                  <p className="text-[#d0fe1d] font-bold text-sm leading-relaxed break-words">
+                    {paymentEmailSentNow
+                      ? `Payment details have been sent to ${emailForPaymentDetails}. Please check your inbox and spam folder.`
+                      : 'Payment details will be sent on your email in next 24 hours'}
                   </p>
+                </div>
+              )}
+
+              {emailDetailsError && (
+                <div role="alert" className="p-3.5 rounded-2xl bg-red-950/60 border border-red-500/40 text-xs text-red-200 leading-relaxed">
+                  {emailDetailsError}
                 </div>
               )}
 
@@ -2713,8 +2700,10 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 Payment Request Recorded
               </h3>
               <div className="p-4 rounded-2xl bg-[#1b1c15] border border-[#d0fe1d]/40">
-                <p className="text-sm sm:text-base font-sans font-bold text-[#d0fe1d] leading-relaxed">
-                  &ldquo;Payment details will be sent on your email in next 24 hours&rdquo;
+                <p className="text-sm sm:text-base font-sans font-bold text-[#d0fe1d] leading-relaxed break-words">
+                  {paymentEmailSentNow
+                    ? `Payment details have been sent to ${emailForPaymentDetails}. Please check your inbox and spam folder.`
+                    : '“Payment details will be sent on your email in next 24 hours”'}
                 </p>
               </div>
             </div>

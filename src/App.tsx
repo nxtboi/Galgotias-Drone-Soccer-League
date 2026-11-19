@@ -1,3 +1,5 @@
+import { clearAuthToken, fetchCurrentAuth, getAuthToken, type AdminRole } from './services/apiClient';
+import { clearPendingGoogleSignup } from './components/GoogleSignInButton';
 import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { DroneSoccerHero } from './components/DroneSoccerHero';
@@ -27,8 +29,9 @@ import {
   setCurrentSession,
   clearCurrentSession,
   RegisteredTeamProfile,
-  INITIAL_REGISTERED_TEAMS,
   getRegisteredTeams,
+  saveRegisteredTeam,
+  clearRegisteredTeamsCache,
 } from './data/teamAuthData';
 
 export function App() {
@@ -38,44 +41,48 @@ export function App() {
 
   const [currentTeam, setCurrentTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminRole, setAdminRole] = useState<AdminRole>('admin');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
-    // Hydrate existing admin session
-    if (localStorage.getItem('gdsl_admin_session_v1') === 'true') {
-      setIsAdminLoggedIn(true);
-      setCurrentTeam(null);
-    } else {
-      // Hydrate existing team session
-      const session = getCurrentSession();
-      if (session) {
-        setCurrentTeam(session);
-        setIsAdminLoggedIn(false);
-      }
+    // Clean up data older versions of the site left in this browser: an admin flag that
+    // granted access, and full copies of the team roster / Google token in localStorage.
+    try {
+      ['gdsl_admin_session_v1', 'gdsl_registered_teams_v1', 'gdsl_google_access_token_v1', 'gdsl_google_user_profile_v1'].forEach(
+        (key) => localStorage.removeItem(key)
+      );
+    } catch {
+      // storage unavailable
     }
 
-    // Pull latest roster & payment statuses from Server Excel Workbook
-    fetch('/api/excel/status')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data.teams) && data.teams.length > 0) {
-          localStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(data.teams));
-          const activeSession = getCurrentSession();
-          if (activeSession && localStorage.getItem('gdsl_admin_session_v1') !== 'true') {
-            const updatedSession = data.teams.find(
-              (t: RegisteredTeamProfile) =>
-                t.teamId.trim().toLowerCase() === activeSession.teamId.trim().toLowerCase()
-            );
-            if (updatedSession) {
-              setCurrentSession(updatedSession);
-              setCurrentTeam(updatedSession);
-            }
-          }
+    // Show the cached team session straight away (if this browser still has a token),
+    // then confirm it with the server.
+    const cached = getAuthToken() ? getCurrentSession() : null;
+    if (cached) setCurrentTeam(cached);
+
+    fetchCurrentAuth().then((auth) => {
+      if (!auth) {
+        if (!getAuthToken()) {
+          // Token missing or rejected by the server: drop any cached private data
+          clearCurrentSession();
+          clearRegisteredTeamsCache();
+          setCurrentTeam(null);
+          setIsAdminLoggedIn(false);
         }
-      })
-      .catch(() => {
-        // Ignore offline/initial load error
-      });
+        return;
+      }
+      if (auth.role === 'admin') {
+        clearCurrentSession();
+        setCurrentTeam(null);
+        setAdminRole(auth.adminRole);
+        setIsAdminLoggedIn(true);
+      } else {
+        saveRegisteredTeam(auth.team);
+        setCurrentSession(auth.team);
+        setCurrentTeam(auth.team);
+        setIsAdminLoggedIn(false);
+      }
+    });
   }, []);
 
   const handleSelectTab = (tab: string) => {
@@ -105,33 +112,39 @@ export function App() {
   };
 
   const handleLoginSuccess = (team: RegisteredTeamProfile) => {
-    // Clear admin session
     setIsAdminLoggedIn(false);
-    localStorage.removeItem('gdsl_admin_session_v1');
-    // Set team session
+    // Set team session (the token was stored by the login call)
     setCurrentTeam(team);
     setCurrentSession(team);
     setActiveTab('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAdminLoginSuccess = () => {
+  const handleAdminLoginSuccess = (role: AdminRole = 'admin') => {
     // Clear team session
     clearCurrentSession();
     setCurrentTeam(null);
-    // Set admin session
+    setAdminRole(role);
+    // Admin session (server-issued token already stored by the login call)
     setIsAdminLoggedIn(true);
-    localStorage.setItem('gdsl_admin_session_v1', 'true');
     setActiveTab('admin');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLogout = () => {
-    // Clear all active sessions
+    // Clear all active sessions and cached private data
+    clearAuthToken();
     clearCurrentSession();
+    clearRegisteredTeamsCache();
+    clearPendingGoogleSignup();
+    try {
+      // Roster cache, Google Sheets token and anything else kept for this tab
+      sessionStorage.clear();
+    } catch {
+      // storage unavailable
+    }
     setCurrentTeam(null);
     setIsAdminLoggedIn(false);
-    localStorage.removeItem('gdsl_admin_session_v1');
     setActiveTab('login');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -217,9 +230,11 @@ export function App() {
         <div className="xotc-page-scope">
           <TeamRegistrationPage
             onNavigate={handleSelectTab}
+            onLoginSuccess={handleLoginSuccess}
             onRegisterSuccess={(team) => {
+              // The registration page already swapped this browser to the new team's
+              // server-issued session token before calling this.
               setIsAdminLoggedIn(false);
-              localStorage.removeItem('gdsl_admin_session_v1');
               setCurrentTeam(team);
             }}
           />
@@ -270,21 +285,42 @@ export function App() {
       )}
 
       {/* Dedicated Page: Registered Squad Dashboard */}
-      {activeTab === 'dashboard' && (
+      {activeTab === 'dashboard' && currentTeam && (
         <TeamDashboardPage
-          team={currentTeam || INITIAL_REGISTERED_TEAMS[0]}
+          team={currentTeam}
           onLogout={handleLogout}
           onNavigate={handleSelectTab}
           onUpdateTeam={handleUpdateTeam}
         />
       )}
+      {activeTab === 'dashboard' && !currentTeam && (
+        <TeamLoginPage
+          onLoginSuccess={handleLoginSuccess}
+          onAdminLoginSuccess={handleAdminLoginSuccess}
+          onNavigate={handleSelectTab}
+          loggedInTeam={null}
+          isAdminLoggedIn={isAdminLoggedIn}
+          onLogout={handleLogout}
+        />
+      )}
 
       {/* Dedicated Page: Tournament Admin Control Panel (Google Sheets Data) */}
-      {activeTab === 'admin' && (
+      {activeTab === 'admin' && !isAdminLoggedIn && (
+        <TeamLoginPage
+          onLoginSuccess={handleLoginSuccess}
+          onAdminLoginSuccess={handleAdminLoginSuccess}
+          onNavigate={handleSelectTab}
+          loggedInTeam={currentTeam}
+          isAdminLoggedIn={false}
+          onLogout={handleLogout}
+        />
+      )}
+      {activeTab === 'admin' && isAdminLoggedIn && (
         <div className="xotc-page-scope">
           <AdminDashboardPage
             onLogout={handleLogout}
             onNavigate={handleSelectTab}
+            isSuperAdmin={adminRole === 'super_admin'}
           />
         </div>
       )}

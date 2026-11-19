@@ -1,3 +1,5 @@
+import { apiFetch, getAuthToken, setAuthToken } from './apiClient';
+import { getPendingGoogleSignup, clearPendingGoogleSignup } from '../components/GoogleSignInButton';
 import {
   RegisteredTeamProfile,
   getRegisteredTeams,
@@ -155,7 +157,7 @@ export const teamToRowValues = (team: RegisteredTeamProfile): (string | number)[
  */
 export async function getGoogleSheetsConfig(): Promise<GoogleSheetsConfig> {
   try {
-    const res = await fetch('/api/sheets/config');
+    const res = await apiFetch('/api/sheets/config');
     if (res.ok) {
       const data = await res.json();
       if (data.config) {
@@ -198,7 +200,7 @@ export async function saveGoogleSheetsConfig(config: Partial<GoogleSheetsConfig>
   localStorage.setItem(LOCAL_STORAGE_GOOGLE_SHEET_KEY, JSON.stringify(merged));
 
   try {
-    await fetch('/api/sheets/config', {
+    await apiFetch('/api/sheets/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(merged),
@@ -391,7 +393,7 @@ export async function syncAllTeamsToGoogleSheet(
 
   // Update server sync state
   try {
-    await fetch('/api/sheets/mark-synced', {
+    await apiFetch('/api/sheets/mark-synced', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ spreadsheetId, spreadsheetUrl }),
@@ -508,7 +510,7 @@ export async function flushPendingRegistrationsToGoogleSheet(
   spreadsheetId: string
 ): Promise<number> {
   try {
-    const res = await fetch('/api/sheets/pending');
+    const res = await apiFetch('/api/sheets/pending');
     if (!res.ok) return 0;
     const data = await res.json();
     const pendingTeams: RegisteredTeamProfile[] = Array.isArray(data.pendingTeams) ? data.pendingTeams : [];
@@ -525,7 +527,7 @@ export async function flushPendingRegistrationsToGoogleSheet(
     }
 
     if (appendedCount > 0) {
-      await fetch('/api/sheets/pending/clear', { method: 'POST' });
+      await apiFetch('/api/sheets/pending/clear', { method: 'POST' });
     }
     return appendedCount;
   } catch (err) {
@@ -625,20 +627,42 @@ export async function syncTeamToSheet(
 ): Promise<SheetSyncResult> {
   const now = new Date().toLocaleTimeString();
 
-  // 1. Always update server storage
+  // 1. Always update server storage. Errors are thrown so callers (e.g. registration)
+  // never show "saved" for a team that is not actually in the server roster / Excel sheet.
+  // A new team leader who verified with Google sends that proof with the registration
+  const pendingGoogle = !getAuthToken() ? getPendingGoogleSignup() : null;
+  let res: Response;
   try {
-    await fetch('/api/excel/sync-team', {
+    res = await apiFetch('/api/excel/sync-team', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ team }),
+      body: JSON.stringify(
+        pendingGoogle ? { team, googleSignupToken: pendingGoogle.signupToken } : { team }
+      ),
     });
-  } catch (err) {
-    console.warn('Server Excel sync notice:', err);
+  } catch {
+    throw new Error('Could not reach the server. Please check your connection and try again.');
+  }
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data?.success) {
+    const error: Error & { code?: string } = new Error(
+      data?.error || 'The server could not save this team. Please try again.'
+    );
+    error.code = data?.code;
+    throw error;
+  }
+  // A brand-new registration gets a team session token back from the server
+  if (data.token && !getAuthToken()) {
+    setAuthToken(data.token);
+    clearPendingGoogleSignup();
   }
 
   // 2. Check if Google Sheets is connected & token is available
   const token = explicitToken || (await getAccessToken());
-  const sheetsConfig = await getGoogleSheetsConfig();
+  // The Google Sheets settings are admin-only; skip them unless this browser holds a Google token
+  const sheetsConfig = token
+    ? await getGoogleSheetsConfig()
+    : ({ spreadsheetId: null, spreadsheetUrl: null } as Pick<GoogleSheetsConfig, 'spreadsheetId' | 'spreadsheetUrl'>);
 
   if (token && sheetsConfig.spreadsheetId) {
     try {
@@ -674,7 +698,7 @@ export async function syncAllTeamsToSheet(
 
   // 1. Always sync to server
   try {
-    await fetch('/api/excel/sync-all', {
+    await apiFetch('/api/excel/sync-all', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ teams }),
@@ -786,7 +810,7 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
 
   // Server Excel fallback
   try {
-    const statusRes = await fetch('/api/excel/status');
+    const statusRes = await apiFetch('/api/excel/status');
     if (statusRes.ok) {
       const data = await statusRes.json();
       const serverTeams: RegisteredTeamProfile[] = Array.isArray(data.teams) ? data.teams : [];
@@ -802,7 +826,7 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
       if (unsyncedLocalTeams.length > 0) {
         finalTeams = [...unsyncedLocalTeams, ...serverTeams];
         try {
-          await fetch('/api/excel/sync-all', {
+          await apiFetch('/api/excel/sync-all', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ teams: finalTeams }),
@@ -813,7 +837,7 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
       }
 
       if (finalTeams.length > 0) {
-        localStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(finalTeams));
+        sessionStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(finalTeams));
       }
 
       return {
@@ -854,10 +878,26 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
  * Triggers direct download of the server's `.xlsx` Excel workbook
  */
 export function downloadServerExcelWorkbook() {
+  return downloadProtectedFile('/api/excel/download', SERVER_EXCEL_FILENAME);
+}
+
+export function downloadServerRosterCsv() {
+  return downloadProtectedFile('/api/excel/csv', 'GDSL_2026_Teams_Roster.csv');
+}
+
+async function downloadProtectedFile(url: string, fileName: string) {
+  // Download endpoints are admin-only, so fetch with the session token and save the blob.
+  const res = await apiFetch(url);
+  if (!res.ok) {
+    alert('Could not download the workbook. Please sign in again as admin.');
+    return;
+  }
+  const blobUrl = URL.createObjectURL(await res.blob());
   const link = document.createElement('a');
-  link.href = '/api/excel/download';
-  link.setAttribute('download', SERVER_EXCEL_FILENAME);
+  link.href = blobUrl;
+  link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 }

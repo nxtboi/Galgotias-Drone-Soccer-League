@@ -34,8 +34,8 @@ const TOKEN_STORAGE_KEY = 'gdsl_google_access_token_v1';
 const USER_STORAGE_KEY = 'gdsl_google_user_profile_v1';
 const STORAGE_SESSION_FLAG = 'gdsl_google_connected_v1';
 
-// Initialize cached access token from localStorage for permanent persistence
-let cachedAccessToken: string | null = (typeof window !== 'undefined') ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+// Initialize cached access token from sessionStorage (cleared when the tab closes)
+let cachedAccessToken: string | null = (typeof window !== 'undefined') ? sessionStorage.getItem(TOKEN_STORAGE_KEY) : null;
 let currentGoogleUser: User | null = null;
 
 export interface SavedGoogleProfile {
@@ -48,7 +48,7 @@ export interface SavedGoogleProfile {
 export const getSavedGoogleProfile = (): SavedGoogleProfile | null => {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    const raw = sessionStorage.getItem(USER_STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -63,8 +63,8 @@ export const initAuth = (
   onAuthSuccess?: (user: User | any, token: string) => void,
   onAuthFailure?: () => void
 ) => {
-  // If we already have a saved access token and profile in localStorage, notify listeners immediately
-  const savedToken = (typeof window !== 'undefined') ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+  // If we already have a saved access token and profile in sessionStorage, notify listeners immediately
+  const savedToken = (typeof window !== 'undefined') ? sessionStorage.getItem(TOKEN_STORAGE_KEY) : null;
   const savedProfile = getSavedGoogleProfile();
   if (savedToken) {
     cachedAccessToken = savedToken;
@@ -82,15 +82,15 @@ export const initAuth = (
           if (credential?.accessToken) {
             cachedAccessToken = credential.accessToken;
             currentGoogleUser = result.user;
-            localStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
-            localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+            sessionStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
+            sessionStorage.setItem(STORAGE_SESSION_FLAG, 'true');
             const profile: SavedGoogleProfile = {
               email: result.user.email,
               displayName: result.user.displayName,
               photoURL: result.user.photoURL,
               uid: result.user.uid,
             };
-            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+            sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
             if (onAuthSuccess) {
               onAuthSuccess(result.user, cachedAccessToken);
             }
@@ -120,7 +120,7 @@ export const initAuth = (
   return onAuthStateChanged(auth, async (user: User | null) => {
     currentGoogleUser = user;
     if (user) {
-      const token = cachedAccessToken || localStorage.getItem(TOKEN_STORAGE_KEY);
+      const token = cachedAccessToken || sessionStorage.getItem(TOKEN_STORAGE_KEY);
       if (token) {
         cachedAccessToken = token;
         const profile: SavedGoogleProfile = {
@@ -129,13 +129,13 @@ export const initAuth = (
           photoURL: user.photoURL,
           uid: user.uid,
         };
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
-        localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+        sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+        sessionStorage.setItem(STORAGE_SESSION_FLAG, 'true');
         if (onAuthSuccess) onAuthSuccess(user, token);
       }
     } else {
       // If user signed out of firebase, check if we have offline saved token
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const token = sessionStorage.getItem(TOKEN_STORAGE_KEY);
       const profile = getSavedGoogleProfile();
       if (token && profile) {
         cachedAccessToken = token;
@@ -163,16 +163,16 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     cachedAccessToken = credential.accessToken;
     currentGoogleUser = result.user;
     
-    // Save token permanently to localStorage
-    localStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
-    localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+    // Keep the token only for this browser tab session
+    sessionStorage.setItem(TOKEN_STORAGE_KEY, cachedAccessToken);
+    sessionStorage.setItem(STORAGE_SESSION_FLAG, 'true');
     const profile: SavedGoogleProfile = {
       email: result.user.email,
       displayName: result.user.displayName,
       photoURL: result.user.photoURL,
       uid: result.user.uid,
     };
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+    sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
 
     return { user: result.user, accessToken: cachedAccessToken };
   } catch (error: any) {
@@ -202,7 +202,7 @@ export const googleSignInRedirect = async (): Promise<void> => {
 export const getAccessToken = async (): Promise<string | null> => {
   if (cachedAccessToken) return cachedAccessToken;
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem(TOKEN_STORAGE_KEY);
+    const saved = sessionStorage.getItem(TOKEN_STORAGE_KEY);
     if (saved) {
       cachedAccessToken = saved;
       return saved;
@@ -215,10 +215,10 @@ export const setAccessTokenInMemory = (token: string | null) => {
   cachedAccessToken = token;
   if (typeof window !== 'undefined') {
     if (token) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, token);
-      localStorage.setItem(STORAGE_SESSION_FLAG, 'true');
+      sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+      sessionStorage.setItem(STORAGE_SESSION_FLAG, 'true');
     } else {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      sessionStorage.removeItem(TOKEN_STORAGE_KEY);
     }
   }
 };
@@ -236,8 +236,8 @@ export const logoutGoogle = async () => {
   cachedAccessToken = null;
   currentGoogleUser = null;
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    localStorage.removeItem(STORAGE_SESSION_FLAG);
+    sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+    sessionStorage.removeItem(USER_STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_SESSION_FLAG);
   }
 };

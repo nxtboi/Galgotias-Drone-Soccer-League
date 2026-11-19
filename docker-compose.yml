@@ -9,6 +9,9 @@ services:
       # Expose on 127.0.0.1:3000 to keep it securely behind Nginx reverse proxy
       # Or change to "3000:3000" if exposing port directly to the internet
       - "127.0.0.1:3000:3000"
+    env_file:
+      - path: .env
+        required: false
     environment:
       - NODE_ENV=production
       - PORT=3000

@@ -75,7 +75,7 @@ chmod -R 777 data
 Copy the environment template:
 ```bash
 cp .env.example .env
-nano .env # Optional: edit configuration variables
+nano .env # REQUIRED: set ADMIN_PASSWORD and ADMIN_SECRET_KEY
 ```
 
 ### Step 4: Build and Launch the Docker Container
@@ -243,10 +243,12 @@ Add the following line (runs every night at 2:00 AM):
 
 ## 6. Admin Credentials & Access
 
-After deployment, administrators can log into the portal at `/admin`:
-- **Username**: `admin`
-- **Password**: `gdsl2026password`
-- **Master Passcode**: `GCDIS-SUPER-ADMIN-2026`
+Admins sign in on the **Squad Login** page with the credentials from `.env`:
+- **Username**: `ADMIN_USERNAME` (defaults to `admin`)
+- **Password**: `ADMIN_PASSWORD` (required; admin sign-in is disabled in production until it is set)
+- `ADMIN_SECRET_KEY` signs login sessions; set a random 64-character hex string so sessions survive restarts.
+
+Never commit `.env` or publish these values. Logins are checked on the server, and every admin-only API route requires the signed session token.
 
 Admins can:
 - View all 32 tournament team slots, registered team rosters, and payment receipts.
