@@ -42,6 +42,10 @@ export function AdminAccountsView() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', username: '', email: '', password: '' });
   const [creating, setCreating] = useState(false);
+  // In-app modals (the embedded app webview suppresses window.prompt / window.confirm).
+  const [removeTarget, setRemoveTarget] = useState<{ admin: AdminAccount; verb: 'Reject' | 'Remove' } | null>(null);
+  const [resetTarget, setResetTarget] = useState<AdminAccount | null>(null);
+  const [resetPassword, setResetPassword] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -110,17 +114,33 @@ export function AdminAccountsView() {
   };
 
   const handleResetPassword = (admin: AdminAccount) => {
-    const password = window.prompt(`New password for ${admin.username} (at least ${MIN_PASSWORD} characters):`);
-    if (!password) return;
-    if (password.length < MIN_PASSWORD) {
+    setError(null);
+    setResetPassword('');
+    setResetTarget(admin);
+  };
+
+  const submitResetPassword = () => {
+    if (!resetTarget) return;
+    if (resetPassword.length < MIN_PASSWORD) {
       setError(`Password must be at least ${MIN_PASSWORD} characters.`);
       return;
     }
+    const admin = resetTarget;
+    const password = resetPassword;
+    setResetTarget(null);
+    setResetPassword('');
     void call(admin.id, 'PATCH', { password }, `Password reset for ${admin.username}.`);
   };
 
   const handleRemove = (admin: AdminAccount, verb: 'Reject' | 'Remove') => {
-    if (!window.confirm(`${verb} ${admin.name} (${admin.username})? This cannot be undone.`)) return;
+    setError(null);
+    setRemoveTarget({ admin, verb });
+  };
+
+  const confirmRemove = () => {
+    if (!removeTarget) return;
+    const { admin, verb } = removeTarget;
+    setRemoveTarget(null);
     void call(admin.id, 'DELETE', undefined, `${admin.username} ${verb === 'Reject' ? 'rejected' : 'removed'}.`);
   };
 
@@ -307,6 +327,91 @@ export function AdminAccountsView() {
           {creating ? 'Registering…' : 'Register Admin'}
         </button>
       </form>
+
+      {/* Remove / Reject confirmation modal */}
+      {removeTarget && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setRemoveTarget(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-[#141612] border border-white/15 rounded-2xl p-5 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 className="text-sm font-orbitron font-bold text-white uppercase">
+              {removeTarget.verb} Admin
+            </h4>
+            <p className="text-xs text-neutral-300 mt-2">
+              {removeTarget.verb} <span className="text-white font-bold">{removeTarget.admin.name}</span>{' '}
+              <span className="font-mono text-neutral-400">@{removeTarget.admin.username}</span>? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                onClick={() => setRemoveTarget(null)}
+                className="px-4 py-2 rounded-lg text-[11px] font-mono font-bold uppercase border border-white/20 text-white hover:bg-white/10 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemove}
+                className="px-4 py-2 rounded-lg text-[11px] font-mono font-bold uppercase border border-red-500/50 bg-red-500/15 text-red-300 hover:bg-red-500/25 cursor-pointer"
+              >
+                {removeTarget.verb}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset password modal */}
+      {resetTarget && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setResetTarget(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-[#141612] border border-white/15 rounded-2xl p-5 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 className="text-sm font-orbitron font-bold text-white uppercase">Reset Password</h4>
+            <p className="text-xs text-neutral-400 mt-1">
+              New password for <span className="font-mono text-neutral-200">@{resetTarget.username}</span>.
+            </p>
+            <input
+              type="password"
+              autoFocus
+              value={resetPassword}
+              minLength={MIN_PASSWORD}
+              autoComplete="new-password"
+              placeholder={`At least ${MIN_PASSWORD} characters`}
+              onChange={(e) => setResetPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submitResetPassword();
+              }}
+              className={`${inputClass} mt-3`}
+            />
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                onClick={() => setResetTarget(null)}
+                className="px-4 py-2 rounded-lg text-[11px] font-mono font-bold uppercase border border-white/20 text-white hover:bg-white/10 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={submitResetPassword}
+                disabled={resetPassword.length < MIN_PASSWORD}
+                className="px-4 py-2 rounded-lg text-[11px] font-mono font-bold uppercase border border-[#d0fe1d] bg-[#d0fe1d] text-black hover:bg-[#e2ff54] disabled:opacity-40 cursor-pointer"
+              >
+                Save Password
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
