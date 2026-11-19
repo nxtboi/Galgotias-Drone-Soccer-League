@@ -24,6 +24,7 @@ import {
   setCurrentSession,
   getDivisionFee,
   getRegisteredTeams,
+  withSafePaymentInfo,
 } from '../data/teamAuthData';
 import { GDSL_TOURNAMENT_INFO, GCDIS_CLASS_SPECS } from '../data/droneSoccerData';
 import {
@@ -41,11 +42,14 @@ export interface TeamDashboardPageProps {
 }
 
 export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
-  team,
+  team: teamProp,
   onLogout,
   onNavigate,
   onUpdateTeam,
 }) => {
+  // Guarantee a paymentInfo object so a team created by an admin (or old data without one)
+  // can never crash the dashboard to a blank screen.
+  const team = withSafePaymentInfo(teamProp);
   const [activeTab, setActiveTab] = useState<
     'overview' | 'receipt' | 'profile' | 'schedule'
   >('overview');

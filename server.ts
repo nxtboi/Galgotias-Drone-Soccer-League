@@ -859,7 +859,23 @@ async function startServer() {
             ? { captainEmail: googleLeader.email, captainName: incomingTeam.captainName?.trim() || googleLeader.name }
             : {}),
         };
-        savedTeam = getActiveAdmin(req) ? hashed : applyNewRegistrationRules(hashed);
+        // A team an admin creates may arrive without paymentInfo; guarantee one so the
+        // team dashboard never crashes on a missing paymentInfo object.
+        const adminHashed: RegisteredTeamProfile = hashed.paymentInfo
+          ? hashed
+          : {
+              ...hashed,
+              paymentInfo: {
+                receiptNo: 'PENDING',
+                amount: '',
+                status: 'PENDING',
+                transactionId: 'PENDING',
+                paymentMode: '',
+                paidAt: '',
+                currency: 'INR',
+              },
+            };
+        savedTeam = getActiveAdmin(req) ? adminHashed : applyNewRegistrationRules(hashed);
         updatedTeams = [savedTeam, ...currentTeams];
         action = 'inserted';
         if (!getActiveAdmin(req)) {

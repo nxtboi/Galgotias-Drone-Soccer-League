@@ -71,6 +71,23 @@ export function getDivisionFee(division: string): {
     : { numeric: 2000, formatted: '₹2,000', code: 'D-40' };
 }
 
+/** A safe, empty paymentInfo so a team record is never missing it (admin-created teams, old data). */
+export const EMPTY_PAYMENT_INFO: RegisteredTeamProfile['paymentInfo'] = {
+  receiptNo: 'PENDING',
+  amount: '',
+  status: 'PENDING',
+  transactionId: 'PENDING',
+  paymentMode: '',
+  paidAt: '',
+  currency: 'INR',
+};
+
+/** Returns the team with a guaranteed paymentInfo object, so the dashboard can never crash on it. */
+export function withSafePaymentInfo(team: RegisteredTeamProfile): RegisteredTeamProfile {
+  if (team.paymentInfo && typeof team.paymentInfo === 'object') return team;
+  return { ...team, paymentInfo: { ...EMPTY_PAYMENT_INFO } };
+}
+
 function normalizeTeamFee(team: RegisteredTeamProfile): RegisteredTeamProfile {
   const expectedFee = getDivisionFee(team.division).formatted;
   if (team.paymentInfo.amount === '₹2,500' || team.paymentInfo.amount === '₹1,400' || !team.paymentInfo.amount) {
