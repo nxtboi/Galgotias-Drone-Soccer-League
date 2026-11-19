@@ -19,7 +19,7 @@ interface AdminAccount {
   lastLoginAt?: string;
 }
 
-const MIN_PASSWORD = 10;
+const MIN_PASSWORD = 6;
 
 function formatDate(iso?: string) {
   if (!iso) return '—';

@@ -97,7 +97,6 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
   const [isCreatingSheet, setIsCreatingSheet] = useState(false);
   const [sheetInputUrl, setSheetInputUrl] = useState('');
-  const [autoSyncTimer, setAutoSyncTimer] = useState<number>(30);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -286,39 +285,33 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     };
   }, []);
 
-  // 30-Second Auto-Sync Loop to keep Google Sheet and Admin Panel continuously updated
+  // Auto-sync to the Google Sheet on a 30-second interval. We run the sync itself on the
+  // timer instead of ticking a per-second countdown, so the admin panel is not forced to
+  // re-render every second (which looked like the whole page refreshing while you worked).
   useEffect(() => {
     if (!sheetsConfig.autoSyncEnabled) return;
 
-    const interval = setInterval(async () => {
-      setAutoSyncTimer((prev) => {
-        if (prev <= 1) {
-          // Trigger background auto-sync
-          (async () => {
-            try {
-              const token = googleToken || (await getAccessToken());
-              const cfg = await getGoogleSheetsConfig();
-              const latestTeams = getRegisteredTeams();
-              setTeams(latestTeams);
+    const runSync = async () => {
+      try {
+        const token = googleToken || (await getAccessToken());
+        const cfg = await getGoogleSheetsConfig();
+        const latestTeams = getRegisteredTeams();
+        setTeams(latestTeams);
 
-              if (token && cfg.spreadsheetId) {
-                // First flush any pending new registrations from visitors
-                await flushPendingRegistrationsToGoogleSheet(token, cfg.spreadsheetId);
-                await syncAllTeamsToGoogleSheet(token, cfg.spreadsheetId, latestTeams);
-                setSheetsConfig((c) => ({ ...c, lastSyncedAt: new Date().toISOString() }));
-              }
-              const updated = await fetchLiveSheetData(token || undefined);
-              setSheetData(updated);
-            } catch (err) {
-              console.warn('Auto-sync cycle notification:', err);
-            }
-          })();
-          return 30;
+        if (token && cfg.spreadsheetId) {
+          // First flush any pending new registrations from visitors
+          await flushPendingRegistrationsToGoogleSheet(token, cfg.spreadsheetId);
+          await syncAllTeamsToGoogleSheet(token, cfg.spreadsheetId, latestTeams);
+          setSheetsConfig((c) => ({ ...c, lastSyncedAt: new Date().toISOString() }));
         }
-        return prev - 1;
-      });
-    }, 1000);
+        const updated = await fetchLiveSheetData(token || undefined);
+        setSheetData(updated);
+      } catch (err) {
+        console.warn('Auto-sync cycle notification:', err);
+      }
+    };
 
+    const interval = setInterval(runSync, 30000);
     return () => clearInterval(interval);
   }, [sheetsConfig.autoSyncEnabled, sheetsConfig.spreadsheetId, googleToken]);
 
@@ -648,7 +641,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 </span>
               </div>
               <span className="text-[11px] text-neutral-400 mt-1 block font-mono truncate">
-                {sheetsConfig.spreadsheetId ? `Auto-sync: ${autoSyncTimer}s` : 'Server .XLSX + Sheets ready'}
+                {sheetsConfig.spreadsheetId ? 'Auto-sync: every 30s' : 'Server .XLSX + Sheets ready'}
               </span>
             </div>
 
@@ -795,7 +788,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 <span>
                   Sync Interval:{' '}
                   <span className="text-[#d0fe1d]">
-                    {sheetsConfig.autoSyncEnabled ? `Every 30s (${autoSyncTimer}s remaining)` : 'Paused'}
+                    {sheetsConfig.autoSyncEnabled ? 'Every 30s' : 'Paused'}
                   </span>
                 </span>
                 <span>·</span>

@@ -32,7 +32,7 @@ export interface AdminAccount {
 export type PublicAdminAccount = Omit<AdminAccount, 'passwordHash'>;
 
 export const SUPER_ADMIN_ID = 'super';
-export const MIN_ADMIN_PASSWORD_LENGTH = 10;
+export const MIN_ADMIN_PASSWORD_LENGTH = 6;
 const MAX_PENDING_REQUESTS = 25;
 
 const ADMINS_PATH = path.join(process.cwd(), 'data', 'admins.json');
