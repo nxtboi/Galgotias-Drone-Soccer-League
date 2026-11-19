@@ -79,23 +79,40 @@ export interface GoogleSheetsConfig {
   autoSyncEnabled: boolean;
 }
 
+/** Official roster Google Sheet from .env (GOOGLE_SHEETS_SPREADSHEET_ID), if set. */
+function getConfiguredSpreadsheetId(): string | null {
+  const id = (process.env.GOOGLE_SHEETS_SPREADSHEET_ID || '').trim();
+  return /^[A-Za-z0-9_-]{20,}$/.test(id) ? id : null;
+}
+
 function readSheetsConfig(): GoogleSheetsConfig {
   ensureDataDirectory();
-  if (fs.existsSync(SHEETS_CONFIG_PATH)) {
-    try {
-      const raw = fs.readFileSync(SHEETS_CONFIG_PATH, 'utf-8');
-      return JSON.parse(raw);
-    } catch {
-      // Fallback
-    }
-  }
-  return {
+  let config: GoogleSheetsConfig = {
     spreadsheetId: null,
     spreadsheetUrl: null,
     spreadsheetTitle: 'GDSL 2026 - Registered Teams Roster',
     lastSyncedAt: null,
     autoSyncEnabled: true,
   };
+  if (fs.existsSync(SHEETS_CONFIG_PATH)) {
+    try {
+      config = { ...config, ...JSON.parse(fs.readFileSync(SHEETS_CONFIG_PATH, 'utf-8')) };
+    } catch {
+      // Fallback
+    }
+  }
+  // The sheet set in .env wins over a missing or placeholder link (older builds stored a
+  // fake "attached_sheet" id pointing at a public CSV file, which has been removed).
+  const envId = getConfiguredSpreadsheetId();
+  const current = config.spreadsheetId || '';
+  if (envId && (!/^[A-Za-z0-9_-]{20,}$/.test(current) || current.startsWith('attached'))) {
+    config = {
+      ...config,
+      spreadsheetId: envId,
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${envId}/edit`,
+    };
+  }
+  return config;
 }
 
 function writeSheetsConfig(config: GoogleSheetsConfig) {
