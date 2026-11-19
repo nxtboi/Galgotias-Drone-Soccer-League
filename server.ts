@@ -41,6 +41,7 @@ import {
   toPublicAdmin,
   updateAdmin,
 } from './server/admins.ts';
+import { readPaymentDetails, savePaymentDetails } from './server/paymentDetails.ts';
 import { isEmailConfigured, sendPaymentDetailsEmail, verifyEmailTransport } from './server/mailer.ts';
 import { getGooglePublicConfig, verifyGoogleCredential, GoogleAuthError } from './server/googleAuth.ts';
 import type { UserQuery } from './src/data/userQueriesData.ts';
@@ -956,6 +957,22 @@ async function startServer() {
   // The request is always recorded (status "PAYMENT REQUESTED" + the address), which admins see
   // in the dashboard and Excel. If email is configured, the details are also emailed from the
   // single official address (MAIL_FROM); otherwise the secretariat sends them manually.
+  // Tournament payment details (bank / UPI / QR), configured by the super admin and shown
+  // to every team on the Pay modal. Read is public so any visitor sees the same current
+  // details; writing is restricted to the super admin.
+  app.get('/api/payments/details', (_req, res) => {
+    res.json({ success: true, details: readPaymentDetails() });
+  });
+
+  app.post('/api/payments/details', requireSuperAdmin, (req, res) => {
+    try {
+      const details = savePaymentDetails(req.body);
+      res.json({ success: true, details });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: safeError(err, 'Could not save payment details.') });
+    }
+  });
+
   const paymentRequestLog = new Map<string, number[]>();
   const PAYMENT_REQUESTS_PER_HOUR = 5;
   app.post('/api/payments/request-details', async (req, res) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X,
   Copy,
@@ -11,8 +11,10 @@ import {
 } from 'lucide-react';
 import {
   RegisteredTeamProfile,
+  PaymentDetailsConfig,
+  EMPTY_PAYMENT_DETAILS,
   getDivisionFee,
-  getPaymentDetailsConfig,
+  fetchPaymentDetailsConfig,
   hasPaymentDetails,
 } from '../data/teamAuthData';
 
@@ -60,9 +62,27 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   team,
   onUploadProof,
 }) => {
-  const details = getPaymentDetailsConfig();
+  const [details, setDetails] = useState<PaymentDetailsConfig>({ ...EMPTY_PAYMENT_DETAILS });
+  const [loading, setLoading] = useState(false);
   const fee = getDivisionFee(team.division);
   const configured = hasPaymentDetails(details);
+
+  // Load the latest payment details from the server each time the modal opens.
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    setLoading(true);
+    fetchPaymentDetailsConfig()
+      .then((cfg) => {
+        if (!cancelled) setDetails(cfg);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -99,7 +119,12 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
 
         {/* Body */}
         <div className="p-6 space-y-4 text-left">
-          {!configured ? (
+          {loading && !configured ? (
+            <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl p-4 text-neutral-300 text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
+              Loading payment details…
+            </div>
+          ) : !configured ? (
             <div className="flex items-start gap-3 bg-amber-950/40 border border-amber-500/40 rounded-xl p-4 text-amber-200 text-xs leading-relaxed">
               <Info className="w-4 h-4 mt-0.5 shrink-0" />
               <span>

@@ -10,8 +10,12 @@ import {
   getCurrentSession,
   setCurrentSession,
   PaymentDetailsConfig,
-  getPaymentDetailsConfig,
+  EMPTY_PAYMENT_DETAILS,
+  fetchPaymentDetailsConfig,
   savePaymentDetailsConfig,
+  readLegacyLocalPaymentDetails,
+  clearLegacyLocalPaymentDetails,
+  hasPaymentDetails,
 } from '../data/teamAuthData';
 import {
   fetchLiveSheetData,
@@ -108,14 +112,50 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<string>('ALL');
   const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries' | 'admins' | 'payment'>('sheet');
-  const [paymentForm, setPaymentForm] = useState<PaymentDetailsConfig>(getPaymentDetailsConfig());
+  const [paymentForm, setPaymentForm] = useState<PaymentDetailsConfig>({ ...EMPTY_PAYMENT_DETAILS });
   const [paymentSavedAt, setPaymentSavedAt] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentSaving, setPaymentSaving] = useState(false);
 
-  const handleSavePaymentDetails = () => {
-    const saved = savePaymentDetailsConfig(paymentForm);
-    setPaymentForm(saved);
-    setPaymentSavedAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
-    setTimeout(() => setPaymentSavedAt(null), 4000);
+  // Load payment details from the server; migrate any legacy per-browser details once.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const server = await fetchPaymentDetailsConfig();
+      if (!hasPaymentDetails(server)) {
+        const legacy = readLegacyLocalPaymentDetails();
+        if (legacy && hasPaymentDetails(legacy)) {
+          try {
+            const migrated = await savePaymentDetailsConfig(legacy);
+            clearLegacyLocalPaymentDetails();
+            if (!cancelled) setPaymentForm(migrated);
+          } catch {
+            // Not signed in as super admin yet: show the legacy values locally for now.
+            if (!cancelled) setPaymentForm(legacy);
+          }
+          return;
+        }
+      }
+      if (!cancelled) setPaymentForm(server);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSavePaymentDetails = async () => {
+    setPaymentError(null);
+    setPaymentSaving(true);
+    try {
+      const saved = await savePaymentDetailsConfig(paymentForm);
+      setPaymentForm(saved);
+      setPaymentSavedAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+      setTimeout(() => setPaymentSavedAt(null), 4000);
+    } catch (err: any) {
+      setPaymentError(err?.message || 'Could not save payment details.');
+    } finally {
+      setPaymentSaving(false);
+    }
   };
   const [queries, setQueries] = useState<UserQuery[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<RegisteredTeamProfile | null>(null);
@@ -1719,15 +1759,22 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
-                  <span className="text-xs text-emerald-400 font-mono">
-                    {paymentSavedAt ? `✓ Saved at ${paymentSavedAt}` : paymentForm.updatedAt ? 'Saved details are live for all squads.' : 'Not published yet.'}
+                  <span className={`text-xs font-mono ${paymentError ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {paymentError
+                      ? paymentError
+                      : paymentSavedAt
+                      ? `✓ Saved at ${paymentSavedAt}`
+                      : paymentForm.updatedAt
+                      ? 'Saved details are live for all squads.'
+                      : 'Not published yet.'}
                   </span>
                   <button
                     type="button"
                     onClick={handleSavePaymentDetails}
-                    className="px-6 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
+                    disabled={paymentSaving}
+                    className="px-6 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] disabled:opacity-50 text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
                   >
-                    Save Payment Details
+                    {paymentSaving ? 'Saving…' : 'Save Payment Details'}
                   </button>
                 </div>
               </div>

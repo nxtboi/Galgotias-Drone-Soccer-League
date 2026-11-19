@@ -1,3 +1,5 @@
+import { apiFetch } from '../services/apiClient';
+
 export interface TeamMember {
   name: string;
   role: string;
@@ -197,33 +199,59 @@ export const EMPTY_PAYMENT_DETAILS: PaymentDetailsConfig = {
   updatedAt: '',
 };
 
-/** Reads the super-admin-configured tournament payment details (local to this browser). */
-export function getPaymentDetailsConfig(): PaymentDetailsConfig {
+/**
+ * Reads the super-admin-configured tournament payment details from the SERVER, so every
+ * visitor sees the same current details regardless of browser or device.
+ */
+export async function fetchPaymentDetailsConfig(): Promise<PaymentDetailsConfig> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_PAYMENT_DETAILS);
-    if (!raw) return { ...EMPTY_PAYMENT_DETAILS };
-    const parsed = JSON.parse(raw) as Partial<PaymentDetailsConfig>;
-    return { ...EMPTY_PAYMENT_DETAILS, ...parsed };
+    const res = await fetch('/api/payments/details');
+    if (!res.ok) return { ...EMPTY_PAYMENT_DETAILS };
+    const data = await res.json().catch(() => ({}));
+    return { ...EMPTY_PAYMENT_DETAILS, ...(data?.details || {}) };
   } catch {
     return { ...EMPTY_PAYMENT_DETAILS };
   }
 }
 
-/** Saves the payment details (super admin only) and stamps updatedAt. */
-export function savePaymentDetailsConfig(
+/** Saves the payment details on the server (super admin only); the server stamps updatedAt. */
+export async function savePaymentDetailsConfig(
   cfg: Partial<PaymentDetailsConfig>
-): PaymentDetailsConfig {
-  const next: PaymentDetailsConfig = {
-    ...getPaymentDetailsConfig(),
-    ...cfg,
-    updatedAt: new Date().toISOString(),
-  };
-  try {
-    localStorage.setItem(STORAGE_KEY_PAYMENT_DETAILS, JSON.stringify(next));
-  } catch (err) {
-    console.error('Failed to save payment details config', err);
+): Promise<PaymentDetailsConfig> {
+  const res = await apiFetch('/api/payments/details', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cfg),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Could not save payment details. Please sign in as the super admin.');
   }
-  return next;
+  return { ...EMPTY_PAYMENT_DETAILS, ...data.details };
+}
+
+/**
+ * One-time migration helper: payment details that an admin saved in THIS browser before the
+ * server-backed version existed. Returned so they can be pushed to the server once.
+ */
+export function readLegacyLocalPaymentDetails(): PaymentDetailsConfig | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PAYMENT_DETAILS);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PaymentDetailsConfig>;
+    return { ...EMPTY_PAYMENT_DETAILS, ...parsed };
+  } catch {
+    return null;
+  }
+}
+
+/** Clears the legacy per-browser payment details once they have been migrated to the server. */
+export function clearLegacyLocalPaymentDetails(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY_PAYMENT_DETAILS);
+  } catch {
+    // ignore
+  }
 }
 
 /** True when the super admin has entered at least one payable destination. */
