@@ -1,4 +1,4 @@
-import { apiFetch } from '../services/apiClient';
+import { apiFetch } from '../services/apiClient.ts';
 
 export interface TeamMember {
   name: string;
