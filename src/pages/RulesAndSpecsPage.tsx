@@ -25,7 +25,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
         { value: 'Ø 20 cm', label: 'Drone ball' },
         { value: '150 g', label: 'Max drone weight' },
         { value: '3 × 3 min', label: 'Sets per game' },
-        { value: '5 min', label: 'Repair between sets' },
+        { value: '2 min', label: 'Repair between sets' },
         { value: '₹1,500', label: 'Registration fee' },
       ]
     : [
@@ -33,17 +33,17 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
         { value: 'Ø 40 cm', label: 'Drone ball' },
         { value: '1.2 kg', label: 'Max drone weight' },
         { value: '3 × 3 min', label: 'Sets per game' },
-        { value: '5 min', label: 'Repair between sets' },
+        { value: '2 min', label: 'Repair between sets' },
         { value: '₹2,000', label: 'Registration fee' },
       ];
 
   const workflowSteps = [
-    { step: '01', title: 'Register', sub: isD20 ? '2–5 Members · Rs. 1500/-' : '2–3 Members · Own / GCDIS Drone' },
+    { step: '01', title: 'Register', sub: isD20 ? '2–5 Members · Rs. 1500/-' : '2–3 Members · Rs. 2000/-' },
     { step: '02', title: 'Inspect Drones', sub: isD20 ? 'Ø 20±1 cm · ≤ 150 g · ≤ 70 cm²' : 'Ø 40±2 cm · ≤ 1.2 kg · ≤ 150 cm²' },
     { step: '03', title: 'Toss & Ready', sub: 'Pick Pilot Area · 1 Long Whistle' },
-    { step: '04', title: 'Play 3 Sets', sub: '3 × 3 Min · 5 Min Repair' },
-    { step: '05', title: 'Penalty Kicks', sub: '1-on-1 · 5 Seconds' },
-    { step: '06', title: 'Winner', sub: 'Set Wins / Overtime / Shoot-out' },
+    { step: '04', title: 'Play 3 Sets', sub: '3 × 3 Min · 2 Min Repair' },
+    { step: '05', title: 'Win Sets', sub: 'Win 2 Sets (or 1 Win + 2 Draws)' },
+    { step: '06', title: 'Knockout', sub: 'Top 16 · Extra Set, Then Next Goal' },
   ];
 
   return (
@@ -71,6 +71,26 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
               <p className="text-neutral-300 text-xs sm:text-sm md:text-base leading-relaxed font-sans">
                 Official competition rule books issued by the Galgotias Centre for Drone Intelligence &amp; Simulation (GCDIS), School of Engineering, Galgotias University for <strong className="text-white">Class D20</strong> and <strong className="text-white">Class D40</strong> divisions.
               </p>
+            </div>
+
+            {/* Official rule book PDFs (v5) */}
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
+              <a
+                href={GCDIS_CLASS_SPECS.class20.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="xotc-btn-lime px-5 py-3 text-xs font-orbitron font-bold uppercase tracking-wider text-center whitespace-nowrap"
+              >
+                Class D20 Rule Book (PDF)
+              </a>
+              <a
+                href={GCDIS_CLASS_SPECS.class40.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="xotc-btn-outline px-5 py-3 text-xs font-orbitron font-bold uppercase tracking-wider text-center whitespace-nowrap"
+              >
+                Class D40 Rule Book (PDF)
+              </a>
             </div>
           </div>
         </div>
@@ -217,7 +237,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
               </h2>
             </div>
             <span className="text-xs font-mono text-neutral-400">
-              Register → Inspect Drones → Toss &amp; Ready → Play 3 Sets → Penalty Kicks → Winner
+              Register → Inspect Drones → Toss &amp; Ready → Play 3 Sets → Win Sets → Knockout
             </span>
           </div>
 
