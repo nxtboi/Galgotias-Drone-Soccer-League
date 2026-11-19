@@ -31,6 +31,7 @@ import {
   updateAllTournamentDataOnSheets,
   getStoredSheetInfo,
 } from '../services/googleSheetsService';
+import PaymentDetailsModal from '../components/PaymentDetailsModal';
 
 export interface TeamDashboardPageProps {
   team: RegisteredTeamProfile;
@@ -46,8 +47,9 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   onUpdateTeam,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'pass' | 'receipt' | 'attendance' | 'profile' | 'schedule'
+    'overview' | 'receipt' | 'profile' | 'schedule'
   >('overview');
+  const [showPayModal, setShowPayModal] = useState(false);
 
   // Request Payment Details on Email Modal State
   const [isEmailDetailsModalOpen, setIsEmailDetailsModalOpen] = useState(false);
@@ -100,9 +102,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
   // Refs for PDF Generation
   const receiptRef = useRef<HTMLDivElement>(null);
-  const passRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [isGeneratingPassPdf, setIsGeneratingPassPdf] = useState(false);
   const [pdfDownloadSuccess, setPdfDownloadSuccess] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
@@ -610,35 +610,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setStudents(updated);
   };
 
-  const handleSaveAttendance = async () => {
-    const updatedTeam: RegisteredTeamProfile = {
-      ...team,
-      attendanceData: {
-        facultyName,
-        designation: 'Head of Department',
-        department,
-        collegeName,
-        travelDatesIncluded: true,
-        students,
-      },
-    };
-    saveRegisteredTeam(updatedTeam);
-    setCurrentSession(updatedTeam);
-    if (onUpdateTeam) onUpdateTeam(updatedTeam);
-    setOdDispatchedAlert(true);
-    setTimeout(() => setOdDispatchedAlert(false), 4000);
-
-    setSheetSyncLoading(true);
-    try {
-      await syncTeamToSheet(updatedTeam);
-      setSheetSyncSuccess('Attendance and roster records updated.');
-      setTimeout(() => setSheetSyncSuccess(null), 4000);
-    } catch (err: any) {
-      console.warn('Attendance save notice:', err);
-    } finally {
-      setSheetSyncLoading(false);
-    }
-  };
 
   const handleDownloadReceiptPdf = async () => {
     if (!isPaymentVerified) {
@@ -690,49 +661,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     }
   };
 
-  const handleDownloadPassPdf = async () => {
-    if (!isPaymentVerified) {
-      setActiveTab('pass');
-      return;
-    }
-    if (activeTab !== 'pass') {
-      setActiveTab('pass');
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-
-    if (!passRef.current) return;
-    setIsGeneratingPassPdf(true);
-
-    try {
-      const element = passRef.current;
-      const cleanTeamId = team.teamId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const filename = `GDSL_Official_Event_Pass_${cleanTeamId}.pdf`;
-
-      const opt = {
-        margin: [8, 8, 8, 8] as [number, number, number, number],
-        filename,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          windowWidth: 850,
-        },
-        jsPDF: {
-          unit: 'mm' as const,
-          format: 'a4' as const,
-          orientation: 'portrait' as const,
-        },
-      };
-
-      await html2pdf().set(opt).from(element).save();
-    } catch (err) {
-      console.error('Failed to generate Pass PDF:', err);
-      window.print();
-    } finally {
-      setIsGeneratingPassPdf(false);
-    }
-  };
 
   const handlePrint = () => {
     window.print();
@@ -746,13 +674,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
 
   const tabs: { id: typeof activeTab; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Overview' },
-    {
-      id: 'pass',
-      label: 'Event Pass',
-      badge: isPaymentCompleted ? 'Unlocked' : 'Locked',
-    },
     { id: 'receipt', label: 'Payment Receipt' },
-    { id: 'attendance', label: 'OD Letter' },
     { id: 'profile', label: 'Profile & Roster' },
     { id: 'schedule', label: 'Schedule' },
   ];
@@ -804,11 +726,19 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               </h2>
               <p className="text-xs text-neutral-300 max-w-2xl font-sans">
                 {team.paymentInfo.status === 'PAYMENT REQUESTED'
-                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid, upload your transaction details & screenshot to unlock your Event Pass and Receipt.`
-                  : `Request official fee payment instructions on your email, complete your transfer, and upload your payment details & screenshot to unlock your Event Pass and Receipt.`}
+                  ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid, upload your transaction details & screenshot to unlock your Payment Receipt.`
+                  : `Request official fee payment instructions on your email, complete your transfer, and upload your payment details & screenshot to unlock your Payment Receipt.`}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowPayModal(true)}
+                className="px-5 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider whitespace-nowrap flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(208,254,29,0.35)] cursor-pointer"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>Pay {fee.formatted}</span>
+              </button>
               <button
                 type="button"
                 onClick={handleDirectRequestPaymentDetails}
@@ -930,16 +860,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 }`}
               >
                 {isPaymentCompleted ? `Verified (${fee.formatted})` : `Pending (${fee.formatted})`}
-              </span>
-            </div>
-            <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-3.5">
-              <span className="text-[10px] font-mono uppercase text-neutral-400 block tracking-wider">Event Pass</span>
-              <span
-                className={`font-orbitron font-bold mt-1 block truncate ${
-                  isPaymentCompleted ? 'text-emerald-400' : 'text-neutral-400'
-                }`}
-              >
-                {isPaymentCompleted ? 'Ready to Download' : 'Locked Until Payment'}
               </span>
             </div>
           </div>
@@ -1069,81 +989,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                 </div>
               </div>
 
-              {/* Card 2: Official Event Pass (Gated by Payment Verification) */}
-              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
-                <div>
-                  <div
-                    className={`text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5 ${
-                      isPaymentVerified ? 'text-emerald-400' : 'text-amber-400'
-                    }`}
-                  >
-                    {isPaymentVerified ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Unlocked &amp; Active</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>Locked Until Admin Verified</span>
-                      </>
-                    )}
-                  </div>
-                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">Official Event Pass</h2>
-                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
-                    {isPaymentVerified
-                      ? 'Official squad entry badge & pit bay pass ready for download.'
-                      : 'Requires admin fee verification to unlock event pass.'}
-                  </p>
-                  <div className="mt-3 text-xs font-mono tabular-nums text-[#d0fe1d]">
-                    {isPaymentVerified ? team.allocatedPit : 'Requires Admin Verification'}
-                  </div>
-                </div>
-                <div className="mt-5 pt-4 border-t border-white/10">
-                  {isPaymentVerified ? (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('pass')}
-                      className="w-full py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer"
-                    >
-                      View &amp; Download Pass
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('pass')}
-                      className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-300 text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
-                    >
-                      View Pass Status
-                    </button>
-                  )}
-                </div>
-              </div>
 
-              {/* Card 3: Attendance Request */}
-              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
-                <div>
-                  <div className="text-[11px] font-mono font-bold uppercase text-neutral-400 tracking-wider mb-1">
-                    University Document
-                  </div>
-                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">OD Attendance Letter</h2>
-                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
-                    On-Duty leave letter for college faculty and department heads.
-                  </p>
-                  <div className="mt-3 text-xs tabular-nums text-neutral-300 font-mono">
-                    {students.length} roster members listed
-                  </div>
-                </div>
-                <div className="mt-5 pt-4 border-t border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('attendance')}
-                    className="w-full py-2.5 px-3 border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-white text-xs font-rajdhani font-bold uppercase rounded-xl transition-all cursor-pointer"
-                  >
-                    Open OD Letter
-                  </button>
-                </div>
-              </div>
 
               {/* Card 4: Team Profile */}
               <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
@@ -1345,234 +1191,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* TAB 2: OFFICIAL EVENT PASS (STRICTLY GATED BY PAYMENT)    */}
-        {/* ========================================================= */}
-        {activeTab === 'pass' && (
-          <div className="space-y-5 text-left">
-            {!isPaymentVerified ? (
-              <div className="bg-[#141612]/95 backdrop-blur-2xl border-2 border-amber-500/50 rounded-3xl p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-5 shadow-[0_0_40px_rgba(245,158,11,0.15)]">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(245,158,11,0.2)]">
-                  <Lock className="w-7 h-7" />
-                </div>
-                <div className="space-y-1.5">
-                  <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest block">
-                    REGISTRATION STATUS: PENDING · VERIFICATION REQUIRED
-                  </span>
-                  <h2 className="text-xl sm:text-2xl font-orbitron font-bold text-white uppercase tracking-wider">
-                    Registration Verification Required to Unlock Event Pass
-                  </h2>
-                  <p className="text-xs sm:text-sm text-neutral-300 max-w-lg mx-auto leading-relaxed font-sans">
-                    Your registration fee is currently marked as <span className="text-amber-400 font-bold">PENDING</span> by tournament administration. Participants receive their Official GDSL 2026 Event Pass, gate QR access credential, and Pit Bay assignment upon verification of the {fee.formatted} registration fee for {team.division}.
-                  </p>
-                </div>
-
-                <div className="bg-[#1b1e17] border border-white/10 rounded-2xl p-5 max-w-md mx-auto text-xs space-y-2 text-left">
-                  <div className="flex justify-between py-1.5 border-b border-white/10">
-                    <span className="text-neutral-400 font-mono">Squad Name</span>
-                    <span className="font-bold text-white font-orbitron">{team.teamName}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-white/10">
-                    <span className="text-neutral-400 font-mono">Division Classification</span>
-                    <span className="font-medium text-white">{team.division}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-white/10">
-                    <span className="text-neutral-400 font-mono">Payment Status</span>
-                    <span className="font-mono font-bold text-amber-400">PENDING (Awaiting Fee)</span>
-                  </div>
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-neutral-400 font-mono">Entry Fee Payable</span>
-                    <span className="font-orbitron font-bold text-[#d0fe1d]">{fee.formatted}.00</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleOpenUploadModal}
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black uppercase tracking-wider text-xs sm:text-sm inline-flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(208,254,29,0.35)] cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Payment Details / Proof</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOpenEmailDetailsModal}
-                    className="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] text-neutral-200 hover:text-[#d0fe1d] font-orbitron font-bold uppercase tracking-wider text-xs inline-flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <Mail className="w-4 h-4 text-[#d0fe1d]" />
-                    <span>Email Payment Credentials</span>
-                  </button>
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleOpenEmailDetailsModal}
-                    className="text-xs font-mono text-neutral-300 hover:text-[#d0fe1d] underline inline-flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-[#d0fe1d]" />
-                    <span>Request Official Payment Details on Email ({team.captainEmail})</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Action Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
-                  <div>
-                    <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">
-                      Official GDSL 2026 Event Pass &amp; Squad Entry Badge
-                    </h2>
-                    <p className="text-xs text-neutral-400 mt-0.5 font-sans">
-                      Payment verified ({fee.formatted}). Present this pass at Arena Security &amp; Scrutineering Desk.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <button
-                      type="button"
-                      onClick={handleDownloadPassPdf}
-                      disabled={isGeneratingPassPdf}
-                      className="px-4 py-2.5 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] disabled:opacity-60 cursor-pointer whitespace-nowrap"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{isGeneratingPassPdf ? 'Generating PDF...' : 'Download Pass (PDF)'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handlePrint}
-                      className="px-4 py-2.5 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 hover:border-[#d0fe1d] hover:text-[#d0fe1d] text-neutral-200 flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>Print Pass</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Printable Official Event Pass Sheet */}
-                <div
-                  ref={passRef}
-                  id="printable-receipt"
-                  className="bg-white border border-slate-300 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-6 text-slate-900 shadow-2xl"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-5">
-                    <div>
-                      <div className="text-[11px] font-mono font-bold uppercase text-blue-700">
-                        OFFICIAL PARTICIPANT ENTRY PASS · GDSL 2026
-                      </div>
-                      <h3 className="text-xl font-bold text-slate-900 mt-0.5">
-                        Galgotias Drone Soccer League
-                      </h3>
-                      <p className="text-xs text-slate-600">
-                        Galgotias University Indoor Arena, Greater Noida · {GDSL_TOURNAMENT_INFO.dates}
-                      </p>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <span className="inline-block bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded">
-                        ENTRY AUTHORIZED · FEE PAID ({fee.formatted})
-                      </span>
-                      <div className="font-mono text-sm font-bold text-slate-900 mt-1.5">
-                        Pass ID: {team.teamId}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Squad & Pit Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                    <div className="sm:col-span-2 grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded border border-slate-200">
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Registered Squad</span>
-                        <span className="font-bold text-slate-900 text-sm">{team.teamName}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Institution</span>
-                        <span className="font-semibold text-slate-800">{team.institution}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Division</span>
-                        <span className="font-semibold text-blue-800">{team.division} ({fee.code})</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Allocated Pit Bay</span>
-                        <span className="font-semibold text-emerald-700">{team.allocatedPit}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Payment Receipt</span>
-                        <span className="font-mono font-semibold text-slate-800">
-                          {team.paymentInfo.receiptNo} ({fee.formatted})
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 block text-[11px]">Transaction ID</span>
-                        <span className="font-mono text-slate-700">{team.paymentInfo.transactionId}</span>
-                      </div>
-                    </div>
-
-                    {/* Verification QR Box */}
-                    <div className="bg-slate-50 p-4 rounded border border-slate-200 flex flex-col items-center justify-center text-center">
-                      <QrCode className="w-24 h-24 text-slate-900" strokeWidth={1.5} />
-                      <span className="font-mono text-[10px] text-slate-600 mt-2">
-                        GATE SCAN · {team.teamId}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Accredited 6-Member Squad Roster on Event Pass */}
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900 uppercase mb-2">
-                      Accredited Squad Personnel (Admit 6):
-                    </h4>
-                    <table className="w-full text-xs border border-slate-200">
-                      <thead>
-                        <tr className="bg-slate-100 text-slate-700">
-                          <th className="py-2 px-3 border border-slate-200 text-left">Role</th>
-                          <th className="py-2 px-3 border border-slate-200 text-left">Participant Name</th>
-                          <th className="py-2 px-3 border border-slate-200 text-left">Arena Access</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Team Captain</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.captainName}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Striker Pilot</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.strikerPilot}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Goalkeeper Pilot</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.goalkeeper}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Defender 1 (Guide)</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.defender1}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Defender 2 (Libero)</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.defender2}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-emerald-700 font-medium">Flight Deck + Pit Bay</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 px-3 border border-slate-200 font-medium">Pit Mechanic</td>
-                          <td className="py-2 px-3 border border-slate-200 font-semibold">{team.pitMechanic}</td>
-                          <td className="py-2 px-3 border border-slate-200 text-slate-700 font-medium">Pit Repair Bay</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
-                    <span>Issued by GCDIS Tournament Secretariat · Galgotias University</span>
-                    <span className="font-mono">Verified: {team.paymentInfo.paidAt}</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
 
         {/* ========================================================= */}
         {/* TAB 3: PAYMENT RECEIPT                                    */}
@@ -1869,243 +1487,6 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* TAB 4: ATTENDANCE APPLICATION (OD LETTER)                 */}
-        {/* ========================================================= */}
-        {activeTab === 'attendance' && (
-          <div className="space-y-5 text-left">
-            {/* Pending Payment Alert & Complete Registration Option */}
-            {!isPaymentCompleted && (
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/70 via-[#1b170e] to-amber-950/60 border-2 border-amber-500/70 shadow-[0_0_35px_rgba(245,158,11,0.2)] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                    <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-widest">
-                      REGISTRATION STATUS: PENDING · ACTION REQUIRED
-                    </span>
-                  </div>
-                  <h3 className="text-base sm:text-lg font-orbitron font-bold text-white uppercase tracking-wide">
-                    Registration Verification Required to Validate OD Letter
-                  </h3>
-                  <p className="text-xs text-neutral-300 font-sans max-w-2xl leading-relaxed">
-                    Tournament administration has set your registration payment status to <span className="font-bold text-amber-300 uppercase">PENDING</span>. Upload your payment remittance proof or receive details to authenticate the official GCDIS stamp and dean&apos;s attendance grant clearance.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleOpenUploadModal}
-                    className="px-5 py-3 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black font-orbitron font-black text-xs uppercase tracking-wider whitespace-nowrap shadow-[0_0_20px_rgba(208,254,29,0.35)] flex items-center gap-2 cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Payment Proof</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOpenEmailDetailsModal}
-                    className="px-4 py-3 rounded-xl border border-amber-400/50 bg-black/40 hover:bg-black/70 text-amber-300 font-rajdhani font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>Email Payment Info</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#141612]/95 border border-white/15 p-5 rounded-2xl shadow-xl">
-              <div>
-                <h2 className="text-sm font-orbitron font-bold text-white uppercase tracking-wider">Attendance Application (On-Duty Letter)</h2>
-                <p className="text-xs text-neutral-400 mt-0.5 font-sans">
-                  Customize recipient authority details and student roll numbers before printing.
-                </p>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleSaveAttendance}
-                  className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl border border-white/20 bg-white/5 text-neutral-200 hover:border-[#d0fe1d] hover:text-[#d0fe1d] transition-all cursor-pointer whitespace-nowrap"
-                >
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="px-4 py-2 text-xs font-orbitron font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black transition-all shadow-[0_0_15px_rgba(208,254,29,0.3)] cursor-pointer whitespace-nowrap"
-                >
-                  Print / Save PDF
-                </button>
-              </div>
-            </div>
-
-            {odDispatchedAlert && (
-              <div className="p-3.5 bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs rounded-xl shadow-lg">
-                Attendance letter details saved.
-              </div>
-            )}
-
-            <div className="bg-[#141612]/95 border border-white/15 rounded-3xl p-6 space-y-4 text-xs shadow-2xl">
-              <h3 className="font-orbitron font-bold text-white text-sm uppercase tracking-wider">Recipient Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">To (Authority Title)</label>
-                  <input
-                    type="text"
-                    value={facultyName}
-                    onChange={(e) => setFacultyName(e.target.value)}
-                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">Department</label>
-                  <input
-                    type="text"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-neutral-400 mb-1 font-mono uppercase text-[10px]">College / University</label>
-                  <input
-                    type="text"
-                    value={collegeName}
-                    onChange={(e) => setCollegeName(e.target.value)}
-                    className="w-full px-3 py-2 bg-black/60 border border-white/15 rounded-xl text-white font-mono focus:outline-none focus:border-[#d0fe1d]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              id="printable-od-letter"
-              className="bg-white border border-slate-300 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-5 text-slate-800 leading-relaxed shadow-2xl"
-            >
-              <div className="flex items-start justify-between border-b border-slate-300 pb-4">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">
-                    Galgotias Centre for Drone &amp; Innovative Systems
-                  </h3>
-                  <p className="text-xs text-slate-600">
-                    Galgotias University, Greater Noida · Tournament Secretariat
-                  </p>
-                </div>
-                <div className="text-right text-xs text-slate-500 tabular-nums font-mono">
-                  <div>Ref: GCDIS/OD-2026/{team.teamId}</div>
-                  <div>
-                    Date:{' '}
-                    {new Date().toLocaleDateString('en-IN', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {!isPaymentCompleted ? (
-                <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded border border-amber-400">
-                      PROVISIONAL DRAFT · PENDING PAYMENT
-                    </span>
-                    <span className="text-xs">
-                      Official seal requires completed registration fee ({fee.formatted}).
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleOpenUploadModal}
-                    className="text-xs font-bold text-amber-950 underline hover:text-black cursor-pointer print:hidden text-left"
-                  >
-                    Upload Payment Proof / Details →
-                  </button>
-                </div>
-              ) : (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs flex items-center justify-between">
-                  <span className="font-mono font-bold text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
-                    VERIFIED REGISTRATION · OFFICIAL OD ENDORSEMENT
-                  </span>
-                  <span className="font-mono text-[11px] text-emerald-700">
-                    Fee Paid: {fee.formatted} · {team.paymentInfo.receiptNo}
-                  </span>
-                </div>
-              )}
-
-              <div className="text-xs space-y-0.5">
-                <div className="font-semibold text-slate-900">To,</div>
-                <div>{facultyName}</div>
-                <div>{department}</div>
-                <div>{collegeName}</div>
-              </div>
-
-              <div className="text-xs font-semibold text-slate-900 bg-slate-50 p-3 rounded border border-slate-200">
-                Subject: Request for On-Duty (OD) Attendance Grant for Students Participating in Galgotias Drone Soccer League 2026 ({GDSL_TOURNAMENT_INFO.dates}).
-              </div>
-
-              <div className="text-xs space-y-2.5 text-slate-700">
-                <p>Respected Sir / Madam,</p>
-                <p>
-                  This is to certify that the following students from your institution have registered squad{' '}
-                  <strong>{team.teamName}</strong> (Team ID:{' '}
-                  <span className="font-mono font-semibold text-slate-900">{team.teamId}</span>) to compete in the{' '}
-                  <strong>Galgotias Drone Soccer League 2026</strong> held at Galgotias University, Greater Noida on{' '}
-                  <strong>{GDSL_TOURNAMENT_INFO.dates}</strong>.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-semibold text-slate-900 mb-2">
-                  Participating Student Roster:
-                </h4>
-                <table className="w-full text-xs border border-slate-200">
-                  <thead>
-                    <tr className="bg-slate-100 text-slate-700">
-                      <th className="p-2 border border-slate-200 text-left w-10">#</th>
-                      <th className="p-2 border border-slate-200 text-left">Student Name</th>
-                      <th className="p-2 border border-slate-200 text-left">Role</th>
-                      <th className="p-2 border border-slate-200 text-left">Roll / Reg No.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((st, i) => (
-                      <tr key={i}>
-                        <td className="p-2 border border-slate-200 tabular-nums">{i + 1}</td>
-                        <td className="p-2 border border-slate-200 font-medium text-slate-900">{st.name}</td>
-                        <td className="p-2 border border-slate-200 text-slate-600">{st.role}</td>
-                        <td className="p-2 border border-slate-200">
-                          <input
-                            type="text"
-                            value={st.rollNo || ''}
-                            onChange={(e) => handleUpdateRoll(i, e.target.value)}
-                            className="w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono text-slate-900 bg-white"
-                            placeholder="Enter Roll No"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="text-xs space-y-2 text-slate-700">
-                <p>
-                  Kindly consider their participation as official academic On-Duty representation and grant attendance dispensation for the tournament dates.
-                </p>
-              </div>
-
-              <div className="pt-6 flex justify-between items-end text-xs border-t border-slate-200">
-                <div>
-                  <div className="font-semibold text-slate-900">Organizing Committee</div>
-                  <div className="text-slate-500">Galgotias Drone Soccer League</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-slate-900">Director, GCDIS</div>
-                  <div className="text-slate-500">Galgotias University</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ========================================================= */}
         {/* TAB 5: TEAM PROFILE & ROSTER                              */}
@@ -2749,7 +2130,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </div>
 
             <p className="text-xs text-neutral-300 leading-relaxed">
-              Paid via UPI or Card? Submit your transaction reference number and upload your payment screenshot below to immediately update your registration payment record and unlock your Event Pass, Payment Receipt, and OD Attendance Letter.
+              Paid via UPI or Card? Submit your transaction reference number and upload your payment screenshot below to immediately update your registration payment record and unlock your Payment Receipt.
             </p>
 
             {uploadError && (
@@ -2941,6 +2322,15 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {showPayModal && (
+        <PaymentDetailsModal
+          isOpen={showPayModal}
+          onClose={() => setShowPayModal(false)}
+          team={team}
+          onUploadProof={handleOpenUploadModal}
+        />
       )}
     </div>
   );

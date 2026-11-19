@@ -9,6 +9,9 @@ import {
   getDivisionFee,
   getCurrentSession,
   setCurrentSession,
+  PaymentDetailsConfig,
+  getPaymentDetailsConfig,
+  savePaymentDetailsConfig,
 } from '../data/teamAuthData';
 import {
   fetchLiveSheetData,
@@ -105,7 +108,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<string>('ALL');
-  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries' | 'admins'>('sheet');
+  const [activeView, setActiveView] = useState<'sheet' | 'cards' | 'live_google_sheet' | 'queries' | 'admins' | 'payment'>('sheet');
+  const [paymentForm, setPaymentForm] = useState<PaymentDetailsConfig>(getPaymentDetailsConfig());
+  const [paymentSavedAt, setPaymentSavedAt] = useState<string | null>(null);
+
+  const handleSavePaymentDetails = () => {
+    const saved = savePaymentDetailsConfig(paymentForm);
+    setPaymentForm(saved);
+    setPaymentSavedAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+    setTimeout(() => setPaymentSavedAt(null), 4000);
+  };
   const [queries, setQueries] = useState<UserQuery[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<RegisteredTeamProfile | null>(null);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
@@ -1049,6 +1061,18 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                     <span>Admins</span>
                   </button>
                 )}
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setActiveView('payment')}
+                    className={`px-3 py-1 rounded-md text-xs font-rajdhani font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activeView === 'payment'
+                        ? 'bg-[#d0fe1d] text-black shadow-xs'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <span>Payment</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1600,6 +1624,120 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           {activeView === 'admins' && isSuperAdmin && (
             <div className="pt-2">
               <AdminAccountsView />
+            </div>
+          )}
+
+          {/* Payment Details Editor (Super Admin) */}
+          {activeView === 'payment' && isSuperAdmin && (
+            <div className="pt-2">
+              <div className="max-w-3xl mx-auto bg-[#141612]/95 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-left space-y-5">
+                <div className="space-y-1 border-b border-white/10 pb-4">
+                  <h2 className="text-base font-orbitron font-black text-white uppercase tracking-wider">
+                    Tournament Payment Details
+                  </h2>
+                  <p className="text-xs text-neutral-400 font-sans">
+                    These details are shown to every squad when they click <strong className="text-[#d0fe1d]">Pay</strong> on their dashboard. Fill at least a UPI ID, a bank account, or a QR image URL.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Payee / Account Name</label>
+                    <input
+                      type="text"
+                      value={paymentForm.payeeName}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, payeeName: e.target.value }))}
+                      placeholder="GCDIS - Galgotias University"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">UPI ID / VPA</label>
+                    <input
+                      type="text"
+                      value={paymentForm.upiId}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, upiId: e.target.value }))}
+                      placeholder="gcdis@okaxis"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Bank Name</label>
+                    <input
+                      type="text"
+                      value={paymentForm.bankName}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, bankName: e.target.value }))}
+                      placeholder="State Bank of India"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Account Number</label>
+                    <input
+                      type="text"
+                      value={paymentForm.accountNumber}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, accountNumber: e.target.value }))}
+                      placeholder="0000 0000 0000"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white font-mono placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">IFSC Code</label>
+                    <input
+                      type="text"
+                      value={paymentForm.ifsc}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, ifsc: e.target.value.toUpperCase() }))}
+                      placeholder="SBIN0000000"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white font-mono placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Branch</label>
+                    <input
+                      type="text"
+                      value={paymentForm.branch}
+                      onChange={(e) => setPaymentForm((f) => ({ ...f, branch: e.target.value }))}
+                      placeholder="Greater Noida"
+                      className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">QR Image URL (optional)</label>
+                  <input
+                    type="text"
+                    value={paymentForm.qrImageUrl}
+                    onChange={(e) => setPaymentForm((f) => ({ ...f, qrImageUrl: e.target.value }))}
+                    placeholder="https://... or a data: URL of the UPI QR"
+                    className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Payment Instructions (optional)</label>
+                  <textarea
+                    value={paymentForm.instructions}
+                    onChange={(e) => setPaymentForm((f) => ({ ...f, instructions: e.target.value }))}
+                    placeholder="e.g. Add your Team ID in the payment note. After paying, upload the screenshot & UTR under 'Upload Payment Details'."
+                    rows={3}
+                    className="w-full px-3.5 py-2.5 bg-[#1b1e17] border border-white/15 rounded-xl text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#d0fe1d] resize-y"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
+                  <span className="text-xs text-emerald-400 font-mono">
+                    {paymentSavedAt ? `✓ Saved at ${paymentSavedAt}` : paymentForm.updatedAt ? 'Saved details are live for all squads.' : 'Not published yet.'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSavePaymentDetails}
+                    className="px-6 py-2.5 rounded-xl bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(208,254,29,0.3)] cursor-pointer"
+                  >
+                    Save Payment Details
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

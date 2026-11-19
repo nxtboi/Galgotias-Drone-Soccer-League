@@ -166,3 +166,67 @@ export function clearCurrentSession(): void {
     console.error('Failed to clear session', err);
   }
 }
+
+/* ----------------------------------------------------------------------------
+ * Tournament payment details — configured by the super admin in the Admin Panel
+ * and shown to teams when they click "Pay" on the dashboard.
+ * -------------------------------------------------------------------------- */
+export interface PaymentDetailsConfig {
+  payeeName: string;
+  upiId: string;
+  bankName: string;
+  accountNumber: string;
+  ifsc: string;
+  branch: string;
+  qrImageUrl: string;
+  instructions: string;
+  updatedAt: string;
+}
+
+const STORAGE_KEY_PAYMENT_DETAILS = 'gdsl_payment_details_v1';
+
+export const EMPTY_PAYMENT_DETAILS: PaymentDetailsConfig = {
+  payeeName: '',
+  upiId: '',
+  bankName: '',
+  accountNumber: '',
+  ifsc: '',
+  branch: '',
+  qrImageUrl: '',
+  instructions: '',
+  updatedAt: '',
+};
+
+/** Reads the super-admin-configured tournament payment details (local to this browser). */
+export function getPaymentDetailsConfig(): PaymentDetailsConfig {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PAYMENT_DETAILS);
+    if (!raw) return { ...EMPTY_PAYMENT_DETAILS };
+    const parsed = JSON.parse(raw) as Partial<PaymentDetailsConfig>;
+    return { ...EMPTY_PAYMENT_DETAILS, ...parsed };
+  } catch {
+    return { ...EMPTY_PAYMENT_DETAILS };
+  }
+}
+
+/** Saves the payment details (super admin only) and stamps updatedAt. */
+export function savePaymentDetailsConfig(
+  cfg: Partial<PaymentDetailsConfig>
+): PaymentDetailsConfig {
+  const next: PaymentDetailsConfig = {
+    ...getPaymentDetailsConfig(),
+    ...cfg,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY_PAYMENT_DETAILS, JSON.stringify(next));
+  } catch (err) {
+    console.error('Failed to save payment details config', err);
+  }
+  return next;
+}
+
+/** True when the super admin has entered at least one payable destination. */
+export function hasPaymentDetails(cfg: PaymentDetailsConfig): boolean {
+  return Boolean(cfg.upiId || cfg.accountNumber || cfg.qrImageUrl);
+}
