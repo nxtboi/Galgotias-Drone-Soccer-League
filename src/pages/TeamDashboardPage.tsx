@@ -25,7 +25,7 @@ import {
   getDivisionFee,
   getRegisteredTeams,
 } from '../data/teamAuthData';
-import { GDSL_TOURNAMENT_INFO } from '../data/droneSoccerData';
+import { GDSL_TOURNAMENT_INFO, GCDIS_CLASS_SPECS } from '../data/droneSoccerData';
 import {
   syncTeamToSheet,
   updateAllTournamentDataOnSheets,
@@ -102,6 +102,8 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const isPaymentVerified = team.paymentInfo.status === 'VERIFIED';
   const isPaymentCompleted = isPaymentVerified;
   const isPaymentSubmitted = team.paymentInfo.status === 'PAID';
+  // The official rule book for this squad's own division (D20 or D40).
+  const rulebook = GCDIS_CLASS_SPECS[fee.code === 'D-20' ? 'class20' : 'class40'];
 
   // Refs for PDF Generation
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -830,6 +832,16 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               >
                 Edit Team Details
               </button>
+              <a
+                href={rulebook.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open the official ${fee.code} rule book (PDF)`}
+                className="px-4 py-2 text-xs font-rajdhani font-bold uppercase tracking-wider rounded-xl bg-[#d0fe1d] text-black hover:bg-[#e2ff54] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{fee.code} Rulebook</span>
+              </a>
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
@@ -1032,6 +1044,35 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
                   >
                     View
                   </button>
+                </div>
+              </div>
+
+              {/* Card 5: Category Rule Book (division-specific) */}
+              <div className="bg-[#1b1e17] border border-white/10 hover:border-[#d0fe1d]/40 rounded-2xl p-5 flex flex-col justify-between shadow-xl transition-all">
+                <div>
+                  <div className="text-[11px] font-mono font-bold uppercase text-[#d0fe1d] tracking-wider mb-1">
+                    Your Category · {fee.code}
+                  </div>
+                  <h2 className="font-orbitron font-bold text-white text-base tracking-wide uppercase mt-1">
+                    {rulebook.classId} Rule Book
+                  </h2>
+                  <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-sans">
+                    Official {rulebook.classId} rules, drone specs, and arena layout for your division.
+                  </p>
+                  <div className="mt-3 text-xs text-neutral-300 truncate font-mono">
+                    Ball {rulebook.ballDiameter}
+                  </div>
+                </div>
+                <div className="mt-5 pt-4 border-t border-white/10">
+                  <a
+                    href={rulebook.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-3 bg-[#d0fe1d] hover:bg-[#e2ff54] text-black text-xs font-orbitron font-bold uppercase rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Open {fee.code} Rulebook (PDF)</span>
+                  </a>
                 </div>
               </div>
             </div>
