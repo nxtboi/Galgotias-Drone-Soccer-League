@@ -96,9 +96,12 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
   const [isUploadingPayment, setIsUploadingPayment] = useState(false);
 
   const fee = getDivisionFee(team.division);
-  const isPaymentCompleted =
-    team.paymentInfo.status === 'VERIFIED' || team.paymentInfo.status === 'PAID';
+  // A payment is only "completed" once an admin (managed by the super admin) marks it
+  // VERIFIED. A team uploading proof sets status 'PAID', which means "submitted, awaiting
+  // admin verification" — it must NOT unlock the paid state on its own.
   const isPaymentVerified = team.paymentInfo.status === 'VERIFIED';
+  const isPaymentCompleted = isPaymentVerified;
+  const isPaymentSubmitted = team.paymentInfo.status === 'PAID';
 
   // Refs for PDF Generation
   const receiptRef = useRef<HTMLDivElement>(null);
@@ -246,7 +249,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
     setSheetSyncSuccess(
-      `Payment of ${paymentDetails.amount} recorded (${paymentDetails.transactionId}). Your Event Pass unlocks once the secretariat verifies it.`
+      `Payment of ${paymentDetails.amount} submitted (${paymentDetails.transactionId}). Awaiting admin verification — your Payment Receipt unlocks once an administrator verifies it.`
     );
     setTimeout(() => setSheetSyncSuccess(null), 6000);
 
@@ -275,7 +278,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
     setCurrentSession(updatedTeam);
     if (onUpdateTeam) onUpdateTeam(updatedTeam);
     setSheetSyncSuccess(
-      `Payment status set to PENDING (${fee.formatted} for ${fee.code}). Event Pass is now locked until payment.`
+      `Payment status set to PENDING (${fee.formatted} for ${fee.code}). Payment Receipt is locked until an administrator verifies payment.`
     );
     setTimeout(() => setSheetSyncSuccess(null), 5000);
 
@@ -490,7 +493,7 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
       setIsUploadingPayment(false);
       setIsUploadPaymentModalOpen(false);
       setSheetSyncSuccess(
-        `Payment details (Ref: ${cleanTxId}) uploaded and recorded for ${team.teamName}! Your Event Pass and Receipt are now available.`
+        `Payment details (Ref: ${cleanTxId}) submitted for ${team.teamName}. Awaiting admin verification — your Payment Receipt unlocks once an administrator verifies it.`
       );
       setTimeout(() => setSheetSyncSuccess(null), 6000);
 
@@ -714,18 +717,24 @@ export const TeamDashboardPage: React.FC<TeamDashboardPageProps> = ({
               <div className="text-xs font-rajdhani font-bold text-[#d0fe1d] uppercase tracking-wider flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#d0fe1d] animate-pulse" />
                 <span>
-                  {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                  {isPaymentSubmitted
+                    ? `Payment Submitted · Awaiting Admin Verification (${fee.code}: ${fee.formatted})`
+                    : team.paymentInfo.status === 'PAYMENT REQUESTED'
                     ? `Status: Payment Requested · Remittance in Process (${fee.code}: ${fee.formatted})`
                     : `Action Required · Registration Fee Pending (${fee.code}: ${fee.formatted})`}
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-orbitron font-bold text-white uppercase tracking-wider">
-                {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                {isPaymentSubmitted
+                  ? `Payment Submitted — Pending Admin Verification`
+                  : team.paymentInfo.status === 'PAYMENT REQUESTED'
                   ? `Payment Details Requested for ${fee.formatted} Entry Fee`
                   : `Complete Your ${fee.formatted} Entry Fee or Upload Payment Details`}
               </h2>
               <p className="text-xs text-neutral-300 max-w-2xl font-sans">
-                {team.paymentInfo.status === 'PAYMENT REQUESTED'
+                {isPaymentSubmitted
+                  ? `Your payment proof (Ref: ${team.paymentInfo.transactionId}) has been submitted and is awaiting verification by a tournament administrator. Your Payment Receipt unlocks only once an admin verifies it — you can re-upload if any detail needs correcting.`
+                  : team.paymentInfo.status === 'PAYMENT REQUESTED'
                   ? `Payment details will be sent on your email in next 24 hours (${team.paymentInfo.emailRequestedTo || team.captainEmail}). Once paid, upload your transaction details & screenshot to unlock your Payment Receipt.`
                   : `Request official fee payment instructions on your email, complete your transfer, and upload your payment details & screenshot to unlock your Payment Receipt.`}
               </p>
