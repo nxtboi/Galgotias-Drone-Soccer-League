@@ -289,6 +289,14 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
             </div>
           </div>
 
+          {/* Last date of registration */}
+          <div className="relative z-10 pt-3 sm:pt-4">
+            <span className="inline-flex items-center gap-2 px-3.5 py-2 bg-black/80 backdrop-blur-md border border-amber-400/60 text-amber-200 text-[11px] sm:text-xs font-mono font-bold uppercase tracking-widest shadow-xl">
+              <span className="text-amber-400">⏳</span>
+              Last Date of Registration: 3 December 2026
+            </span>
+          </div>
+
           {/* Bottom Action Controls & Video Playback Hub */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-4">
             <div className="flex flex-col xs:flex-row sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">

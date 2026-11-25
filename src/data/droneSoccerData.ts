@@ -109,26 +109,20 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         place: '1st Place',
         amount: '₹41,000',
         title: 'Champion',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
         highlight: true,
       },
       {
         place: '2nd Place',
         amount: '₹31,000',
         title: '1st Runner-Up',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
       },
       {
         place: '3rd Place (2)',
         amount: '₹10,000',
         title: '2nd Runner-Up',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
       },
     ],
   },
@@ -144,26 +138,20 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
         place: '1st Place',
         amount: '₹31,000',
         title: 'Champion',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
         highlight: true,
       },
       {
         place: '2nd Place',
         amount: '₹21,000',
         title: '1st Runner-Up',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
       },
       {
         place: '3rd Place (3)',
         amount: '₹10,000',
         title: '2nd Runner-Up',
-        perks: [
-          'Cash Prize and Certificate',
-        ],
+        perks: [],
       },
     ],
   },
@@ -174,19 +162,19 @@ export const SPECIAL_PRIZE_CATEGORIES: PrizeItem[] = [
     place: 'Super Pilot',
     amount: '₹12,000',
     title: 'MVP',
-    perks: ['Cash Prize and Certificate'],
+    perks: [],
   },
   {
     place: 'Best Striker',
     amount: '₹11,000',
     title: 'Max Goal Scorer',
-    perks: ['Cash Prize and Certificate'],
+    perks: [],
   },
   {
     place: 'BEST DEFENDER',
     amount: '₹11,000',
     title: 'Best Defender',
-    perks: ['Cash Prize and Certificate'],
+    perks: [],
   },
 ];
 
@@ -593,7 +581,7 @@ export const GCDIS_CLASS_SPECS: Record<'class20' | 'class40', GcdisClassSpec> = 
   class40: {
     classId: 'Class D40',
     targetCategory: 'National Drone Soccer League · Class D40 Division',
-    prizePool: '₹94,000 Total Pool',
+    prizePool: '₹93,000 Total Pool',
     prizeBreakdown: '1st: ₹41,000 · 2nd: ₹31,000 · 3rd: ₹10,000',
     registrationFee: 'Rs. 2000/-',
     securityDeposit: 'None for own drone · Rs. 5000/- refundable deposit for a GCDIS drone',

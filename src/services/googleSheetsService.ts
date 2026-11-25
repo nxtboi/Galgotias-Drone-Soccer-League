@@ -764,7 +764,59 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
   const sheetsConfig = await getGoogleSheetsConfig();
   const token = explicitToken || (await getAccessToken());
 
-  // If token and spreadsheetId exist, attempt to fetch live values from Google Sheets API
+  // PRIMARY SOURCE — the portal server. It always holds every live registration and the
+  // current admin-set payment status, so the admin dashboard reads it FIRST. The Google Sheet
+  // is only a mirror that can lag behind or be unreachable, so it must never mask live data.
+  try {
+    const statusRes = await apiFetch('/api/excel/status');
+    if (statusRes.ok) {
+      const data = await statusRes.json();
+      const serverTeams: RegisteredTeamProfile[] = Array.isArray(data.teams) ? data.teams : [];
+      const localTeams = getRegisteredTeams();
+
+      // Check if sessionStorage has newly registered teams not yet on the server
+      const serverIds = new Set(serverTeams.map((t) => t.teamId.trim().toUpperCase()));
+      const unsyncedLocalTeams = localTeams.filter(
+        (t) => t && t.teamId && !serverIds.has(t.teamId.trim().toUpperCase())
+      );
+
+      let finalTeams = serverTeams;
+      if (unsyncedLocalTeams.length > 0) {
+        finalTeams = [...unsyncedLocalTeams, ...serverTeams];
+        try {
+          await apiFetch('/api/excel/sync-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ teams: finalTeams }),
+          });
+        } catch {
+          // Ignore
+        }
+      }
+
+      // Always mirror the authoritative server roster into sessionStorage so the admin's
+      // team list and payment-status controls reflect live data (not a stale cache).
+      sessionStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(finalTeams));
+
+      return {
+        headers: data.headers || HEADERS,
+        rows: data.rows || finalTeams.map((t) => teamToRowValues(t).map(String)),
+        fromGoogleSheets: !!sheetsConfig.spreadsheetId,
+        spreadsheetId: sheetsConfig.spreadsheetId || data.filePath || SERVER_EXCEL_PATH,
+        spreadsheetUrl: sheetsConfig.spreadsheetUrl || '/api/excel/download',
+        lastSyncedAt: sheetsConfig.lastSyncedAt || data.lastUpdatedAt || new Date().toISOString(),
+        fileName: sheetsConfig.spreadsheetId ? sheetsConfig.spreadsheetTitle : data.fileName || SERVER_EXCEL_FILENAME,
+        filePath: data.filePath || SERVER_EXCEL_PATH,
+        fileSizeKB: data.fileSizeKB || 12,
+        rowCount: data.rowCount || finalTeams.length,
+        teams: finalTeams,
+      };
+    }
+  } catch (err) {
+    console.warn('Could not fetch server Excel status, trying Google Sheet / local roster:', err);
+  }
+
+  // SECONDARY (only if the server was unreachable) — Google Sheets API with an OAuth token.
   if (token && sheetsConfig.spreadsheetId) {
     try {
       const liveGoogle = await fetchGoogleSheetValues(token, sheetsConfig.spreadsheetId);
@@ -786,7 +838,7 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
     }
   }
 
-  // If spreadsheetId is linked, attempt to read directly via public/shared Google Sheet export (No OAuth required)
+  // Tertiary — public/shared Google Sheet export (no OAuth), only if the server was unreachable.
   if (sheetsConfig.spreadsheetId) {
     try {
       const publicData = await fetchGoogleSheetPublicCsv(sheetsConfig.spreadsheetId);
@@ -806,56 +858,6 @@ export async function fetchLiveSheetData(explicitToken?: string): Promise<{
     } catch (err) {
       console.warn('Public Google Sheet fetch notice:', err);
     }
-  }
-
-  // Server Excel fallback
-  try {
-    const statusRes = await apiFetch('/api/excel/status');
-    if (statusRes.ok) {
-      const data = await statusRes.json();
-      const serverTeams: RegisteredTeamProfile[] = Array.isArray(data.teams) ? data.teams : [];
-      const localTeams = getRegisteredTeams();
-
-      // Check if localStorage has newly registered teams not yet on the server
-      const serverIds = new Set(serverTeams.map((t) => t.teamId.trim().toUpperCase()));
-      const unsyncedLocalTeams = localTeams.filter(
-        (t) => t && t.teamId && !serverIds.has(t.teamId.trim().toUpperCase())
-      );
-
-      let finalTeams = serverTeams;
-      if (unsyncedLocalTeams.length > 0) {
-        finalTeams = [...unsyncedLocalTeams, ...serverTeams];
-        try {
-          await apiFetch('/api/excel/sync-all', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ teams: finalTeams }),
-          });
-        } catch {
-          // Ignore
-        }
-      }
-
-      if (finalTeams.length > 0) {
-        sessionStorage.setItem('gdsl_registered_teams_v1', JSON.stringify(finalTeams));
-      }
-
-      return {
-        headers: data.headers || HEADERS,
-        rows: data.rows || finalTeams.map((t) => teamToRowValues(t).map(String)),
-        fromGoogleSheets: !!sheetsConfig.spreadsheetId,
-        spreadsheetId: sheetsConfig.spreadsheetId || data.filePath || SERVER_EXCEL_PATH,
-        spreadsheetUrl: sheetsConfig.spreadsheetUrl || '/api/excel/download',
-        lastSyncedAt: sheetsConfig.lastSyncedAt || data.lastUpdatedAt || new Date().toISOString(),
-        fileName: sheetsConfig.spreadsheetId ? sheetsConfig.spreadsheetTitle : data.fileName || SERVER_EXCEL_FILENAME,
-        filePath: data.filePath || SERVER_EXCEL_PATH,
-        fileSizeKB: data.fileSizeKB || 12,
-        rowCount: data.rowCount || finalTeams.length,
-        teams: finalTeams,
-      };
-    }
-  } catch (err) {
-    console.warn('Could not fetch server Excel status, using local roster:', err);
   }
 
   const localTeams = getRegisteredTeams();

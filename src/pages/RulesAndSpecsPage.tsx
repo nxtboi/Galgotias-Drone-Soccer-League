@@ -158,7 +158,7 @@ export const RulesAndSpecsPage: React.FC<RulesAndSpecsPageProps> = ({
                 <span>{isD20 ? 'CLASS D20 HIGH-SPEED' : 'CLASS D40 HEAVYWEIGHT'}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-orbitron font-black text-white uppercase tracking-wider">
-                {isD20 ? '₹72,000/-' : '₹94,000/-'}{' '}
+                {isD20 ? '₹73,000/-' : '₹93,000/-'}{' '}
                 <span className="text-[#d0fe1d]">DIVISION PRIZE PURSE</span>
               </h2>
               <p className="text-neutral-300 text-xs sm:text-sm mt-1 max-w-2xl">

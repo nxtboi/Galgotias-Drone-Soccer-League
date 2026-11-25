@@ -180,7 +180,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       D-40 Total Division Purse
                     </span>
                     <span className="text-2xl sm:text-3xl font-orbitron font-black text-amber-300">
-                      ₹94,000
+                      ₹93,000
                     </span>
                   </div>
                 </div>
@@ -227,6 +227,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                             </div>
                           </div>
 
+                          {prize.perks.length > 0 && (
                           <ul className="space-y-2.5 border-t border-white/20 pt-4 text-xs sm:text-sm text-neutral-200">
                             {prize.perks.map((p, pIdx) => (
                               <li key={pIdx} className="flex items-start gap-2">
@@ -237,6 +238,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               </li>
                             ))}
                           </ul>
+                          )}
                         </div>
                       </Tilt3DCard>
                     );
@@ -262,7 +264,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                       D-20 Total Division Purse
                     </span>
                     <span className="text-2xl sm:text-3xl font-orbitron font-black text-[#d0fe1d]">
-                      ₹74,000
+                      ₹73,000
                     </span>
                   </div>
                 </div>
@@ -309,6 +311,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                             </div>
                           </div>
 
+                          {prize.perks.length > 0 && (
                           <ul className="space-y-2.5 border-t border-white/20 pt-4 text-xs sm:text-sm text-neutral-200">
                             {prize.perks.map((p, pIdx) => (
                               <li key={pIdx} className="flex items-start gap-2">
@@ -319,6 +322,7 @@ export const TournamentOverviewSection: React.FC<TournamentOverviewSectionProps>
                               </li>
                             ))}
                           </ul>
+                          )}
                         </div>
                       </Tilt3DCard>
                     );
