@@ -164,7 +164,7 @@ curl -i http://127.0.0.1:3000/api/health
 
 ## 3. Production Nginx Reverse Proxy & Free SSL (Let's Encrypt)
 
-To serve the portal securely on standard ports 80 and 443 with your custom domain (e.g. `gdsl.example.com`):
+To serve the portal securely on standard ports 80 and 443 with your custom domain (`gcdis.in`):
 
 ### Step 1: Install Nginx and Certbot
 ```bash
@@ -172,28 +172,23 @@ sudo apt install -y nginx certbot python3-certbot-nginx
 ```
 
 ### Step 2: Configure Nginx Site
-Copy the provided `nginx.conf` into Nginx sites:
+Copy the provided `nginx.conf` (already preconfigured for `gcdis.in` and `www.gcdis.in`) into Nginx sites:
 ```bash
 sudo cp /var/www/gdsl/nginx.conf /etc/nginx/sites-available/gdsl
 ```
 
-Edit the file and replace `your-domain.com` with your actual domain:
-```bash
-sudo nano /etc/nginx/sites-available/gdsl
-```
-
 Enable the site and remove default Nginx config:
 ```bash
-sudo ln -s /etc/nginx/sites-available/gdsl /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/gdsl /etc/nginx/sites-enabled/gdsl
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
 ### Step 3: Issue Free SSL Certificate with Certbot
-Point your domain's DNS `A` record to your VPS IP address, then run:
+Point your `gcdis.in` DNS `A` record to your VPS IP address (removing any GoDaddy `Parked` record or forwarding), then run:
 ```bash
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d gcdis.in -d www.gcdis.in
 ```
 Certbot will automatically verify ownership, install SSL certificates, and configure HTTPS renewal.
 
@@ -268,6 +263,21 @@ Admins can:
 
 ### Problem: Uploaded payment proof or logo throws 413 Payload Too Large
 **Solution**: Ensure `client_max_body_size 25M;` is present in your `/etc/nginx/sites-available/gdsl` configuration block, then run `sudo nginx -s reload`.
+
+### Problem: Visiting `gcdis.in` redirects to `gcdis.in/lander`
+**Cause**: `/lander` is GoDaddy's domain-parking redirect path—it is not part of this application. It occurs when GoDaddy's parked DNS record or Domain Forwarding is still active, or when your browser has cached GoDaddy's previous `301` redirect to `/lander`.
+**Solution**:
+1. Open your **GoDaddy DNS Management** panel for `gcdis.in`:
+   - Delete any `A` record pointing to `Parked` or GoDaddy parking IPs (such as `15.197.x.x` or `3.33.x.x`).
+   - Disable **Domain Forwarding** if it is turned on.
+   - Add/update the root `@` `A` record to point to your **VPS public IPv4 address**, and set `www` as a `CNAME` pointing to `gcdis.in` (or an `A` record to the same VPS IP).
+2. On the VPS, make sure `/etc/nginx/sites-available/gdsl` uses `server_name gcdis.in www.gcdis.in;` and `/etc/nginx/sites-enabled/default` is removed, then reload Nginx (`sudo nginx -t && sudo systemctl reload nginx`). Both `nginx.conf` and `server.ts` also redirect `/lander` back to `/` (`https://gcdis.in/`) automatically once traffic hits your VPS.
+3. Verify from your terminal that DNS points to your VPS and no longer redirects to `/lander`:
+   ```bash
+   dig +short gcdis.in A
+   curl -I https://gcdis.in
+   ```
+4. Clear your browser cache (or test in an Incognito window), since browsers cache `301` redirects to `/lander` aggressively even after DNS updates.
 
 ### Problem: Changes to Excel or Teams do not persist after container restart
 **Solution**: Ensure the volume `- ./data:/app/data` is present in your `docker-compose.yml` so data is preserved on the host filesystem.

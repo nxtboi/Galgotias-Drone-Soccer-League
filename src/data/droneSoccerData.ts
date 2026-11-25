@@ -64,11 +64,11 @@ export const GDSL_TOURNAMENT_INFO = {
   organizingBody: 'GCDIS (Galgotias Centre for Drone Intelligence & Simulation)',
   location: 'Indoor Sports Arena & Proving Ground, Galgotias University, Greater Noida, Uttar Pradesh, India',
   dates: 'December 08 – 09, 2026',
-  totalPrizePool: '₹2,00,000',
-  totalPrizePoolBreakdown: '₹2,00,000 (including trophy and cash prize)',
-  cashPrizePool: '₹1,68,000',
-  d20PrizePool: '₹74,000',
-  d40PrizePool: '₹94,000',
+  totalPrizePool: '₹1,99,000',
+  totalPrizePoolBreakdown: '₹1,99,000 (including trophy and cash prize)',
+  cashPrizePool: '₹1,67,000',
+  d20PrizePool: '₹73,000',
+  d40PrizePool: '₹93,000',
   teamCapacity: 32,
   registeredTeamsCount: 28,
   matchFormat: '5 vs 5 & 3 vs 3 Caged Aerial Soccer',
@@ -102,7 +102,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
     divisionName: 'Class 40 (400mm) Heavyweight Division',
     droneClass: 'D-40 Spherical Drone (≤1100g, 40cm)',
     arenaFormat: '5 vs 5 Full Arena (16m × 8m)',
-    totalAmount: '₹94,000',
+    totalAmount: '₹93,000',
     badge: 'D-40 DIVISION · 5v5 ARENA',
     prizes: [
       {
@@ -124,7 +124,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
       },
       {
         place: '3rd Place (2)',
-        amount: '₹11,000',
+        amount: '₹10,000',
         title: '2nd Runner-Up',
         perks: [
           'Cash Prize and Certificate',
@@ -137,7 +137,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
     divisionName: 'Class 20 (200mm) High-Speed Division',
     droneClass: 'D-20 Spherical Drone (≤110g, 20cm)',
     arenaFormat: '3 vs 3 High-Agility Micro Arena (8m × 4m)',
-    totalAmount: '₹74,000',
+    totalAmount: '₹73,000',
     badge: 'D-20 DIVISION · 3v3 ARENA',
     prizes: [
       {
@@ -159,7 +159,7 @@ export const PRIZE_POOLS: { d20: DivisionPrizePool; d40: DivisionPrizePool } = {
       },
       {
         place: '3rd Place (3)',
-        amount: '₹11,000',
+        amount: '₹10,000',
         title: '2nd Runner-Up',
         perks: [
           'Cash Prize and Certificate',
@@ -560,8 +560,8 @@ export const GCDIS_CLASS_SPECS: Record<'class20' | 'class40', GcdisClassSpec> = 
   class20: {
     classId: 'Class D20',
     targetCategory: 'National Drone Soccer League · Class D20 Division',
-    prizePool: '₹74,000 Total Pool',
-    prizeBreakdown: '1st: ₹31,000 · 2nd: ₹21,000 · 3rd: ₹11,000',
+    prizePool: '₹73,000 Total Pool',
+    prizeBreakdown: '1st: ₹31,000 · 2nd: ₹21,000 · 3rd: ₹10,000',
     registrationFee: 'Rs. 1500/-',
     securityDeposit: 'None for own drone · Rs. 3000/- refundable deposit for a GCDIS drone',
     droneProvision: 'Own drone allowed OR use a GCDIS drone against Rs. 3000/- refundable deposit',
@@ -594,7 +594,7 @@ export const GCDIS_CLASS_SPECS: Record<'class20' | 'class40', GcdisClassSpec> = 
     classId: 'Class D40',
     targetCategory: 'National Drone Soccer League · Class D40 Division',
     prizePool: '₹94,000 Total Pool',
-    prizeBreakdown: '1st: ₹41,000 · 2nd: ₹31,000 · 3rd: ₹11,000',
+    prizeBreakdown: '1st: ₹41,000 · 2nd: ₹31,000 · 3rd: ₹10,000',
     registrationFee: 'Rs. 2000/-',
     securityDeposit: 'None for own drone · Rs. 5000/- refundable deposit for a GCDIS drone',
     droneProvision: 'Own drone allowed OR use a GCDIS drone against Rs. 5000/- refundable deposit',

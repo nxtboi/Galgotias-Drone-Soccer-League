@@ -485,6 +485,11 @@ async function startServer() {
     }
   }
 
+  // Redirect legacy registrar parking URLs (e.g. GoDaddy /lander) directly to the root homepage
+  app.get(/^\/lander(\/.*)?$/i, (_req, res) => {
+    res.redirect(301, '/');
+  });
+
   // Health check endpoint for VPS, container orchestration, and uptime monitors
   app.get('/api/health', (_req, res) => {
     res.json({

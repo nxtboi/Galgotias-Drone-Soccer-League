@@ -234,7 +234,7 @@ export const DroneSoccerHero: React.FC<DroneSoccerHeroProps> = ({
               />
               <div className="text-left min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-rajdhani font-bold uppercase tracking-[0.18em] sm:tracking-[0.2em] text-[#d0fe1d]">
-                  <span>NATIONAL CHAMPIONSHIP</span>
+                  <span>Drone Soccer Championship</span>
                   <span aria-hidden="true">·</span>
                   <span>Class 40 &amp; 20</span>
                 </div>
